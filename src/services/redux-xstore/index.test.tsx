@@ -64,8 +64,10 @@ describe('set', function () {
 
         describe('value type', function () {
 
-            it('boolean', function () {
+            it('boolean', async function () {
                 let newState = TODO(preState);
+                // TODO: add this in normal test
+                await delay(0);
                 expect(newState).toEqual({
                     ...preState,
                     isMale: false
@@ -325,7 +327,7 @@ describe('update', function () {
 
 })
 
-describe('perfomr state manegement in async way / btach handle', function () {
+describe('perform state manegement in async and batch way', function () {
     // 利用 js 单线程 任务队列 调用栈 的原理实现
     // setTimeout(0) 模式 / nextTick
 
@@ -335,15 +337,109 @@ describe('perfomr state manegement in async way / btach handle', function () {
 
     // forceUpdate 方法的介绍
 
+    it('perform state manegement in async way', async function () {
+        let newState = TODO(preState);
+
+        // FIXME: add this to every test task ?
+        expect(newState).toEqual(preState);
+        await delay(0);
+        expect(newState).toEqual({
+            ...preState,
+            isMale: false
+        } as StateModel)
+    })
+
+    it('perform sequence state manegements in async batch', async function () {
+
+        let newState1 = TODO(preState); // set name
+        expect(newState1).toEqual(preState);
+
+        let newState2 = TODO(newState1); // set age
+        expect(newState2).toEqual(preState);
+
+        let newState3 = TODO(newState2); // set isMale
+        expect(newState3).toEqual(preState);
+
+        await delay(0);
+        // batch set together
+        expect(newState3).toEqual({
+            ...preState,
+            name: 'Pony',
+            age: 25,
+            isMale: false
+        } as StateModel)
+    })
+
+    it('can use `forceUpdate` to perform managements immediately', async function(){
+        let newState1 = TODO(preState); // set name
+        expect(newState1).toEqual(preState);
+
+        let newState2 = TODO(newState1); // set age
+        expect(newState2).toEqual(preState);
+
+        // TODO: store.forceUpdate();
+        expect(newState2).toEqual({
+            ...preState,
+            name: 'Pony',
+            age: 25,
+        } as StateModel)
+
+        let newState3 = TODO(newState2); // set isMale
+        await delay(0);
+        expect(newState3).toEqual({
+            ...preState,
+            name: 'Pony',
+            age: 25,
+            isMale: false
+        } as StateModel)
+    })
+
 })
 
+// TODO 增加 immutable characteristic 的测试
+describe('immutable characteristic ordered by API', function(){
+    // 基于API设计的结果组织测试
+    describe('set managements', async function(){
+        let newState = TODO(preState); // set a new state.name
+
+        // 1. trace to the source, referances on the chain change 
+        it('referances on the trace back chain change', function(){
+            expect(newState).not.toBe(preState);
+        })
+
+        // 2. other referances unchange
+        it('other referances unchange', function(){
+            expect(newState.workInfo).toBe(preState.workInfo);
+        })
+
+        // FIXME: 更改上面的用例书写方式，使每个 it 只包含一个 expect
+
+    })
+
+    // TODO : 例子，数组的 map 操作和性能检测
+
+
+})
+
+
 describe('async test', function () {
-    it('async', function () {
-        // await Promise.resolve();
+    
+    it('async', async function () {
+
     })
 })
+
+// TODO 加一个最佳实现章节，告诉用户某些情况可以用哪个API实现，并给出推荐的最佳模式
+
+// 给一个可以操作 immutable 对象的接口
+
+// 给出一个思想来源历程： 原始展开方法（ array.slice(0)// array.concat // Object.assign ），
 
 
 function TODO(state: StateModel): StateModel {
     return { ...state }
+}
+
+function delay(ms: number) {
+    return new Promise(resole => setTimeout(() => resole(), ms))
 }

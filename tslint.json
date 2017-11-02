@@ -22,9 +22,9 @@
         "jsx-no-lambda": false,
         "jsx-no-multiline-js": false,
         "label-position": true,
-        "max-line-length": [ true, 120 ],
+        "max-line-length": [ false, 120 ],
         "member-ordering": [
-            true,
+            false,
             "public-before-private",
             "static-before-instance",
             "variables-before-functions"
@@ -43,14 +43,14 @@
             "trace"
         ],
         "no-consecutive-blank-lines": false,
-        "no-construct": true,
+        "no-construct": false,
         "no-debugger": true,
         "no-duplicate-variable": true,
         "no-empty": false,
         "no-eval": true,
         "no-shadowed-variable": true,
         "no-string-literal": false,
-        "no-switch-case-fall-through": true,
+        "no-switch-case-fall-through": false,
         "no-trailing-whitespace": false,
         "no-unused-expression": false,
         "no-use-before-declare": true,
@@ -68,7 +68,7 @@
 
         "trailing-comma": [false],
 
-        "triple-equals": [ true, "allow-null-check" ],
+        "triple-equals": [ false, "allow-null-check" ],
         "typedef": [
             true,
             "parameter",
@@ -84,7 +84,7 @@
                 "variable-declaration": "nospace"
             }
         ],
-        "variable-name": [true, "ban-keywords", "check-format", "allow-leading-underscore", "allow-pascal-case"],
+        "variable-name": [false, "ban-keywords", "check-format", "allow-leading-underscore", "allow-pascal-case"],
         "whitespace": [
             true,
             "check-branch",
