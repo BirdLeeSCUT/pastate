@@ -3,6 +3,7 @@
 // 本文件收集并统计state操作类型，并尝试进行统计，获取使用的频率，指导设计state操作API
 // 到时可以规定一个统计包的格式，让社区提交自己项目的统计包
 //
+import { delay } from './helpers'
 
 interface StateManageInstance<T> {
     before: T,
@@ -438,8 +439,4 @@ describe('async test', function () {
 
 function TODO(state: StateModel): StateModel {
     return { ...state }
-}
-
-function delay(ms: number) {
-    return new Promise(resole => setTimeout(() => resole(), ms))
 }
