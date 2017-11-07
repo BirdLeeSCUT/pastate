@@ -13,8 +13,15 @@ interface XOperation {
 
 export class XStore<State extends XType> {
 
-    // state 仅支持对象类型
+    /* 
+     * state 仅支持对象类型
+     */
     public state: State;
+
+    /**
+     * 执行 operation 操作前暂存的 state 值
+     */
+    public preState: State;
 
     /**
      * 表示是否正在累积操作
@@ -26,7 +33,6 @@ export class XStore<State extends XType> {
      * 把 operation 累积起来再一起执行，可以实现一些基于多 operation 的中间件，具有较多的可操作性 
      */
     public pendingOperationQueue: Array<XOperation>
-
 
 
     public actions: {
@@ -69,6 +75,7 @@ export class XStore<State extends XType> {
     }
     /**
      * set 设置新属性的版本
+     * // TODO 待改为 setByPath
      * 当现值为 null 或 undefined 时需要用此方法
      * @argument literalPath 路径，如 ''(root) , '.prop1', '.prop1.prop2'
      */
@@ -187,7 +194,7 @@ export class XStore<State extends XType> {
     /**
      * 尝试把 operation 加入到 pendding 队列
      */
-    private tryPushOperation(operation: XOperation){
+    private tryPushOperation(operation: XOperation) {
         if (this.stateWillAddOperation(operation)) {
             // 设置异步 operation 启动器
             if (!this.isQueuingOperations) {
@@ -198,7 +205,7 @@ export class XStore<State extends XType> {
                 }, 0);
             }
             this.pendingOperationQueue.push(operation)
-        }else{
+        } else {
             console.info('[Error store.tryPushOperation] Operation pushing is canceled.')
         }
     }
@@ -209,16 +216,204 @@ export class XStore<State extends XType> {
 
     /**
      * operations 队列处理启动函数
+     * // TO TEST
      */
     public beginReduceOpertions() {
-        // TODO: NEXT
+
+        // 本函数主要负责流程控制和生命周期函数的调用
+        if (!this.stateWillReduceOperations()) {
+            console.info('Operations reducing has been canceled at beginning!')
+            return;
+        }
+
+        let loadingOperationQueue = this.pendingOperationQueue;
+        this.pendingOperationQueue = [];
+        this.preState = this.state;
+
+
+        let hadRan = 0;
+        let tookEffect = 0;
+
+        let isDone = loadingOperationQueue.every((operation: XOperation, index: number) => {
+
+            if (!this.stateWillApplyOperation(index)) {
+                console.info(`Operations reducing has been canceled at ${index}!`, operation)
+                return false
+            }
+
+            let result = this.applyOperation(operation)
+
+            if (!result.isMarker) hadRan += 1;
+            if (result.tookEffect) tookEffect += 1;
+
+            if (!this.stateDidAppliedOperation({
+                index,
+                tookEffect: result.tookEffect,
+                oldValue: result.oldValue
+            })) {
+                console.info(`Operations reducing has been stop after ${index}!`, operation)
+                return false
+            }
+
+            return true
+        })
+
+        this.stateDidReducedOperations({
+            all: loadingOperationQueue.length, // 待执行的 operation 总数
+            realOperation: loadingOperationQueue.filter(v => v.operation != 'mark').length, // 非 marker 的 operation 总数
+            hadRan, // 已成功运行的 operation 总数
+            tookEffect, // 使 state 改变的 operation 总数
+        })
+
+
     }
 
     /** 
      * operation 项处理器，负责 imState = imState + operation 的逻辑
+     * @throws 但执行失败时直接抛出异常
+     * @returns object
      */
-    private applyOperation(operation: XOperation) {
-        // TODO: 自实现immutable逻辑
+    private applyOperation(operation: XOperation): {
+        isMarker: boolean,
+        oldValue: any,
+        tookEffect: boolean
+    } {
+
+        if (operation.operation == 'mark') {
+            // 如果要在其他地方实现 log 逻辑，那么需要在实现处把这个 operation “消化掉”（reduce）
+            console.log(`[Operation Marker]  ----------- ${operation.description} ----------- `)
+            return {
+                isMarker: true,
+                oldValue: this.state,
+                tookEffect: false
+            }
+        }
+
+        // 实现笔记
+        // 阶段一：（1）路径更新 -> (2)值的赋值 【这样一来，tookEffect 的值都是 true】
+        // 阶段二：实现 tookEffect 的逻辑
+
+        // 目前为阶段一的实现
+        // 采用 方向溯回更新期的逻辑进行更新
+        // A. 如果要设置的值是 基础类型，则需更新其父亲的引用
+        // B. 如果要更新的值是 数组或对象，则虚更新本身及其父亲的引用
+
+        let pathArr: Array<any> = operation.path!.split('.');
+        pathArr.shift();
+
+        let endPath;
+        let curValue;
+        let payload = operation.payload;
+        let preValue = XStore.getValueByPath(this.preState, pathArr);
+        let valueType = (Object.prototype.toString.call(preValue) as string).slice(8, -1);
+
+        // 作用于任何值
+        // TO TEST
+        if(operation.operation == 'set'){
+
+            // “相同” 值情况的处理
+            if(payload == preValue){
+                if(valueType == 'Array'){
+                    payload = [...payload]
+                }else if(valueType == 'Object') {
+                    payload = {...payload}
+                }else{
+                    return {
+                        isMarker: false,
+                        oldValue: this.preState,
+                        tookEffect: false
+                    }
+                }
+            }
+
+            endPath = pathArr.pop();
+            curValue = this.updateReferenceInPath(pathArr);
+            curValue[Array.isArray(curValue) ? [endPath - 0] : endPath] = XStore.toXType(payload, operation.path!)
+            return {
+                isMarker: false,
+                oldValue: this.preState,
+                tookEffect: true
+            }
+        }
+
+        // 仅作用于对象
+        if(operation.operation == 'merge'){
+            // TODO
+        }
+
+        // 作用于任何值
+        if(operation.operation == 'update'){
+            // TODO
+        }
+
+        // let preValue = XStore.getValueByPath(this.preState, pathArr);
+        // let valueType = (Object.prototype.toString.call(preValue) as string).slice(8, -1);
+
+        // 此可实现按需设置有更新值
+
+        // switch (valueType) {
+        //     case 'Undefined':
+        //     case 'Null':
+        //     // FIXME: 以上两种情况待单独处理
+
+        //     case 'Boolean':
+        //     case 'Number':
+        //     case 'String':
+                
+        //         // ... TODO
+        //     case 'Array':
+        //     case 'Object':
+        //         // TODO: NEXT
+        //         break;
+
+        //     default:
+        //         throw Error('')
+        // }
+
+        // TODO
+        //
+        return {
+            isMarker: false,
+            oldValue: this.preState,
+            tookEffect: false
+        }
+    }
+
+    /**
+     * 通过路径获取 state 中的值
+     * // Basic Tested
+     * @param path 
+     */
+    public static getValueByPath(rootObj: any, pathArr: Array<string>) {
+        return pathArr.reduce((preValue, curPath: any) => preValue[Array.isArray(preValue) ? (curPath - 0) : curPath], rootObj)
+    }
+
+    /**
+     * 溯源性地更新节点的引用值
+     * @param pathArr 
+     * @return 更新后的节点的值
+     */
+    public updateReferenceInPath(pathArr: Array<string>): XType {
+        let curValue: XType = XStore.getValueByPath(this.state, pathArr);
+        let preValue: XType = XStore.getValueByPath(this.preState, pathArr);
+        // 该函数只（需）支持对象或数组的情况
+        // 测试时请勿传入指向基本值的 path (TODO: 待测试)
+        if (curValue == preValue) {
+
+            curValue = Array.isArray(preValue) ? [ ...preValue ] as XType : { ...preValue } as XType;
+            curValue.__xpath__ = preValue.__xpath__;
+            // FIXME: 处理不可枚举的问题
+
+            // 溯源更新 后 挂载新值（此处不可逆序，否则会导致 preState 被改动）
+            if (pathArr.length == 0) {
+                this.state = curValue as State;
+            } else {
+                let endPath: any = pathArr.pop();
+                let fatherValue = this.updateReferenceInPath([...pathArr]); // 此处特别注意要 “按值传参”
+                fatherValue[Array.isArray(fatherValue) ? (endPath - 0) : endPath] = curValue;
+            }
+        }
+        return curValue;
     }
 
     /** 
@@ -338,9 +533,9 @@ export class XStore<State extends XType> {
      * @returns boolean 表示是否继续执行后续操作
      */
     public stateDidReducedOperations(stats: {
-        all: number, // operation 总数
+        all: number, // 执行的 operation 总数
         realOperation: number, // 非 marker 的 operation 总数
-        ran: number, // 成功运行的 operation 总数
+        hadRan: number, // 成功运行的 operation 总数
         tookEffect: number, // 使 state 改变的 operation 总数
     }): boolean {
         // TODO 可以输出操作到调试器等，此时 this.operations 数组还没重置；可以用于本类库测试，也可以用于消费者的调试

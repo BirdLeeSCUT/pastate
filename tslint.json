@@ -13,7 +13,7 @@
             true,
             "check-space"
         ],
-        "curly": true,
+        "curly": false,
         "eofline": false,
         "forin": true,
         "indent": [ true, "spaces" ],
@@ -87,7 +87,6 @@
         "variable-name": [false, "ban-keywords", "check-format", "allow-leading-underscore", "allow-pascal-case"],
         "whitespace": [
             true,
-            "check-branch",
             "check-decl",
             "check-module",
             "check-operator",
