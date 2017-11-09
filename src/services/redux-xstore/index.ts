@@ -62,16 +62,18 @@ export class XStore<State extends XType> {
     /**
      * ### 对 state 进行 set 操作
      * @param stateToOperate 
-     * @param newValue 
+     * @param newValue : T | null , FIXME: 引入 Xtype 的 null 对象后， 可把 null 取消掉
      * @param description 
+     * @return this 以支持链式调用
      */
-    public set<T>(stateToOperate: T, newValue: T | null, description?: string): void {
+    public set<T>(stateToOperate: T, newValue: T , description?: string): XStore<State> {
         this.submitOperation({
             operate: 'set',
             stateToOperate: stateToOperate,
             payload: newValue,
             description: description
         })
+        return this
     }
     /**
      * set 设置新属性的版本
@@ -79,7 +81,7 @@ export class XStore<State extends XType> {
      * 当现值为 null 或 undefined 时需要用此方法
      * @argument literalPath 路径，如 ''(root) , '.prop1', '.prop1.prop2'
      */
-    public setNew(literalPath: string, newValue: any, description?: string): void {
+    public setNew(literalPath: string, newValue: any, description?: string): XStore<State>  {
         if (typeof literalPath != 'string') {
             throw Error('[store.setNew] literalPath can only be string')
         }
@@ -91,6 +93,7 @@ export class XStore<State extends XType> {
             payload: newValue,
             description: description
         })
+        return this
     }
 
     /**
@@ -101,13 +104,14 @@ export class XStore<State extends XType> {
      * @param newValue 
      * @param description 
      */
-    public merge<T>(stateToOperate: T, newValue: Partial<T>, description?: string): void {
+    public merge<T>(stateToOperate: T, newValue: Partial<T>, description?: string): XStore<State> {
         this.submitOperation({
             operate: 'merge',
             stateToOperate: stateToOperate,
             payload: newValue,
             description: description
         })
+        return this
     }
 
     /**
@@ -120,13 +124,14 @@ export class XStore<State extends XType> {
      * @param updater 
      * @param description 
      */
-    public update<T>(stateToOperate: T, updater: (value: T) => T, description?: string): void {
+    public update<T>(stateToOperate: T, updater: (value: T) => T, description?: string): XStore<State> {
         this.submitOperation({
             operate: 'update',
             stateToOperate: stateToOperate,
             payload: updater,
             description: description
         })
+        return this
     }
 
     /**
@@ -309,15 +314,16 @@ export class XStore<State extends XType> {
 
         // 作用于任何值
         // TO TEST
-        if(operation.operation == 'set'){
+        if (operation.operation == 'set') {
 
             // “相同” 值情况的处理
-            if(payload == preValue){
-                if(valueType == 'Array'){
-                    payload = [...payload]
-                }else if(valueType == 'Object') {
-                    payload = {...payload}
-                }else{
+            // "相同" 的基本值不进行更新处理；"相同"的引用值进行更新引用处理
+            if (payload == preValue) {
+                if (valueType == 'Array') {
+                    payload = [ ...payload ]
+                } else if (valueType == 'Object') {
+                    payload = { ...payload }
+                } else {
                     return {
                         isMarker: false,
                         oldValue: this.preState,
@@ -327,7 +333,7 @@ export class XStore<State extends XType> {
             }
 
             endPath = pathArr.pop();
-            curValue = this.updateReferenceInPath(pathArr);
+            curValue = this.getNewReference(pathArr);
             curValue[Array.isArray(curValue) ? [endPath - 0] : endPath] = XStore.toXType(payload, operation.path!)
             return {
                 isMarker: false,
@@ -336,13 +342,13 @@ export class XStore<State extends XType> {
             }
         }
 
-        // 仅作用于对象
-        if(operation.operation == 'merge'){
+        // 作用于对象
+        if (operation.operation == 'merge') {
             // TODO
         }
 
         // 作用于任何值
-        if(operation.operation == 'update'){
+        if (operation.operation == 'update') {
             // TODO
         }
 
@@ -359,7 +365,7 @@ export class XStore<State extends XType> {
         //     case 'Boolean':
         //     case 'Number':
         //     case 'String':
-                
+
         //         // ... TODO
         //     case 'Array':
         //     case 'Object':
@@ -389,18 +395,18 @@ export class XStore<State extends XType> {
     }
 
     /**
-     * 溯源性地更新节点的引用值
+     * 溯源性地更新节点的引用对象并返回
      * @param pathArr 
      * @return 更新后的节点的值
      */
-    public updateReferenceInPath(pathArr: Array<string>): XType {
+    public getNewReference(pathArr: Array<string>): XType {
         let curValue: XType = XStore.getValueByPath(this.state, pathArr);
         let preValue: XType = XStore.getValueByPath(this.preState, pathArr);
         // 该函数只（需）支持对象或数组的情况
         // 测试时请勿传入指向基本值的 path (TODO: 待测试)
         if (curValue == preValue) {
 
-            curValue = Array.isArray(preValue) ? [ ...preValue ] as XType : { ...preValue } as XType;
+            curValue = Array.isArray(preValue) ? [...preValue] as XType : { ...preValue } as XType;
             curValue.__xpath__ = preValue.__xpath__;
             // FIXME: 处理不可枚举的问题
 
@@ -409,7 +415,7 @@ export class XStore<State extends XType> {
                 this.state = curValue as State;
             } else {
                 let endPath: any = pathArr.pop();
-                let fatherValue = this.updateReferenceInPath([...pathArr]); // 此处特别注意要 “按值传参”
+                let fatherValue = this.getNewReference([...pathArr]); // 此处特别注意要 “按值传参”
                 fatherValue[Array.isArray(fatherValue) ? (endPath - 0) : endPath] = curValue;
             }
         }
@@ -539,6 +545,7 @@ export class XStore<State extends XType> {
         tookEffect: number, // 使 state 改变的 operation 总数
     }): boolean {
         // TODO 可以输出操作到调试器等，此时 this.operations 数组还没重置；可以用于本类库测试，也可以用于消费者的调试
+        // 可以对 preState 进行 log, 压栈（以支持撤销）等操作
         return true
     }
 
