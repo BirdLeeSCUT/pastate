@@ -313,7 +313,6 @@ export class XStore<State extends XType> {
         let valueType = (Object.prototype.toString.call(preValue) as string).slice(8, -1);
 
         // 作用于任何值
-        // TO TEST
         if (operation.operation == 'set') {
 
             // “相同” 值情况的处理
@@ -332,9 +331,16 @@ export class XStore<State extends XType> {
                 }
             }
 
-            endPath = pathArr.pop();
-            curValue = this.getNewReference(pathArr);
-            curValue[Array.isArray(curValue) ? [endPath - 0] : endPath] = XStore.toXType(payload, operation.path!)
+            // 更新根值的情况
+            if(pathArr.length == 0){
+                this.state = XStore.toXType(payload, operation.path!) as State;
+                console.info('[XStore set] You are setting the entire state, please check if you really want to do it.')
+            }else{
+                endPath = pathArr.pop();
+                curValue = this.getNewReference(pathArr);
+                curValue[Array.isArray(curValue) ? [endPath - 0] : endPath] = XStore.toXType(payload, operation.path!)
+            }
+
             return {
                 isMarker: false,
                 oldValue: this.preState,
@@ -343,8 +349,33 @@ export class XStore<State extends XType> {
         }
 
         // 作用于对象
+        // TODO: 待测试
         if (operation.operation == 'merge') {
-            // TODO
+
+            // 仅支持对对象进行处理
+            if (valueType != 'Object') {
+                throw Error('[XStore merge] You can only apply `merge` operation on object')
+            }
+
+            if ((Object.prototype.toString.call(payload) as string).slice(8, -1) != 'Object') {
+                throw Error('[XStore merge] You can only apply `merge` operation with an object payload')
+            }
+
+            curValue = this.getNewReference(pathArr);
+
+            for (let [key, value] of payload) {
+                // payload 一般是字面值给出的，无需检查 hasOwnProperty
+                if( key != '__xpath__'){
+                    // NOTE: 此处暂不实现 takeEffect 逻辑
+                    curValue[key] = XStore.toXType(value, operation.path + '.' + key)
+                }
+            }
+
+            return {
+                isMarker: false,
+                oldValue: this.preState,
+                tookEffect: true // 这里暂时均为生效
+            }
         }
 
         // 作用于任何值
@@ -352,32 +383,7 @@ export class XStore<State extends XType> {
             // TODO
         }
 
-        // let preValue = XStore.getValueByPath(this.preState, pathArr);
-        // let valueType = (Object.prototype.toString.call(preValue) as string).slice(8, -1);
-
-        // 此可实现按需设置有更新值
-
-        // switch (valueType) {
-        //     case 'Undefined':
-        //     case 'Null':
-        //     // FIXME: 以上两种情况待单独处理
-
-        //     case 'Boolean':
-        //     case 'Number':
-        //     case 'String':
-
-        //         // ... TODO
-        //     case 'Array':
-        //     case 'Object':
-        //         // TODO: NEXT
-        //         break;
-
-        //     default:
-        //         throw Error('')
-        // }
-
-        // TODO
-        //
+        
         return {
             isMarker: false,
             oldValue: this.preState,
@@ -403,7 +409,7 @@ export class XStore<State extends XType> {
         let curValue: XType = XStore.getValueByPath(this.state, pathArr);
         let preValue: XType = XStore.getValueByPath(this.preState, pathArr);
         // 该函数只（需）支持对象或数组的情况
-        // 测试时请勿传入指向基本值的 path (TODO: 待测试)
+        // 测试时请勿传入指向基本值的 path , 实际情况中无需实现
         if (curValue == preValue) {
 
             curValue = Array.isArray(preValue) ? [...preValue] as XType : { ...preValue } as XType;

@@ -139,11 +139,62 @@ describe('Test: reduce operation "set" ', function () {
     describe('set at root', function () {
 
         describe('simple value', function () {
-            pending()
 
             afterEach(function () {
                 // 撤销产生的影响
                 myStore.state = myStore.preState;
+            })
+
+            // 更新整个state值，支持但不推荐
+            it('entire root state', async function(){
+                myStore.preState = myStore.state;
+                myStore.set(myStore.state, {
+                    name: 'Amy',
+                    age: 12,
+                    isMale: false,
+                    pets: [
+                        {
+                            name: 'Kitty',
+                            age: 2,
+                            isDog: false
+                        }
+                    ],
+                    address: {
+                        province: 'ZJ',
+                        city: 'HZ',
+                        homeInfo: {
+                            isRend: {
+                                value: false
+                            }
+                        }
+                    }
+                })
+
+                expect(myStore.state).toEqual(myStore.preState)
+
+                await delay(0)
+
+                expect(myStore.state).toEqual(XStore.toXType({
+                    name: 'Amy',
+                    age: 12,
+                    isMale: false,
+                    pets: [
+                        {
+                            name: 'Kitty',
+                            age: 2,
+                            isDog: false
+                        }
+                    ],
+                    address: {
+                        province: 'ZJ',
+                        city: 'HZ',
+                        homeInfo: {
+                            isRend: {
+                                value: false
+                            }
+                        }
+                    }
+                }, ''))
             })
 
             it('bool', async function () {
