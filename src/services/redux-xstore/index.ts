@@ -66,7 +66,7 @@ export class XStore<State extends XType> {
      * @param description 
      * @return this 以支持链式调用
      */
-    public set<T>(stateToOperate: T, newValue: T , description?: string): XStore<State> {
+    public set<T>(stateToOperate: T, newValue: T, description?: string): XStore<State> {
         this.submitOperation({
             operate: 'set',
             stateToOperate: stateToOperate,
@@ -81,7 +81,7 @@ export class XStore<State extends XType> {
      * 当现值为 null 或 undefined 时需要用此方法
      * @argument literalPath 路径，如 ''(root) , '.prop1', '.prop1.prop2'
      */
-    public setNew(literalPath: string, newValue: any, description?: string): XStore<State>  {
+    public setNew(literalPath: string, newValue: any, description?: string): XStore<State> {
         if (typeof literalPath != 'string') {
             throw Error('[store.setNew] literalPath can only be string')
         }
@@ -238,32 +238,40 @@ export class XStore<State extends XType> {
 
         let hadRan = 0;
         let tookEffect = 0;
+        let isDone = false;
 
-        let isDone = loadingOperationQueue.every((operation: XOperation, index: number) => {
+        // 按顺序 reduce operation
+        try {
 
-            if (!this.stateWillApplyOperation(index)) {
-                console.info(`Operations reducing has been canceled at ${index}!`, operation)
-                return false
-            }
+            isDone = loadingOperationQueue.every((operation: XOperation, index: number) => {
 
-            let result = this.applyOperation(operation)
+                if (!this.stateWillApplyOperation(index)) {
+                    console.info(`Operations reducing has been canceled at ${index}!`, operation)
+                    return false
+                }
 
-            if (!result.isMarker) hadRan += 1;
-            if (result.tookEffect) tookEffect += 1;
+                let result = this.applyOperation(operation)
 
-            if (!this.stateDidAppliedOperation({
-                index,
-                tookEffect: result.tookEffect,
-                oldValue: result.oldValue
-            })) {
-                console.info(`Operations reducing has been stop after ${index}!`, operation)
-                return false
-            }
+                if (!result.isMarker) hadRan += 1;
+                if (result.tookEffect) tookEffect += 1;
 
-            return true
-        })
+                if (!this.stateDidAppliedOperation({
+                    index,
+                    tookEffect: result.tookEffect,
+                    oldValue: result.oldValue
+                })) {
+                    console.info(`Operations reducing has been stop after ${index}!`, operation)
+                    return false
+                }
+
+                return true
+            })
+        } catch(e) {
+            console.error('[XStore] Operation reduction is terminated: ' + (e as Error).message );
+        }
 
         this.stateDidReducedOperations({
+            isDone, // 表明是否全部成功执行
             all: loadingOperationQueue.length, // 待执行的 operation 总数
             realOperation: loadingOperationQueue.filter(v => v.operation != 'mark').length, // 非 marker 的 operation 总数
             hadRan, // 已成功运行的 operation 总数
@@ -312,14 +320,14 @@ export class XStore<State extends XType> {
         let preValue = XStore.getValueByPath(this.preState, pathArr);
         let valueType = (Object.prototype.toString.call(preValue) as string).slice(8, -1);
 
-        // 作用于任何值
+        // set 作用于任何值
         if (operation.operation == 'set') {
 
             // “相同” 值情况的处理
             // "相同" 的基本值不进行更新处理；"相同"的引用值进行更新引用处理
             if (payload == preValue) {
                 if (valueType == 'Array') {
-                    payload = [ ...payload ]
+                    payload = [...payload]
                 } else if (valueType == 'Object') {
                     payload = { ...payload }
                 } else {
@@ -332,10 +340,10 @@ export class XStore<State extends XType> {
             }
 
             // 更新根值的情况
-            if(pathArr.length == 0){
+            if (pathArr.length == 0) {
                 this.state = XStore.toXType(payload, operation.path!) as State;
-                console.info('[XStore set] You are setting the entire state, please check if you really want to do it.')
-            }else{
+                console.info('[set] You are setting the entire state, please check if you really want to do it.')
+            } else {
                 endPath = pathArr.pop();
                 curValue = this.getNewReference(pathArr);
                 curValue[Array.isArray(curValue) ? [endPath - 0] : endPath] = XStore.toXType(payload, operation.path!)
@@ -348,26 +356,25 @@ export class XStore<State extends XType> {
             }
         }
 
-        // 作用于对象
-        // TODO: 待测试
+        // merge 仅是作用于对象
         if (operation.operation == 'merge') {
 
             // 仅支持对对象进行处理
             if (valueType != 'Object') {
-                throw Error('[XStore merge] You can only apply `merge` operation on object')
+                throw Error('[merge] You can only apply `merge` operation on object')
             }
 
             if ((Object.prototype.toString.call(payload) as string).slice(8, -1) != 'Object') {
-                throw Error('[XStore merge] You can only apply `merge` operation with an object payload')
+                throw Error('[merge] You can only apply `merge` operation with an object payload')
             }
 
             curValue = this.getNewReference(pathArr);
 
-            for (let [key, value] of payload) {
+            for (let key in payload) {
                 // payload 一般是字面值给出的，无需检查 hasOwnProperty
-                if( key != '__xpath__'){
+                if (key != '__xpath__') {
                     // NOTE: 此处暂不实现 takeEffect 逻辑
-                    curValue[key] = XStore.toXType(value, operation.path + '.' + key)
+                    curValue[key] = XStore.toXType(payload[key], operation.path + '.' + key)
                 }
             }
 
@@ -378,12 +385,12 @@ export class XStore<State extends XType> {
             }
         }
 
-        // 作用于任何值
+        // update 作用于任何值
         if (operation.operation == 'update') {
-            // TODO
+            // TODO: next
         }
 
-        
+
         return {
             isMarker: false,
             oldValue: this.preState,
@@ -430,6 +437,7 @@ export class XStore<State extends XType> {
 
     /** 
      * 实现普通类型到 XType 类型的转化
+     * FIXME: 增加支持 XType raw 值的情况
      */
     public static toXType(rawData: any, path: string): XType | undefined | null {
 
@@ -545,6 +553,7 @@ export class XStore<State extends XType> {
      * @returns boolean 表示是否继续执行后续操作
      */
     public stateDidReducedOperations(stats: {
+        isDone: boolean, // 表明 operation reduce 过程是否终止
         all: number, // 执行的 operation 总数
         realOperation: number, // 非 marker 的 operation 总数
         hadRan: number, // 成功运行的 operation 总数

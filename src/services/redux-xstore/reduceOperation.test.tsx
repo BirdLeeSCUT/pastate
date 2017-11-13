@@ -120,6 +120,8 @@ describe('Test: Store.updateReferenceInPath', function () {
 
 describe('Test: reduce operation "set" ', function () {
 
+    pending();
+
     describe('primitive value test', function () {
         pending();
 
@@ -146,7 +148,7 @@ describe('Test: reduce operation "set" ', function () {
             })
 
             // 更新整个state值，支持但不推荐
-            it('entire root state', async function(){
+            it('entire root state', async function () {
                 myStore.preState = myStore.state;
                 myStore.set(myStore.state, {
                     name: 'Amy',
@@ -285,7 +287,7 @@ describe('Test: reduce operation "set" ', function () {
         describe('batch operations', function () {
 
             const lifeCycleFunc = [
-                'stateWillReduceOperations', 
+                'stateWillReduceOperations',
                 'stateWillApplyOperation',
                 'stateDidAppliedOperation',
                 'stateDidReducedOperations'
@@ -295,8 +297,8 @@ describe('Test: reduce operation "set" ', function () {
             /** 生命周期函数测试 */
             beforeAll(function () {
                 // 尝试修改生命周期函数
-                lifeCycleFunc.forEach( funcName => {
-                    myStore[funcName] = function(){
+                lifeCycleFunc.forEach(funcName => {
+                    myStore[funcName] = function () {
                         callSequence.push(funcName)
                         return true
                     }
@@ -400,7 +402,7 @@ describe('Test: reduce operation "set" ', function () {
             myStore.state = myStore.preState;
         })
 
-        it('nested object', async function(){
+        it('nested object', async function () {
             myStore.set(myStore.state.address.homeInfo.isRend.value, false);
             expect(myStore.state.address.homeInfo.isRend.value).toEqual(true);
 
@@ -413,12 +415,12 @@ describe('Test: reduce operation "set" ', function () {
             expect(myStore.state.address).not.toBe(myStore.preState.address)
             expect(myStore.state.address.homeInfo).not.toBe(myStore.preState.address.homeInfo)
             expect(myStore.state.address.homeInfo.isRend).not.toBe(myStore.preState.address.homeInfo.isRend)
-            
+
             // 旁路引用不更新
             expect(myStore.state.pets).toBe(myStore.preState.pets)
         })
 
-        it('nested array element', async function(){
+        it('nested array element', async function () {
             myStore.set(myStore.state.pets[0], {
                 name: 'Kitty',
                 age: 2,
@@ -435,7 +437,7 @@ describe('Test: reduce operation "set" ', function () {
 
         })
 
-        it('nested array object prop', async function(){
+        it('nested array object prop', async function () {
             myStore.set(myStore.state.pets[0].name, 'Kitty');
             expect(myStore.state.pets[0].name).toEqual(myStore.preState.pets[0].name);
 
@@ -445,5 +447,139 @@ describe('Test: reduce operation "set" ', function () {
 
     })
 
-    
+
+})
+
+describe('Test: reduce operation "merge" ', function () {
+
+    let spy_stateDidReducedOperations: jasmine.Spy
+    beforeAll(function () {
+        spy_stateDidReducedOperations = spyOn(myStore, 'stateDidReducedOperations').and.callThrough()
+        myStore.preState = myStore.state;
+    })
+
+    afterEach(function () {
+        spy_stateDidReducedOperations.calls.reset();
+        myStore.state = myStore.preState;
+    })
+
+    describe('throw Error when the partial state to reduce is not raw Object', function () {
+
+        pending()
+
+        it('boolean', async function () {
+            myStore.merge(myStore.state.isMale, true)
+            await delay(0)
+            expect(spy_stateDidReducedOperations.calls.count()).toEqual(1)
+            expect(spy_stateDidReducedOperations.calls.mostRecent().args[0].isDone).toEqual(false)
+            expect(myStore.state.isMale).toEqual(true)
+        })
+
+        it('number', async function () {
+            myStore.merge(myStore.state.age, 12)
+            await delay(0)
+            expect(spy_stateDidReducedOperations.calls.count()).toEqual(1)
+            expect(spy_stateDidReducedOperations.calls.mostRecent().args[0].isDone).toEqual(false)
+            expect(myStore.state.age).toEqual(10)
+        })
+
+        it('string', async function () {
+            myStore.merge(myStore.state.name, 'Amy')
+            await delay(0)
+            expect(spy_stateDidReducedOperations.calls.count()).toEqual(1)
+            expect(spy_stateDidReducedOperations.calls.mostRecent().args[0].isDone).toEqual(false)
+            expect(myStore.state.name).toEqual('Peter')
+        })
+
+    })
+
+    describe('can merge value at root', function () {
+
+
+        it('merge simple value', async function () {
+            myStore.merge(myStore.state, {
+                isMale: false,
+                age: 12,
+                name: 'Amy'
+            })
+            await delay(0)
+            expect(myStore.state.isMale).toEqual(false)
+            expect(myStore.state.age).toEqual(12)
+            expect(myStore.state.name).toEqual('Amy')
+            
+            // 保留未被 merge 的值
+            expect(myStore.state.pets).toBe(myStore.preState.pets)
+            expect(myStore.state.address).toBe(myStore.preState.address)
+
+        })
+
+        it('merge array value', async function () {
+            myStore.merge(myStore.state, {
+                pets: [{
+                    name: 'Kitty',
+                    age: 2,
+                    isDog: false
+                }]
+            })
+            await delay(0)
+            expect(myStore.state.pets[0]).toEqual(XStore.toXType({
+                name: 'Kitty',
+                age: 2,
+                isDog: false
+            }, '.pets.0'))
+        })
+
+        it('can merge array and object, shadow merge', async function () {
+            myStore.merge(myStore.state as any, {
+                address: {
+                    province: 'ZJ'
+                }
+            })
+            await delay(0)
+            // shadow merge
+            expect(myStore.state.address).toEqual(XStore.toXType({
+                province: 'ZJ'
+            }, '.address'))
+        })
+
+    })
+
+    describe('can merge value at nested prop', function () {
+        it('merge through nested object', async function () {
+
+            myStore.merge(myStore.state.address.homeInfo.isRend, {
+                value: false
+            })
+            await delay(0)
+            expect(myStore.state.address.homeInfo.isRend.value).toEqual(false)
+            // 引用更新检查
+            expect(myStore.state.address.homeInfo.isRend).not.toBe(myStore.preState.address.homeInfo.isRend)
+            expect(myStore.state.address.homeInfo).not.toBe(myStore.preState.address.homeInfo)
+            expect(myStore.state.address).not.toBe(myStore.preState.address)
+            expect(myStore.state).not.toBe(myStore.preState)
+
+        })
+
+        it('merge through nested array', async function () {
+
+            myStore.merge(myStore.state.pets[0], {
+                age: 2,
+                isDog: false,
+            })
+            await delay(0)
+            expect(myStore.state.pets[0]).toEqual(XStore.toXType({
+                age: 2,
+                isDog: false,
+                name: 'Puppy' // 保留原值
+            }, '.pets.0'))
+            // 引用更新检查
+            expect(myStore.state.pets[0]).not.toBe(myStore.preState.pets[0])
+            expect(myStore.state.pets).not.toBe(myStore.preState.pets)
+            expect(myStore.state).not.toBe(myStore.preState)
+
+        })
+
+
+    })
+
 })
