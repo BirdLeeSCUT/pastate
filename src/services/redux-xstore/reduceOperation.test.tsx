@@ -452,6 +452,8 @@ describe('Test: reduce operation "set" ', function () {
 
 describe('Test: reduce operation "merge" ', function () {
 
+    pending();
+
     let spy_stateDidReducedOperations: jasmine.Spy
     beforeAll(function () {
         spy_stateDidReducedOperations = spyOn(myStore, 'stateDidReducedOperations').and.callThrough()
@@ -579,6 +581,224 @@ describe('Test: reduce operation "merge" ', function () {
 
         })
 
+
+    })
+
+})
+
+describe('Test: reduce operation "update" ', function (){
+
+    beforeAll(function () {
+        myStore.preState = myStore.state;
+    })
+
+    describe('update simple value', function(){
+         pending()
+
+        afterEach(function () {
+            myStore.state = myStore.preState;
+        })
+
+        // 对于boolean 值的特殊情况
+        it('boolean', async function(){
+            expect(myStore.state.isMale).toEqual(true)
+            myStore.update(myStore.state.isMale, b => b == false)
+            await delay(0)
+            expect(myStore.state.isMale).toEqual(false)
+            myStore.update(myStore.state.isMale, b => b == false)
+            await delay(0)
+            expect(myStore.state.isMale).toEqual(true)
+        })
+
+        it('number', async function(){
+            myStore.update(myStore.state.age, a => a + 1)
+            await delay(0)
+            expect(myStore.state.age).toEqual(11)
+            myStore.update(myStore.state.age, a => a - 1)
+            await delay(0)
+            expect(myStore.state.age).toEqual(10)
+        })
+
+        it('string', async function(){
+            myStore.update(myStore.state.name, str => 'Mr.' + str)
+            await delay(0)
+            expect(myStore.state.name).toEqual('Mr.Peter')
+            myStore.update(myStore.state.name, str => 'Miss.' + str)
+            await delay(0)
+            expect(myStore.state.name).toEqual('Miss.Mr.Peter')
+        })
+
+    })
+
+    describe('array value', function(){
+        pending()
+
+        // 对于boolean 值的特殊情况
+        it('array node: via array method', async function(){
+            myStore.update(myStore.state.pets, pets => {
+                pets.push({
+                    name: 'Kitty',
+                    age: 2,
+                    isDog: false
+                })
+                return pets
+            })
+            await delay(0)
+            expect(myStore.state.pets.length).toBe(2)
+            expect(myStore.state.pets[0]).toBe(myStore.preState.pets[0])
+            expect(myStore.state.pets[1]).toEqual(XStore.toXType({
+                name: 'Kitty',
+                age: 2,
+                isDog: false
+            }, '.pets.1'))
+            expect(myStore.state.pets).not.toBe(myStore.preState.pets)
+            expect(myStore.state).not.toBe(myStore.preState)
+        })
+
+        it('array node: via array spread operator', async function(){
+            myStore.update(myStore.state.pets, pets => [
+                ... pets,
+                {
+                    name: 'Kitty2',
+                    age: 2,
+                    isDog: false
+                }
+            ])
+            await delay(0)
+            expect(myStore.state.pets.length).toBe(3)
+            expect(myStore.state.pets[0]).toBe(myStore.preState.pets[0])
+            expect(myStore.state.pets[1]).toBe(myStore.preState.pets[1])
+            expect(myStore.state.pets[2]).toEqual(XStore.toXType({
+                name: 'Kitty2',
+                age: 2,
+                isDog: false
+            }, '.pets.2'))
+            expect(myStore.state.pets).not.toBe(myStore.preState.pets)
+            expect(myStore.state).not.toBe(myStore.preState)
+        })
+
+        it('array elements: map update, via object method', async function(){
+            // 更新
+            myStore.update(myStore.state.pets, pets => pets.map( pet => Object.assign({}, pet, {
+                ... pet,
+                age: 4,
+                isDog: false
+            })))
+            await delay(0)
+            expect(myStore.state.pets[0]).toEqual(XStore.toXType({
+                name: 'Puppy',
+                age: 4,
+                isDog: false
+            }, '.pets.0'))
+            expect(myStore.state.pets[1]).toEqual(XStore.toXType({
+                name: 'Kitty',
+                age: 4,
+                isDog: false
+            }, '.pets.1'))
+            expect(myStore.state.pets[2]).toEqual(XStore.toXType({
+                name: 'Kitty2',
+                age: 4,
+                isDog: false
+            }, '.pets.2'))
+            expect(myStore.state.pets[0]).not.toBe(myStore.preState.pets[0])
+            expect(myStore.state.pets[1]).not.toBe(myStore.preState.pets[1])
+            expect(myStore.state.pets[2]).not.toBe(myStore.preState.pets[2])
+            expect(myStore.state.pets).not.toBe(myStore.preState.pets)
+            expect(myStore.state).not.toBe(myStore.preState)
+        })
+
+        it('array elements: map update, via object spread operator', async function(){
+            // 更新
+            myStore.update(myStore.state.pets, pets => pets.map( pet => ({
+                ... pet,
+                age: 5,
+                isDog: true
+            })))
+            await delay(0)
+            expect(myStore.state.pets[0]).toEqual(XStore.toXType({
+                name: 'Puppy',
+                age: 5,
+                isDog: true
+            }, '.pets.0'))
+            expect(myStore.state.pets[1]).toEqual(XStore.toXType({
+                name: 'Kitty',
+                age: 5,
+                isDog: true
+            }, '.pets.1'))
+            expect(myStore.state.pets[2]).toEqual(XStore.toXType({
+                name: 'Kitty2',
+                age: 5,
+                isDog: true
+            }, '.pets.2'))
+            expect(myStore.state.pets[0]).not.toBe(myStore.preState.pets[0])
+            expect(myStore.state.pets[1]).not.toBe(myStore.preState.pets[1])
+            expect(myStore.state.pets[2]).not.toBe(myStore.preState.pets[2])
+            expect(myStore.state.pets).not.toBe(myStore.preState.pets)
+            expect(myStore.state).not.toBe(myStore.preState)
+        })
+
+        it('array elements: map update, via forEach', async function(){
+            // 更新
+            myStore.state.pets.forEach( pet => {
+                myStore.update(pet, _pet => ({
+                    ... _pet,
+                    age: 6,
+                    isDog: false
+                }))
+            })
+
+            await delay(0)
+            expect(myStore.state.pets[0]).toEqual(XStore.toXType({
+                name: 'Puppy',
+                age: 6,
+                isDog: false
+            }, '.pets.0'))
+            expect(myStore.state.pets[1]).toEqual(XStore.toXType({
+                name: 'Kitty',
+                age: 6,
+                isDog: false
+            }, '.pets.1'))
+            expect(myStore.state.pets[2]).toEqual(XStore.toXType({
+                name: 'Kitty2',
+                age: 6,
+                isDog: false
+            }, '.pets.2'))
+            expect(myStore.state.pets[0]).not.toBe(myStore.preState.pets[0])
+            expect(myStore.state.pets[1]).not.toBe(myStore.preState.pets[1])
+            expect(myStore.state.pets[2]).not.toBe(myStore.preState.pets[2])
+            expect(myStore.state.pets).not.toBe(myStore.preState.pets)
+            expect(myStore.state).not.toBe(myStore.preState)
+        })
+
+
+
+    })
+
+    describe('object value', function(){
+
+        it('update nested value', async function(){
+            myStore.update(myStore.state.address.city, c => c + ' good')
+            await delay(0)
+            expect(myStore.state.address.city).toEqual('GZ good')
+            expect(myStore.state.address).not.toBe(myStore.preState.address)
+            expect(myStore.state).not.toBe(myStore.preState)
+        })
+
+        it('update nested object', async function(){
+            myStore.update(myStore.state.address.homeInfo.isRend as any, o => ({
+                type: 'old',
+                value: o.value == false
+            }))
+            await delay(0)
+            expect(myStore.state.address.homeInfo.isRend).toEqual(XStore.toXType({
+                type: 'old',
+                value: false
+            }, '.address.homeInfo.isRend'))
+            expect(myStore.state.address.homeInfo.isRend).not.toBe(myStore.preState.address.homeInfo.isRend)
+            expect(myStore.state.address.homeInfo).not.toBe(myStore.preState.address.homeInfo)
+            expect(myStore.state.address).not.toBe(myStore.preState.address)
+            expect(myStore.state).not.toBe(myStore.preState)
+        })
 
     })
 

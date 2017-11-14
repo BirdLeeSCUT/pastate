@@ -315,7 +315,8 @@ export class XStore<State extends XType> {
         pathArr.shift();
 
         let endPath;
-        let curValue;
+        let fatherNode;
+        let newValue;
         let payload = operation.payload;
         let preValue = XStore.getValueByPath(this.preState, pathArr);
         let valueType = (Object.prototype.toString.call(preValue) as string).slice(8, -1);
@@ -327,7 +328,7 @@ export class XStore<State extends XType> {
             // "相同" 的基本值不进行更新处理；"相同"的引用值进行更新引用处理
             if (payload == preValue) {
                 if (valueType == 'Array') {
-                    payload = [...payload]
+                    payload = [ ...payload ]
                 } else if (valueType == 'Object') {
                     payload = { ...payload }
                 } else {
@@ -345,8 +346,8 @@ export class XStore<State extends XType> {
                 console.info('[set] You are setting the entire state, please check if you really want to do it.')
             } else {
                 endPath = pathArr.pop();
-                curValue = this.getNewReference(pathArr);
-                curValue[Array.isArray(curValue) ? [endPath - 0] : endPath] = XStore.toXType(payload, operation.path!)
+                fatherNode = this.getNewReference(pathArr);
+                fatherNode[Array.isArray(fatherNode) ? [endPath - 0] : endPath] = XStore.toXType(payload, operation.path!)
             }
 
             return {
@@ -355,9 +356,8 @@ export class XStore<State extends XType> {
                 tookEffect: true
             }
         }
-
         // merge 仅是作用于对象
-        if (operation.operation == 'merge') {
+        else if (operation.operation == 'merge') {
 
             // 仅支持对对象进行处理
             if (valueType != 'Object') {
@@ -368,13 +368,13 @@ export class XStore<State extends XType> {
                 throw Error('[merge] You can only apply `merge` operation with an object payload')
             }
 
-            curValue = this.getNewReference(pathArr);
+            fatherNode = this.getNewReference(pathArr);
 
             for (let key in payload) {
                 // payload 一般是字面值给出的，无需检查 hasOwnProperty
                 if (key != '__xpath__') {
                     // NOTE: 此处暂不实现 takeEffect 逻辑
-                    curValue[key] = XStore.toXType(payload[key], operation.path + '.' + key)
+                    fatherNode[key] = XStore.toXType(payload[key], operation.path + '.' + key)
                 }
             }
 
@@ -384,18 +384,37 @@ export class XStore<State extends XType> {
                 tookEffect: true // 这里暂时均为生效
             }
         }
-
         // update 作用于任何值
-        if (operation.operation == 'update') {
-            // TODO: next
+        else if (operation.operation == 'update') {
+
+            let oldValue = XStore.getValueByPath(this.state, pathArr);
+            if(valueType == 'Array') {
+                oldValue = [ ...oldValue ] 
+            }else if(valueType == 'Array') {
+                oldValue = { ...oldValue }
+            }
+
+            newValue = operation.payload(oldValue)
+
+            if (pathArr.length == 0) {
+                this.state = XStore.toXType(newValue, operation.path!) as State;
+            } else {
+                endPath = pathArr.pop();
+                fatherNode = this.getNewReference(pathArr);
+                fatherNode[Array.isArray(fatherNode) ? [endPath - 0] : endPath] = XStore.toXType(newValue, operation.path!)
+            }
+
+            return {
+                isMarker: false,
+                oldValue: this.preState,
+                tookEffect: true // 这里暂时均为生效
+            }
+
+        } else {
+            throw Error('[XStore] operation invalid!')
         }
 
-
-        return {
-            isMarker: false,
-            oldValue: this.preState,
-            tookEffect: false
-        }
+        
     }
 
     /**
@@ -413,6 +432,7 @@ export class XStore<State extends XType> {
      * @return 更新后的节点的值
      */
     public getNewReference(pathArr: Array<string>): XType {
+        pathArr = [...pathArr];
         let curValue: XType = XStore.getValueByPath(this.state, pathArr);
         let preValue: XType = XStore.getValueByPath(this.preState, pathArr);
         // 该函数只（需）支持对象或数组的情况
