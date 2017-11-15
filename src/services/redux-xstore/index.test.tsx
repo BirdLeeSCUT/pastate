@@ -61,6 +61,8 @@ const preState: StateModel = {
 
 describe('set', function () {
 
+    pending();
+
     describe('root property', function () {
 
         describe('value type', function () {
@@ -190,6 +192,9 @@ describe('set', function () {
 
 
 describe('merge', function () {
+
+    pending();
+
     describe('with non nested object', function () {
 
         it('merge with an flat object to perform as mutil set', function () {
@@ -253,6 +258,8 @@ describe('merge', function () {
 
 
 describe('update', function () {
+
+    pending();
 
     describe('update value depends on old value', function () {
 
@@ -329,6 +336,7 @@ describe('update', function () {
 })
 
 describe('perform state manegement in async and batch way', function () {
+    pending();
     // 利用 js 单线程 任务队列 调用栈 的原理实现
     // setTimeout(0) 模式 / nextTick
 

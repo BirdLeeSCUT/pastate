@@ -3,6 +3,8 @@
  */
 
 import { fromJS, Map } from 'immutable'
+import { Action } from 'redux';
+import { Dispatch } from 'react-redux';
 
 interface XOperation {
     operation: 'set' | 'merge' | 'update' | 'mark',
@@ -14,8 +16,8 @@ interface XOperation {
 export class XStore<State extends XType> {
 
     /* 
-     * state 仅支持对象类型
-     */
+    * state 对象
+    */
     public state: State;
 
     /**
@@ -24,15 +26,20 @@ export class XStore<State extends XType> {
     public preState: State;
 
     /**
+     * dispatch 函数，待注入
+     */
+    public dispatch: Dispatch<any>;
+
+    /**
      * 表示是否正在累积操作
      */
-    public isQueuingOperations: boolean;
+    public isQueuingOperations = false;
 
     /**
      * 待执行的 operation 列表.
      * 把 operation 累积起来再一起执行，可以实现一些基于多 operation 的中间件，具有较多的可操作性 
      */
-    public pendingOperationQueue: Array<XOperation>
+    public pendingOperationQueue: Array<XOperation> = []
 
 
     public actions: {
@@ -51,8 +58,6 @@ export class XStore<State extends XType> {
 
     constructor(initState: State) {
         this.state = XStore.toXType(initState, '') as State;
-        this.isQueuingOperations = false;
-        this.pendingOperationQueue = [];
     }
 
 
@@ -266,8 +271,16 @@ export class XStore<State extends XType> {
 
                 return true
             })
-        } catch(e) {
-            console.error('[XStore] Operation reduction is terminated: ' + (e as Error).message );
+        } catch (e) {
+            console.error('[XStore] Operation reduction is terminated: ' + (e as Error).message);
+        }
+
+        if (this.dispatch) {
+            this.dispatch({
+                type: '__XSTORE_UPDATE__'
+            })
+        } else {
+            console.error('[XStore] dispatch method is not injected')
         }
 
         this.stateDidReducedOperations({
@@ -328,7 +341,7 @@ export class XStore<State extends XType> {
             // "相同" 的基本值不进行更新处理；"相同"的引用值进行更新引用处理
             if (payload == preValue) {
                 if (valueType == 'Array') {
-                    payload = [ ...payload ]
+                    payload = [...payload]
                 } else if (valueType == 'Object') {
                     payload = { ...payload }
                 } else {
@@ -388,9 +401,9 @@ export class XStore<State extends XType> {
         else if (operation.operation == 'update') {
 
             let oldValue = XStore.getValueByPath(this.state, pathArr);
-            if(valueType == 'Array') {
-                oldValue = [ ...oldValue ] 
-            }else if(valueType == 'Array') {
+            if (valueType == 'Array') {
+                oldValue = [...oldValue]
+            } else if (valueType == 'Array') {
                 oldValue = { ...oldValue }
             }
 
@@ -414,7 +427,7 @@ export class XStore<State extends XType> {
             throw Error('[XStore] operation invalid!')
         }
 
-        
+
     }
 
     /**
@@ -440,8 +453,9 @@ export class XStore<State extends XType> {
         if (curValue == preValue) {
 
             curValue = Array.isArray(preValue) ? [...preValue] as XType : { ...preValue } as XType;
-            curValue.__xpath__ = preValue.__xpath__;
-            // FIXME: 处理不可枚举的问题
+            Object.defineProperty(curValue, "__xpath__", {
+                value: preValue.__xpath__
+            });
 
             // 溯源更新 后 挂载新值（此处不可逆序，否则会导致 preState 被改动）
             if (pathArr.length == 0) {
@@ -457,7 +471,6 @@ export class XStore<State extends XType> {
 
     /** 
      * 实现普通类型到 XType 类型的转化
-     * FIXME: 增加支持 XType raw 值的情况
      */
     public static toXType(rawData: any, path: string): XType | undefined | null {
 
@@ -512,7 +525,9 @@ export class XStore<State extends XType> {
             xNewData = rawData;
             // NOTE: 根据 im 特性，对于 array 和 object 类型，如果内部数据改变，则溯源节点的引用都会更新，此时该节点会变成 plain 类型，会走上面的转化过程
         }
-        xNewData.__xpath__ = path;
+        Object.defineProperty(xNewData, "__xpath__", {
+            value: path
+        });
 
         return xNewData;
     }
@@ -582,6 +597,12 @@ export class XStore<State extends XType> {
         // TODO 可以输出操作到调试器等，此时 this.operations 数组还没重置；可以用于本类库测试，也可以用于消费者的调试
         // 可以对 preState 进行 log, 压栈（以支持撤销）等操作
         return true
+    }
+
+    // -------------------------- redux 对接函数 ------------------------------
+    public getReduxReducer() {
+        // 只需传回 state 即可
+        return () => this.state;
     }
 
 }

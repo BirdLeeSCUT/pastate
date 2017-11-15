@@ -55,7 +55,7 @@ let myStore = new XStore<SimpleState>({
 
 describe('Test: Store.getValueByPath', function () {
 
-    pending()
+    // pending()
 
     it('root', function () {
         expect(XStore.getValueByPath(myStore.state, [])).toBe(myStore.state)
@@ -78,7 +78,7 @@ describe('Test: Store.getValueByPath', function () {
 
 describe('Test: Store.updateReferenceInPath', function () {
 
-    pending();
+    // pending();
 
     myStore.preState = myStore.state;
     Object.freeze(myStore.preState);
@@ -120,10 +120,10 @@ describe('Test: Store.updateReferenceInPath', function () {
 
 describe('Test: reduce operation "set" ', function () {
 
-    pending();
+    // pending();
 
     describe('primitive value test', function () {
-        pending();
+        // pending();
 
         it('toBe', function () {
             expect('test').toBe('test')
@@ -233,7 +233,7 @@ describe('Test: reduce operation "set" ', function () {
         })
 
         describe('reference value', function () {
-            pending()
+            // pending()
 
             afterEach(function () {
                 // 撤销产生的影响
@@ -452,7 +452,7 @@ describe('Test: reduce operation "set" ', function () {
 
 describe('Test: reduce operation "merge" ', function () {
 
-    pending();
+    // pending();
 
     let spy_stateDidReducedOperations: jasmine.Spy
     beforeAll(function () {
@@ -467,7 +467,7 @@ describe('Test: reduce operation "merge" ', function () {
 
     describe('throw Error when the partial state to reduce is not raw Object', function () {
 
-        pending()
+        // pending()
 
         it('boolean', async function () {
             myStore.merge(myStore.state.isMale, true)
@@ -593,7 +593,7 @@ describe('Test: reduce operation "update" ', function (){
     })
 
     describe('update simple value', function(){
-         pending()
+        // pending()
 
         afterEach(function () {
             myStore.state = myStore.preState;
@@ -631,7 +631,7 @@ describe('Test: reduce operation "update" ', function (){
     })
 
     describe('array value', function(){
-        pending()
+        // pending()
 
         // 对于boolean 值的特殊情况
         it('array node: via array method', async function(){
