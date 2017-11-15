@@ -2,21 +2,33 @@ import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import { createStore, combineReducers } from 'redux'
 import { Provider } from 'react-redux';
-import App, { store as appStore } from './App';
 import registerServiceWorker from './registerServiceWorker';
+import { BrowserRouter as Router, Route } from 'react-router-dom';
+import { injectDispatch } from './services/redux-xstore';
 import './index.css';
 
-// const rootReducer = combineReducers({
-//     main: ...
-// })
+// 引入组件
+import App, { store as appStore } from './containers/App';
+import Home, { store as homeStore } from './containers/Home';
 
-let store = createStore(appStore.getReduxReducer())
-appStore.dispatch = store.dispatch; // 依赖注入
+const rootReducer = combineReducers({
+    app: appStore.getReduxReducer(),
+    home: homeStore.getReduxReducer()
+})
+let reduxDevTools = window['__REDUX_DEVTOOLS_EXTENSION__'] && window['__REDUX_DEVTOOLS_EXTENSION__']()
+let store = createStore(rootReducer, reduxDevTools)
+injectDispatch(store, [appStore, homeStore])
 
 ReactDOM.render(
     <Provider store={store}>
-        <App />
-    </Provider>,
+        <Router>
+            <div>
+                <Route exact={true} path="/" component={App} />
+                <Route path="/home" component={Home} />
+            </div>
+        </Router>
+    </Provider>
+    ,
     document.getElementById('root') as HTMLElement
 );
 

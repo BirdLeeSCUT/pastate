@@ -4,7 +4,7 @@
 
 import { fromJS, Map } from 'immutable'
 import { Action } from 'redux';
-import { Dispatch } from 'react-redux';
+import { Dispatch, Store } from 'react-redux';
 
 interface XOperation {
     operation: 'set' | 'merge' | 'update' | 'mark',
@@ -14,6 +14,11 @@ interface XOperation {
 }
 
 export class XStore<State extends XType> {
+
+    /**
+     * 制定当前 store 的名称，可选
+     */
+    public name: string;
 
     /* 
     * state 对象
@@ -277,7 +282,7 @@ export class XStore<State extends XType> {
 
         if (this.dispatch) {
             this.dispatch({
-                type: '__XSTORE_UPDATE__'
+                type: '__XSTORE_UPDATE__: ' + (this.name || '(you can add a name to your xstore via name prop)')
             })
         } else {
             console.error('[XStore] dispatch method is not injected')
@@ -401,9 +406,10 @@ export class XStore<State extends XType> {
         else if (operation.operation == 'update') {
 
             let oldValue = XStore.getValueByPath(this.state, pathArr);
+
             if (valueType == 'Array') {
                 oldValue = [...oldValue]
-            } else if (valueType == 'Array') {
+            } else if (valueType == 'Object') {
                 oldValue = { ...oldValue }
             }
 
@@ -630,4 +636,10 @@ export class XArray extends Array<any> implements XType {
 
 export class XObject extends Object implements XType {
     __xpath__: string
+}
+
+export function injectDispatch(store: Store<any>, partStoreArr: Array<XStore<any>>){
+    partStoreArr.forEach(xstore => {
+        xstore.dispatch = store.dispatch;
+    })
 }
