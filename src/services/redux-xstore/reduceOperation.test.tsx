@@ -176,7 +176,7 @@ describe('Test: reduce operation "set" ', function () {
 
                 await delay(0)
 
-                expect(myStore.state).toEqual(XStore.toXType({
+                expect(myStore.state).toEqual(myStore.toXType({
                     name: 'Amy',
                     age: 12,
                     isMale: false,
@@ -248,7 +248,7 @@ describe('Test: reduce operation "set" ', function () {
                 }])
                 expect(myStore.state.pets).toEqual(myStore.preState.pets)
                 await delay(0)
-                expect(myStore.state.pets).toEqual(XStore.toXType([{
+                expect(myStore.state.pets).toEqual(myStore.toXType([{
                     name: 'Kitty',
                     age: 2,
                     isDog: false
@@ -269,7 +269,7 @@ describe('Test: reduce operation "set" ', function () {
                 })
                 expect(myStore.state.address).toEqual(myStore.preState.address)
                 await delay(0)
-                expect(myStore.state.address).toEqual(XStore.toXType({
+                expect(myStore.state.address).toEqual(myStore.toXType({
                     province: 'ZJ',
                     city: 'HZ',
                     homeInfo: {
@@ -332,7 +332,7 @@ describe('Test: reduce operation "set" ', function () {
                         }
                     })
 
-                expect(myStore.state).toEqual(XStore.toXType({
+                expect(myStore.state).toEqual(myStore.toXType({
                     name: 'Peter',
                     age: 10,
                     isMale: true,
@@ -356,7 +356,7 @@ describe('Test: reduce operation "set" ', function () {
 
                 await delay(0)
 
-                expect(myStore.state).toEqual(XStore.toXType({
+                expect(myStore.state).toEqual(myStore.toXType({
                     name: 'Amy',
                     age: 12,
                     isMale: false,
@@ -429,7 +429,7 @@ describe('Test: reduce operation "set" ', function () {
             expect(myStore.state.pets[0]).toEqual(myStore.preState.pets[0]);
 
             await delay(0)
-            expect(myStore.state.pets[0]).toEqual(XStore.toXType({
+            expect(myStore.state.pets[0]).toEqual(myStore.toXType({
                 name: 'Kitty',
                 age: 2,
                 isDog: false
@@ -442,7 +442,7 @@ describe('Test: reduce operation "set" ', function () {
             expect(myStore.state.pets[0].name).toEqual(myStore.preState.pets[0].name);
 
             await delay(0)
-            expect(myStore.state.pets[0].name).toEqual(XStore.toXType('Kitty', '.pets.0.name'));
+            expect(myStore.state.pets[0].name).toEqual(myStore.toXType('Kitty', '.pets.0.name'));
         })
 
     })
@@ -524,7 +524,7 @@ describe('Test: reduce operation "merge" ', function () {
                 }]
             })
             await delay(0)
-            expect(myStore.state.pets[0]).toEqual(XStore.toXType({
+            expect(myStore.state.pets[0]).toEqual(myStore.toXType({
                 name: 'Kitty',
                 age: 2,
                 isDog: false
@@ -539,7 +539,7 @@ describe('Test: reduce operation "merge" ', function () {
             })
             await delay(0)
             // shadow merge
-            expect(myStore.state.address).toEqual(XStore.toXType({
+            expect(myStore.state.address).toEqual(myStore.toXType({
                 province: 'ZJ'
             }, '.address'))
         })
@@ -569,7 +569,7 @@ describe('Test: reduce operation "merge" ', function () {
                 isDog: false,
             })
             await delay(0)
-            expect(myStore.state.pets[0]).toEqual(XStore.toXType({
+            expect(myStore.state.pets[0]).toEqual(myStore.toXType({
                 age: 2,
                 isDog: false,
                 name: 'Puppy' // 保留原值
@@ -646,7 +646,7 @@ describe('Test: reduce operation "update" ', function (){
             await delay(0)
             expect(myStore.state.pets.length).toBe(2)
             expect(myStore.state.pets[0]).toBe(myStore.preState.pets[0])
-            expect(myStore.state.pets[1]).toEqual(XStore.toXType({
+            expect(myStore.state.pets[1]).toEqual(myStore.toXType({
                 name: 'Kitty',
                 age: 2,
                 isDog: false
@@ -668,7 +668,7 @@ describe('Test: reduce operation "update" ', function (){
             expect(myStore.state.pets.length).toBe(3)
             expect(myStore.state.pets[0]).toBe(myStore.preState.pets[0])
             expect(myStore.state.pets[1]).toBe(myStore.preState.pets[1])
-            expect(myStore.state.pets[2]).toEqual(XStore.toXType({
+            expect(myStore.state.pets[2]).toEqual(myStore.toXType({
                 name: 'Kitty2',
                 age: 2,
                 isDog: false
@@ -685,17 +685,17 @@ describe('Test: reduce operation "update" ', function (){
                 isDog: false
             })))
             await delay(0)
-            expect(myStore.state.pets[0]).toEqual(XStore.toXType({
+            expect(myStore.state.pets[0]).toEqual(myStore.toXType({
                 name: 'Puppy',
                 age: 4,
                 isDog: false
             }, '.pets.0'))
-            expect(myStore.state.pets[1]).toEqual(XStore.toXType({
+            expect(myStore.state.pets[1]).toEqual(myStore.toXType({
                 name: 'Kitty',
                 age: 4,
                 isDog: false
             }, '.pets.1'))
-            expect(myStore.state.pets[2]).toEqual(XStore.toXType({
+            expect(myStore.state.pets[2]).toEqual(myStore.toXType({
                 name: 'Kitty2',
                 age: 4,
                 isDog: false
@@ -715,17 +715,17 @@ describe('Test: reduce operation "update" ', function (){
                 isDog: true
             })))
             await delay(0)
-            expect(myStore.state.pets[0]).toEqual(XStore.toXType({
+            expect(myStore.state.pets[0]).toEqual(myStore.toXType({
                 name: 'Puppy',
                 age: 5,
                 isDog: true
             }, '.pets.0'))
-            expect(myStore.state.pets[1]).toEqual(XStore.toXType({
+            expect(myStore.state.pets[1]).toEqual(myStore.toXType({
                 name: 'Kitty',
                 age: 5,
                 isDog: true
             }, '.pets.1'))
-            expect(myStore.state.pets[2]).toEqual(XStore.toXType({
+            expect(myStore.state.pets[2]).toEqual(myStore.toXType({
                 name: 'Kitty2',
                 age: 5,
                 isDog: true
@@ -748,17 +748,17 @@ describe('Test: reduce operation "update" ', function (){
             })
 
             await delay(0)
-            expect(myStore.state.pets[0]).toEqual(XStore.toXType({
+            expect(myStore.state.pets[0]).toEqual(myStore.toXType({
                 name: 'Puppy',
                 age: 6,
                 isDog: false
             }, '.pets.0'))
-            expect(myStore.state.pets[1]).toEqual(XStore.toXType({
+            expect(myStore.state.pets[1]).toEqual(myStore.toXType({
                 name: 'Kitty',
                 age: 6,
                 isDog: false
             }, '.pets.1'))
-            expect(myStore.state.pets[2]).toEqual(XStore.toXType({
+            expect(myStore.state.pets[2]).toEqual(myStore.toXType({
                 name: 'Kitty2',
                 age: 6,
                 isDog: false
@@ -790,7 +790,7 @@ describe('Test: reduce operation "update" ', function (){
                 value: o.value == false
             }))
             await delay(0)
-            expect(myStore.state.address.homeInfo.isRend).toEqual(XStore.toXType({
+            expect(myStore.state.address.homeInfo.isRend).toEqual(myStore.toXType({
                 type: 'old',
                 value: false
             }, '.address.homeInfo.isRend'))

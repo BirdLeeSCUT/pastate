@@ -1,4 +1,6 @@
 import { XStore, XType, XString } from '../../services/redux-xstore';
+import { Event } from '_debugger';
+import { ChangeEvent } from 'react';
 
 interface State extends XType {
     name: string,
@@ -47,7 +49,7 @@ class Store extends XStore<State>{
     actions = {
 
         setup: () => {
-            this.update(this.state.age, a => a + 2)
+            this.update(this.state.age, a => a + 1)
         },
 
         change: () => {
@@ -74,10 +76,16 @@ class Store extends XStore<State>{
             this.actions.change();
             this.actions.addPet();
             this.actions.addFirstAge();
+        },
+
+        onTextChange: v => {
+            console.log(v)
         }
     }
 }
 
 
-let store = new Store(initState);
+let store = new Store(initState, {
+    useSpanNumber: true
+});
 export { State, store }

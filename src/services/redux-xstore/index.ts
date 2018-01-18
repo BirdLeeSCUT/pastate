@@ -5,6 +5,7 @@
 import { fromJS, Map } from 'immutable'
 import { Action } from 'redux';
 import { Dispatch, Store } from 'react-redux';
+import { ChangeEvent, createElement  } from 'react';
 
 interface XOperation {
     operation: 'set' | 'merge' | 'update' | 'mark',
@@ -55,14 +56,26 @@ export class XStore<State extends XType> {
         [key: string]: Function
     }
 
-
+    // 配置项和默认值
+    // TODO 尝试支持 react 16.2 的 Fragment 包围语法，而不是 span
+    public config =  {
+        useSpanNumber: true
+    }
 
     // 兼容原始 reducer 的功能暂不实现
     // private reducer: Function
     // setRawReducer(reducer: (state: State, action: Object) => State): void
-
-    constructor(initState: State) {
-        this.state = XStore.toXType(initState, '') as State;
+    /**
+     * 构造state
+     * @param initState 
+     * @param createElement 可选，如果注入，数字可以直接渲染
+     */
+    constructor(initState: State, config?: {
+        useSpanNumber?: boolean
+    }) {
+        config && (Object.assign(this.config, config));
+        this.state = this.toXType(initState, '') as State;
+        this.preState = this.state;
     }
 
 
@@ -104,6 +117,20 @@ export class XStore<State extends XType> {
             description: description
         })
         return this
+    }
+
+    /**
+     * 同步版本的 set
+     * 用户表单输入的更新
+     */
+    public setSync(state: any, newValue: any): XStore<State>{
+        let pathArr: Array<any> = state.__xpath__.split('.');
+        pathArr.shift();
+        let endPath: any = pathArr.pop();
+        let fatherValue = this.getNewReference(pathArr);
+        fatherValue[Array.isArray(fatherValue) ? (endPath - 0) : endPath] = this.toXType(newValue, state.__xpath__)
+        this.forceUpdate();
+        return this;
     }
 
     /**
@@ -299,6 +326,20 @@ export class XStore<State extends XType> {
 
     }
 
+    public forceUpdate() {
+        if(this.state == this.preState){
+            this.state = { ...(this.state as XObject)} as State;
+        }
+        this.preState = this.state;
+        if (this.dispatch) {
+            this.dispatch({
+                type: '__XSTORE_FORCE_UPDATE__: ' + (this.name || '(you can add a name to your xstore via name prop)')
+            })
+        } else {
+            console.error('[XStore] dispatch method is not injected')
+        }
+    }
+
     /** 
      * operation 项处理器，负责 imState = imState + operation 的逻辑
      * @throws 但执行失败时直接抛出异常
@@ -360,12 +401,12 @@ export class XStore<State extends XType> {
 
             // 更新根值的情况
             if (pathArr.length == 0) {
-                this.state = XStore.toXType(payload, operation.path!) as State;
+                this.state = this.toXType(payload, operation.path!) as State;
                 console.info('[set] You are setting the entire state, please check if you really want to do it.')
             } else {
                 endPath = pathArr.pop();
                 fatherNode = this.getNewReference(pathArr);
-                fatherNode[Array.isArray(fatherNode) ? [endPath - 0] : endPath] = XStore.toXType(payload, operation.path!)
+                fatherNode[Array.isArray(fatherNode) ? [endPath - 0] : endPath] = this.toXType(payload, operation.path!)
             }
 
             return {
@@ -392,7 +433,7 @@ export class XStore<State extends XType> {
                 // payload 一般是字面值给出的，无需检查 hasOwnProperty
                 if (key != '__xpath__') {
                     // NOTE: 此处暂不实现 takeEffect 逻辑
-                    fatherNode[key] = XStore.toXType(payload[key], operation.path + '.' + key)
+                    fatherNode[key] = this.toXType(payload[key], operation.path + '.' + key)
                 }
             }
 
@@ -416,11 +457,11 @@ export class XStore<State extends XType> {
             newValue = operation.payload(oldValue)
 
             if (pathArr.length == 0) {
-                this.state = XStore.toXType(newValue, operation.path!) as State;
+                this.state = this.toXType(newValue, operation.path!) as State;
             } else {
                 endPath = pathArr.pop();
                 fatherNode = this.getNewReference(pathArr);
-                fatherNode[Array.isArray(fatherNode) ? [endPath - 0] : endPath] = XStore.toXType(newValue, operation.path!)
+                fatherNode[Array.isArray(fatherNode) ? [endPath - 0] : endPath] = this.toXType(newValue, operation.path!)
             }
 
             return {
@@ -478,7 +519,7 @@ export class XStore<State extends XType> {
     /** 
      * 实现普通类型到 XType 类型的转化
      */
-    public static toXType(rawData: any, path: string): XType | undefined | null {
+    public toXType(rawData: any, path: string): XType | undefined | null {
 
         // NOTE: 如果根据自实现 immuateble 转化逻辑，此处有性能优化空间
 
@@ -501,6 +542,7 @@ export class XStore<State extends XType> {
                     break;
                 case 'Number':
                     xNewData = new Number(rawData) as XNumber;
+                    this.config.useSpanNumber && Object.assign(xNewData, createElement('span', undefined, +rawData));
                     break;
                 case 'String':
                     xNewData = new String(rawData) as XString;
@@ -508,8 +550,8 @@ export class XStore<State extends XType> {
                 case 'Array':
                     xNewData = new Array(rawData) as XArray;
                     // recursive call toXType(...) to transform the inner data
-                    xNewData = (rawData as Array<any>).map(function (value: any, index: number) {
-                        return XStore.toXType(value, path + '.' + index)
+                    xNewData = (rawData as Array<any>).map((value: any, index: number) => {
+                        return this.toXType(value, path + '.' + index)
                     }) as XType;
                     break;
                 case 'Object':
@@ -517,7 +559,7 @@ export class XStore<State extends XType> {
                     // recursive call toXType(...) to transform the inner data
                     for (let prop in xNewData) {
                         if (xNewData.hasOwnProperty(prop) && prop !== '__xpath__') {
-                            rawData[prop] = XStore.toXType(rawData[prop], path + '.' + prop)
+                            rawData[prop] = this.toXType(rawData[prop], path + '.' + prop)
                         }
                     }
                     break;
@@ -532,7 +574,8 @@ export class XStore<State extends XType> {
             // NOTE: 根据 im 特性，对于 array 和 object 类型，如果内部数据改变，则溯源节点的引用都会更新，此时该节点会变成 plain 类型，会走上面的转化过程
         }
         Object.defineProperty(xNewData, "__xpath__", {
-            value: path
+            value: path,
+            
         });
 
         return xNewData;
@@ -609,6 +652,14 @@ export class XStore<State extends XType> {
     public getReduxReducer() {
         // 只需传回 state 即可
         return () => this.state;
+    }
+
+    // -------------------------------- form 对接函数 -----------------------------
+    public syncInput(state: any): (event: ChangeEvent<any>) => void {
+        // 请使用对象state, 其他特殊用法未测试
+        return (event: ChangeEvent<any>) => {
+            this.setSync(state, event.target.value)
+        }
     }
 
 }
