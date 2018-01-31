@@ -45,7 +45,7 @@ class Pet extends React.PureComponent<{pet: State['pets'][0]}>{
     return (
       <span className="pet">
         名字: {pet.name}
-        年龄: {+pet.age}
+        年龄: {pet.age}
         狗: {pet.isDog == true ? '是' : '否'}
       </span>
     )

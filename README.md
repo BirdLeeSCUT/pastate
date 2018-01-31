@@ -1,2 +1,2 @@
 # redux-xstore-example
-xstore 开发库
+pastate developing
