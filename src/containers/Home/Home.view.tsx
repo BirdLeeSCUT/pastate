@@ -15,6 +15,6 @@ class App extends React.Component<{ state: State } & DispatchProp<any>> {
   }
 }
 
-export default connect(state => ({
+export default connect((state: any) => ({
     state: state.home
 }))(App);

@@ -5,7 +5,7 @@
 import { fromJS, Map } from 'immutable'
 import { Action } from 'redux';
 import { Dispatch, Store } from 'react-redux';
-import { ChangeEvent, createElement  } from 'react';
+import { ChangeEvent  } from 'react';
 
 interface XOperation {
     operation: 'set' | 'merge' | 'update' | 'mark',
@@ -21,10 +21,15 @@ export class XStore<State extends XType> {
      */
     public name: string;
 
-    /* 
-    * state 对象
-    */
+    /** 
+     * state 对象
+     */
     public state: State;
+
+    /**
+     * 响应式 state
+     */
+    public rstate: State;
 
     /**
      * 执行 operation 操作前暂存的 state 值
@@ -75,10 +80,44 @@ export class XStore<State extends XType> {
     }) {
         config && (Object.assign(this.config, config));
         this.state = this.toXType(initState, '') as State;
+        this.rstate = {} as State;
+        // TODO: 处理嵌套情况
+        // TODO: 处理新对象的情况
+        this.makeRState([]);
         this.preState = this.state;
     }
 
+    // MARK: 响应式 rstate 的处理相关函数
+    private makeRState(path: string[]){
+        let node = XStore.getValueByPath(this.state, path);
+        let typeName: string = (Object.prototype.toString.call(node) as string).slice(8, -1);
+        if(typeName != 'Object'){
+            throw new Error('updateRState meet not object value, this is an error of pastate') 
+        }
+        let rnode = XStore.getValueByPath(this.rstate, path);
+        for(let prop in node){
+            if(  prop !== '__xpath__' && node.hasOwnProperty(prop)){
+                let valueTypeName: string = (Object.prototype.toString.call(node[prop]) as string).slice(8, -1);
+                Object.defineProperty(rnode, prop, {
+                    enumerable: true,
+                    get: () => {
+                        switch(valueTypeName){
+                            case 'Number': return XStore.getValueByPath(this.state, path)[prop] - 0;
+                            case 'Boolean': return XStore.getValueByPath(this.state, path)[prop] == true;
+                            default: return XStore.getValueByPath(this.state, path)[prop]
+                        }
+                    },
+                    set: (newValue: any) => {
+                        this.set(XStore.getValueByPath(this.state, path)[prop], newValue)
+                    }
+                })
+            }
+        }
+    }
 
+    private getState(): State {
+        return this.state;
+    }
 
     // MARK: operation 输入相关方法 -----------------------------------------------------------
 
@@ -106,7 +145,7 @@ export class XStore<State extends XType> {
      */
     public setNew(literalPath: string, newValue: any, description?: string): XStore<State> {
         if (typeof literalPath != 'string') {
-            throw Error('[store.setNew] literalPath can only be string')
+            throw new Error('[store.setNew] literalPath can only be string')
         }
         this.submitOperation({
             operate: 'set',
@@ -542,7 +581,6 @@ export class XStore<State extends XType> {
                     break;
                 case 'Number':
                     xNewData = new Number(rawData) as XNumber;
-                    this.config.useSpanNumber && Object.assign(xNewData, createElement('span', undefined, +rawData));
                     break;
                 case 'String':
                     xNewData = new String(rawData) as XString;
@@ -559,7 +597,7 @@ export class XStore<State extends XType> {
                     // recursive call toXType(...) to transform the inner data
                     for (let prop in xNewData) {
                         if (xNewData.hasOwnProperty(prop) && prop !== '__xpath__') {
-                            rawData[prop] = this.toXType(rawData[prop], path + '.' + prop)
+                            rawData[prop] = this.toXType(rawData[prop], path + '.' + prop);
                         }
                     }
                     break;

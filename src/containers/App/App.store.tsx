@@ -48,12 +48,13 @@ class Store extends XStore<State>{
     actions = {
 
         setup: () => {
-            this.update(this.state.age, a => a + 1)
-            
+            // this.update(this.state.age, a => a + 1)
+            this.rstate.age += 2;
         },
 
         change: () => {
-            this.update(this.state.isMale, v => v == false)
+            // this.update(this.state.isMale, v => v == false)
+            this.rstate.isMale = !this.rstate.isMale
         },
 
         addPet: () => {
@@ -69,6 +70,8 @@ class Store extends XStore<State>{
 
         addFirstAge: () => {
             this.update(this.state.pets[0].age, a => a + 1)
+            // this.update(this.state.)
+            // this.state.pets[0].age += 1
         },
 
         doFourActions: () => {

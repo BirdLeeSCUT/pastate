@@ -7,7 +7,7 @@
  */
 
 import { XStore, XType, XString } from './index';
-import { delay } from './helpers'
+import { delay } from './helpers';
 
 interface SimpleState extends XType {
     name: string,

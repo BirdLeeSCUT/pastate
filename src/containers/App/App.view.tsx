@@ -13,7 +13,7 @@ class App extends React.Component<{ state: State } & DispatchProp<any>> {
 
     return (
       <div className="App">
-        <div>数字：{state.age} <button onClick={actions.setup} >增加</button> </div>
+        <div>数字：{+state.age} <button onClick={actions.setup} >增加</button> </div>
         <div>布尔值：{state.isMale == true ? '是' : '否'} <button onClick={actions.change} >改变</button></div>
         <div>字符串：{state.name} </div>
         <div>
@@ -45,13 +45,13 @@ class Pet extends React.PureComponent<{pet: State['pets'][0]}>{
     return (
       <span className="pet">
         名字: {pet.name}
-        年龄: {pet.age}
+        年龄: {+pet.age}
         狗: {pet.isDog == true ? '是' : '否'}
       </span>
     )
   }
 }
 
-export default connect(state => ({
+export default connect((state: any) => ({
     state: state.app
 }))(App);
