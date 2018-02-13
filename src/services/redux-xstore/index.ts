@@ -5,7 +5,7 @@
 import { fromJS, Map } from 'immutable'
 import { Action } from 'redux';
 import { Dispatch, Store } from 'react-redux';
-import { ChangeEvent  } from 'react';
+import { ChangeEvent } from 'react';
 
 interface XOperation {
     operation: 'set' | 'merge' | 'update' | 'mark',
@@ -63,7 +63,7 @@ export class XStore<State extends XType> {
 
     // 配置项和默认值
     // TODO 尝试支持 react 16.2 的 Fragment 包围语法，而不是 span
-    public config =  {
+    public config = {
         useSpanNumber: true
     }
 
@@ -80,39 +80,74 @@ export class XStore<State extends XType> {
     }) {
         config && (Object.assign(this.config, config));
         this.state = this.toXType(initState, '') as State;
-        this.rstate = {} as State;
-        // TODO: 处理嵌套情况
-        // TODO: 处理新对象的情况
-        this.makeRState([]);
+        // TODO: 处理新建对象的情况（数组函数, 把null设为对象值）
+        this.rstate = this.makeRState([]);
         this.preState = this.state;
     }
 
+
     // MARK: 响应式 rstate 的处理相关函数
-    private makeRState(path: string[]){
+    private makeRState(path: string[]): any {
         let node = XStore.getValueByPath(this.state, path);
         let typeName: string = (Object.prototype.toString.call(node) as string).slice(8, -1);
-        if(typeName != 'Object'){
-            throw new Error('updateRState meet not object value, this is an error of pastate') 
-        }
-        let rnode = XStore.getValueByPath(this.rstate, path);
-        for(let prop in node){
-            if(  prop !== '__xpath__' && node.hasOwnProperty(prop)){
-                let valueTypeName: string = (Object.prototype.toString.call(node[prop]) as string).slice(8, -1);
-                Object.defineProperty(rnode, prop, {
-                    enumerable: true,
-                    get: () => {
-                        switch(valueTypeName){
-                            case 'Number': return XStore.getValueByPath(this.state, path)[prop] - 0;
-                            case 'Boolean': return XStore.getValueByPath(this.state, path)[prop] == true;
-                            default: return XStore.getValueByPath(this.state, path)[prop]
-                        }
-                    },
-                    set: (newValue: any) => {
-                        this.set(XStore.getValueByPath(this.state, path)[prop], newValue)
+
+        let rnode: any;
+        if (typeName == 'Object') {
+            rnode = {}
+        } else if (typeName == 'Array') {
+            // 待往外封装（需要把 set 操作改为非 this.xx 模式才可以封装）
+            rnode = [];
+            let context = this;
+            Object.defineProperty(rnode, 'push', {
+                enumerable: false,
+                get: function () {
+                    return function (element: any) {
+                        context.set(XStore.getValueByPath(context.state, path), [...XStore.getValueByPath(context.state, path), element]);
                     }
-                })
+                }
+            })
+        } else {
+            throw new Error('updateRState meet not object value, this is an error of pastate')
+        }
+
+        for (let prop in node) {
+            if (node.hasOwnProperty(prop) && prop != '__xpath__') {
+
+                let valueTypeName: string = (Object.prototype.toString.call(node[prop]) as string).slice(8, -1);
+
+                // 对象嵌套响应式建立
+                if (valueTypeName == 'Object' || valueTypeName == 'Array') {
+                    // 对象或数组，建立新的响应式节点
+                    let rValue = this.makeRState([...path, prop])
+                    Object.defineProperty(rnode, prop, {
+                        enumerable: true,
+                        get: () => {
+                            return rValue;
+                        },
+                        set: (newValue: any) => {
+                            this.set(XStore.getValueByPath(this.state, path)[prop], newValue)
+                        }
+                    })
+                } else {
+                    // 基本类型
+                    Object.defineProperty(rnode, prop, {
+                        enumerable: true,
+                        get: () => {
+                            switch (valueTypeName) {
+                                case 'Number': return +XStore.getValueByPath(this.state, path)[prop];
+                                case 'Boolean': return XStore.getValueByPath(this.state, path)[prop] == true;
+                                default: return XStore.getValueByPath(this.state, path)[prop]
+                            }
+                        },
+                        set: (newValue: any) => {
+                            this.set(XStore.getValueByPath(this.state, path)[prop], newValue)
+                        }
+                    })
+                }
+
             }
         }
+        return rnode;
     }
 
     private getState(): State {
@@ -162,7 +197,7 @@ export class XStore<State extends XType> {
      * 同步版本的 set
      * 用户表单输入的更新
      */
-    public setSync(state: any, newValue: any): XStore<State>{
+    public setSync(state: any, newValue: any): XStore<State> {
         let pathArr: Array<any> = state.__xpath__.split('.');
         pathArr.shift();
         let endPath: any = pathArr.pop();
@@ -366,8 +401,8 @@ export class XStore<State extends XType> {
     }
 
     public forceUpdate() {
-        if(this.state == this.preState){
-            this.state = { ...(this.state as XObject)} as State;
+        if (this.state == this.preState) {
+            this.state = { ...(this.state as XObject) } as State;
         }
         this.preState = this.state;
         if (this.dispatch) {
@@ -596,7 +631,7 @@ export class XStore<State extends XType> {
                     xNewData = new XObject(rawData);
                     // recursive call toXType(...) to transform the inner data
                     for (let prop in xNewData) {
-                        if (xNewData.hasOwnProperty(prop) && prop !== '__xpath__') {
+                        if (xNewData.hasOwnProperty(prop) && prop != '__xpath__') {
                             rawData[prop] = this.toXType(rawData[prop], path + '.' + prop);
                         }
                     }
@@ -613,7 +648,7 @@ export class XStore<State extends XType> {
         }
         Object.defineProperty(xNewData, "__xpath__", {
             value: path,
-            
+
         });
 
         return xNewData;
@@ -727,7 +762,7 @@ export class XObject extends Object implements XType {
     __xpath__: string
 }
 
-export function injectDispatch(store: Store<any>, partStoreArr: Array<XStore<any>>){
+export function injectDispatch(store: Store<any>, partStoreArr: Array<XStore<any>>) {
     partStoreArr.forEach(xstore => {
         xstore.dispatch = store.dispatch;
     })

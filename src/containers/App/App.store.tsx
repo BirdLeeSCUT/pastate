@@ -58,20 +58,15 @@ class Store extends XStore<State>{
         },
 
         addPet: () => {
-            this.update(this.state.pets, p => [
-                ...p,
-                {
-                    name: 'Kitty',
-                    age: 2,
-                    isDog: false
-                }
-            ])
+            this.rstate.pets.push({
+                name: 'Kitty',
+                age: 2,
+                isDog: false
+            })
         },
 
         addFirstAge: () => {
-            this.update(this.state.pets[0].age, a => a + 1)
-            // this.update(this.state.)
-            // this.state.pets[0].age += 1
+            this.rstate.pets[0].age += 1
         },
 
         doFourActions: () => {
@@ -83,6 +78,10 @@ class Store extends XStore<State>{
 
         onTextChange: (v: ChangeEvent<any>) => {
             console.log(v)
+        },
+
+        longName: () => {
+            this.rstate.name += "!"
         }
     }
 }

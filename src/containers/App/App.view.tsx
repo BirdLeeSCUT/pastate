@@ -28,6 +28,7 @@ class App extends React.Component<{ state: State } & DispatchProp<any>> {
         </div>
         <div><Link to="/home">go to home</Link></div>
         <button onClick={actions.doFourActions}>批量任务</button>
+        <button onClick={actions.longName}>名字加长</button>
         
         <Input value={state.name} store={store} />
 
