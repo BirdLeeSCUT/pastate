@@ -209,12 +209,32 @@ export class XStore<State extends XType> {
                             return arr
                         });
                         let lastOneIndex = rnode.length - 1;
-                        for (let i = 0; i < deleteCount - 1; i++) {
+                        for (let i = 0; i < deleteCount - (newElement !== undefined ? 1 : 0); i++) {
                             delete rnode[lastOneIndex - i]
                         }
-                        rnode.length -= (deleteCount - 1)
+                        rnode.length -= (deleteCount - (newElement !== undefined ? 1 : 0))
                         let targetArray = XStore.getValueByPath(context.state, path);
                         return targetArray.slice(start, start + deleteCount)
+                    }
+                }
+            })
+
+            Object.defineProperty(rnode, 'sort', {
+                enumerable: false,
+                get: function () {
+                    return function (compareFunction: any) {
+                        context.update(XStore.getValueByPath(context.state, path), arr => arr.sort(compareFunction));
+                        return XStore.getValueByPath(context.state, path)
+                    }
+                }
+            })
+
+            Object.defineProperty(rnode, 'reverse', {
+                enumerable: false,
+                get: function () {
+                    return function () {
+                        context.update(XStore.getValueByPath(context.state, path), arr => arr.reverse());
+                        return XStore.getValueByPath(context.state, path)
                     }
                 }
             })
@@ -237,10 +257,30 @@ export class XStore<State extends XType> {
                         enumerable: true,
                         configurable: true,
                         get: () => {
-                            return rValue;
+                            let valueToGet = XStore.getValueByPath(this.state, path)[prop];
+                            if(valueToGet === null || valueToGet === undefined){
+                                return valueToGet;
+                            }else{
+                                return rValue;
+                            }
+                            
                         },
                         set: (_newValue: any) => {
-                            this.set(XStore.getValueByPath(this.state, path)[prop], _newValue)
+                            
+                            // 把对象节点设置为 null 的情况
+                            if(_newValue === null || _newValue === undefined){
+                                console.warn(`[pastate] You are setting an ${valueTypeName} node to be ${_newValue}, which may result in 'undefined' error.`)
+                            }
+
+                            let valueToSet = XStore.getValueByPath(this.state, path)[prop];
+                            if(valueToSet === null || _newValue === undefined){
+                                this.merge({__xpath__: path.join('.')}, {
+                                    [prop]: _newValue
+                                } as any)
+                            }else{
+                                this.set(valueToSet, _newValue)
+                            }
+                            
                         }
                     })
                 } else {
@@ -256,7 +296,14 @@ export class XStore<State extends XType> {
                             }
                         },
                         set: (_newValue: any) => {
-                            this.set(XStore.getValueByPath(this.state, path)[prop], _newValue)
+                            let valueToSet = XStore.getValueByPath(this.state, path)[prop];
+                            if(valueToSet === null || _newValue === undefined){
+                                this.merge({__xpath__: path.join('.')}, {
+                                    [prop]: _newValue
+                                } as any)
+                            }else{
+                                this.set(valueToSet, _newValue)
+                            }
                         }
                     })
                 }
@@ -637,9 +684,7 @@ export class XStore<State extends XType> {
         // update 作用于任何值
         else if (operation.operation == 'update') {
 
-
             let oldValue = XStore.getValueByPath(this.state, pathArr);
-
             if (oldValue === preValue) {
                 if (valueType == 'Array') {
                     oldValue = [...oldValue]
@@ -772,9 +817,31 @@ export class XStore<State extends XType> {
         // 处理 xtype 类型
         else {
             xNewData = rawData;
-            xNewData.__xpath__ = path
             // NOTE: 根据 im 特性，对于 array 和 object 类型，如果内部数据改变，
-            // 则溯源节点的引用都会更新，此时该节点会变成 plain 类型，会走上面的转化过程
+            // 则溯源节点的引用都会更新，此时该节点会变成 plain 类型，会走上面的转化过程。
+            // 如果是数组的变化的情况，会使得操作值包含 _xtype_, 此时需要嵌套更新
+            if (xNewData.__xpath__ != path) {
+                xNewData.__xpath__ = path
+                switch (typeName) {
+                    case 'Array':
+                        // recursive call toXType(...) to transform the inner data
+                        xNewData = (rawData as Array<any>).map((value: any, index: number) => {
+                            return this.toXType(value, path + '.' + index)
+                        }) as XType;
+                        break;
+                    case 'Object':
+                        // recursive call toXType(...) to transform the inner data
+                        for (let prop in xNewData) {
+                            if (xNewData.hasOwnProperty(prop) && prop != '__xpath__') {
+                                rawData[prop] = this.toXType(rawData[prop], path + '.' + prop);
+                            }
+                        }
+                        break;
+                    default:
+                        break;
+                }
+            }
+
         }
 
         return xNewData;

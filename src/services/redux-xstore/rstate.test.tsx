@@ -159,7 +159,7 @@ describe('responsive state test suit', function () {
                         expect(store.rstate.teacher.isMale).toEqual(false)
                     })
 
-                    it('set total new object', async function(){
+                    it('set total new object', async function () {
                         let newTeacher = {
                             name: 'new',
                             age: 30,
@@ -239,13 +239,13 @@ describe('responsive state test suit', function () {
 
     })
 
-    describe('state change', function(){
+    describe('state change', function () {
 
-        describe('array mutate method', function(){
+        describe('array mutate method', function () {
 
-            describe('push', function(){
+            describe('push', function () {
 
-                it('first push', async function(){
+                it('first push', async function () {
                     // 插入新元素
                     expect(store.state.array_object.length).toEqual(2)
                     let newElement = {
@@ -266,7 +266,7 @@ describe('responsive state test suit', function () {
                     expect(store.state.array_object[2].name).toEqual('n2!')
                 })
 
-                it('next push in different async batch', async function(){
+                it('next push in different async batch', async function () {
                     let newElement = {
                         name: 'n3',
                         age: 50,
@@ -282,7 +282,7 @@ describe('responsive state test suit', function () {
                     expect(store.rstate.array_object[3].age).toEqual(100)
                 })
 
-                it('next push in the same async batch', async function(){
+                it('next push in the same async batch', async function () {
 
                     let newElement0 = {
                         name: 'new-0',
@@ -300,11 +300,11 @@ describe('responsive state test suit', function () {
                     // 遇到问题要考虑这一点：按值传递和按引用传递的控制，本框架的修改会统一用按值传递的模式实现（如果发现按引用传递则需要修改）
 
                     store.rstate.array_object.push(newElement0)
-                    expect(store.rstate.array_object.length).toEqual(5) 
+                    expect(store.rstate.array_object.length).toEqual(5)
                     store.rstate.array_object.push(newElement1)
                     expect(store.rstate.array_object.length).toEqual(6)
                     await delay(0)
-                    
+
                     expect(store.state.array_object.length).toEqual(6)
                     expect(store.state.array_object[4]).toEqual(newElement0)
                     expect(store.rstate.array_object[4]).toEqual(newElement0)
@@ -313,10 +313,10 @@ describe('responsive state test suit', function () {
                 })
             })
 
-            describe('pop', function(){
+            describe('pop', function () {
 
                 // 注意，此时通过 store.rstate.array_object[3] 获取的对象，已经不可以访问了，因为数据里没有第3个元素了
-                it('first pop', async function(){
+                it('first pop', async function () {
                     let lastValue_pop = store.rstate.array_object.pop()
                     await delay(0)
                     expect(lastValue_pop).toEqual({
@@ -330,7 +330,7 @@ describe('responsive state test suit', function () {
                 })
 
                 // 异步间连续操作
-                it('next pop in different async batch', async function(){
+                it('next pop in different async batch', async function () {
                     let lastValue_pop = store.rstate.array_object.pop()
                     expect(store.rstate.array_object.length).toEqual(4)
 
@@ -345,7 +345,7 @@ describe('responsive state test suit', function () {
                 })
 
                 // 异步内连续操作
-                it('next pop in the same async batch', async function(){
+                it('next pop in the same async batch', async function () {
                     let value_3 = store.state.array_object[3]
                     let value_2 = store.state.array_object[2]
                     let lastValue_pop0 = store.rstate.array_object.pop()
@@ -358,8 +358,8 @@ describe('responsive state test suit', function () {
                 })
             })
 
-            describe('unshift', function(){
-                it('first unshift', async function(){
+            describe('unshift', function () {
+                it('first unshift', async function () {
                     expect(store.state.array_object.length).toBe(2)
                     let newValue = {
                         name: 'unshift-0',
@@ -378,7 +378,7 @@ describe('responsive state test suit', function () {
                     expect(store.rstate.array_object[2]).toEqual(oldValue_1)
                 })
 
-                it('next unshift in different async batch', async function(){
+                it('next unshift in different async batch', async function () {
                     let newValue_0 = {
                         name: 'unshift-1',
                         age: 50,
@@ -398,7 +398,7 @@ describe('responsive state test suit', function () {
                     expect(store.rstate.array_object).toEqual([newValue_1, newValue_0, ...oldArray])
                 })
 
-                it('next unshift in the same async batch', async function(){
+                it('next unshift in the same async batch', async function () {
                     let newValue_0 = {
                         name: 'unshift-3',
                         age: 50,
@@ -419,9 +419,9 @@ describe('responsive state test suit', function () {
 
             })
 
-            describe('shift', async function(){
-                
-                it('first shift', async function(){
+            describe('shift', async function () {
+
+                it('first shift', async function () {
                     let oldArray = store.state.array_object
                     let shiftedObject = store.rstate.array_object.shift()
                     expect(store.state.array_object.length).toBe(7)
@@ -431,7 +431,7 @@ describe('responsive state test suit', function () {
                     expect(shiftedObject).toEqual(oldArray[0])
                 })
 
-                it('next shift in different async batch', async function(){
+                it('next shift in different async batch', async function () {
                     let oldArray = store.state.array_object
                     let shiftedObject_0 = store.rstate.array_object.shift()
                     await delay(0)
@@ -442,7 +442,7 @@ describe('responsive state test suit', function () {
                     expect(shiftedObject_1).toEqual(oldArray[1])
                 })
 
-                it('next shift in the same async batch', async function(){
+                it('next shift in the same async batch', async function () {
                     let oldArray = store.state.array_object
                     let shiftedObject_0 = store.rstate.array_object.shift()
                     let shiftedObject_1 = store.rstate.array_object.shift()
@@ -456,9 +456,9 @@ describe('responsive state test suit', function () {
 
             })
 
-            describe('splice', async function(){
+            describe('splice', function () {
 
-                it('can splice', async function(){
+                it('can splice', async function () {
                     let newValue_0 = {
                         name: 'splice-0',
                         age: 50,
@@ -490,23 +490,71 @@ describe('responsive state test suit', function () {
                     expect(poppedElements).toEqual([newValue_0, newValue_1])
                     expect(store.rstate.array_object[2]).toEqual(newValue_3)
                     expect(store.rstate.array_object[3]).toEqual(newValue_2)
+                    expect(store.state.array_object[2]).toEqual(newValue_3)
+                    expect(store.state.array_object[3]).toEqual(newValue_2)
+                    expect((store.state.array_object[3].age as XType).__xpath__).toEqual('.array_object.3.age')
                 })
 
             })
 
-            describe('sort', async function(){
+            describe('sort', function () {
+                it('can sort', async function () { 
+                    store.rstate.array_object[1].age = 2;
+                    store.rstate.array_object[2].age = 1;
+                    store.rstate.array_object[0].age = 3;
+                    store.rstate.array_object[3].age = 0;
+                    await delay(0)
+                    store.rstate.array_object.sort((a, b) => a.age - b.age)
+                    await delay(0)
+                    expect(store.rstate.array_object.map(v => v.age)).toEqual([0, 1, 2, 3])
+                })
 
             })
 
-            describe('reverse', async function(){
-
+            describe('reverse', async function () {
+                it('can reverse', async function () { 
+                    store.rstate.array_object.reverse()
+                    await delay(0)
+                    expect(store.rstate.array_object.map(v => v.age)).toEqual([3, 2, 1, 0])
+                })
             })
 
         })
 
     })
 
-    describe('null and not null switching', async function(){
+    describe('null situation', function () {
+        
+        // NOTE: 虽然可以，但是尽量不要用null值， 特别是不可以在初始化时把 object / array 节点设为 null
+        it('make an object to be null', async function(){
+            (store.rstate.teacher as any) = null;
+            await delay(0);
+            expect(store.state.teacher).toEqual(null);
+            expect(store.rstate.teacher).toEqual(null);
+        })
+
+        it('make null to be an object', async function(){
+            // 注意，新对象的结构要一致（正常业务逻辑下是一致的）
+            let newValue = {
+                name: 'Boy',
+                age: 20,
+                isMale: true
+            }
+            store.rstate.teacher = newValue
+            await delay(0);
+            expect(store.state.teacher).toEqual(newValue);
+            expect(store.rstate.teacher).toEqual(newValue);
+
+            store.rstate.teacher.name = 'Good'
+            await delay(0);
+            expect(store.state.teacher.name).toEqual('Good');
+        })
+
+        // 基本类型的情况
+
+        // TODO: array 的情况
+
+        // TODO: 数组赋值新值的情况
 
     })
 
