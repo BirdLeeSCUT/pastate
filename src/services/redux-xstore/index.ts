@@ -115,6 +115,7 @@ export class XStore<State extends XType> {
             Object.defineProperty(rnode, 'push', {
                 enumerable: false,
                 get: function () {
+                    // 目前只支持插入一个元素，新版本将支持插入多个元素
                     return function (element: any) {
                         context.update(XStore.getValueByPath(context.state, path), arr => [...arr, element]);
                         let rValue = context.makeRState([...path, rnode.length], element)
@@ -150,6 +151,7 @@ export class XStore<State extends XType> {
             Object.defineProperty(rnode, 'unshift', {
                 enumerable: false,
                 get: function () {
+                    // 目前只支持插入一个元素，新版本将支持插入多个元素
                     return function (element: any) {
                         context.update(XStore.getValueByPath(context.state, path), arr => [element, ...arr]);
                         let rValue = context.makeRState([...path, rnode.length], element)
@@ -187,11 +189,32 @@ export class XStore<State extends XType> {
                 enumerable: false,
                 get: function () {
                     return function () {
+                        let lastOneIndex = rnode.length - 1;
                         context.update(XStore.getValueByPath(context.state, path), arr => arr.slice(1));
-                        delete rnode[0]
+                        delete rnode[lastOneIndex]
                         rnode.length -= 1
                         let targetArray = XStore.getValueByPath(context.state, path);
                         return targetArray[targetArray.length - rnode.length - 1]
+                    }
+                }
+            })
+
+            Object.defineProperty(rnode, 'splice', {
+                enumerable: false,
+                get: function () {
+                    // 目前只支持插入一个元素，新版本将支持插入多个元素
+                    return function (start: number, deleteCount: number, newElement: any) {
+                        context.update(XStore.getValueByPath(context.state, path), arr => {
+                            arr.splice(start, deleteCount, newElement)
+                            return arr
+                        });
+                        let lastOneIndex = rnode.length - 1;
+                        for (let i = 0; i < deleteCount - 1; i++) {
+                            delete rnode[lastOneIndex - i]
+                        }
+                        rnode.length -= (deleteCount - 1)
+                        let targetArray = XStore.getValueByPath(context.state, path);
+                        return targetArray.slice(start, start + deleteCount)
                     }
                 }
             })

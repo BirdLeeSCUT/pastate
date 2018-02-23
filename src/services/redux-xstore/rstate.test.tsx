@@ -427,7 +427,7 @@ describe('responsive state test suit', function () {
                     expect(store.state.array_object.length).toBe(7)
                     expect(store.rstate.array_object.length).toBe(6)
                     await delay(0)
-                    expect(store.state.array_object).toEqual(oldArray.slice(1))
+                    expect(store.rstate.array_object).toEqual(oldArray.slice(1))
                     expect(shiftedObject).toEqual(oldArray[0])
                 })
 
@@ -437,7 +437,7 @@ describe('responsive state test suit', function () {
                     await delay(0)
                     let shiftedObject_1 = store.rstate.array_object.shift()
                     await delay(0)
-                    expect(store.state.array_object).toEqual(oldArray.slice(2))
+                    expect(store.rstate.array_object).toEqual(oldArray.slice(2))
                     expect(shiftedObject_0).toEqual(oldArray[0])
                     expect(shiftedObject_1).toEqual(oldArray[1])
                 })
@@ -447,7 +447,7 @@ describe('responsive state test suit', function () {
                     let shiftedObject_0 = store.rstate.array_object.shift()
                     let shiftedObject_1 = store.rstate.array_object.shift()
                     await delay(0)
-                    expect(store.state.array_object).toEqual(oldArray.slice(2))
+                    expect(store.rstate.array_object).toEqual(oldArray.slice(2))
                     expect(shiftedObject_0).toEqual(oldArray[0])
                     expect(shiftedObject_1).toEqual(oldArray[1])
                     // 注意， 连续 pop + push 混用会导致 pop 出来的元素可能出错（目前这两者存在依赖）
@@ -458,21 +458,44 @@ describe('responsive state test suit', function () {
 
             describe('splice', async function(){
 
-                it('first ', async function(){
-
-                })
-
-                it('next  in different async batch', async function(){
-                })
-
-                it('next  in the same async batch', async function(){
-
+                it('can splice', async function(){
+                    let newValue_0 = {
+                        name: 'splice-0',
+                        age: 50,
+                        isMale: true
+                    }
+                    let newValue_1 = {
+                        name: 'splice-1',
+                        age: 50,
+                        isMale: true
+                    }
+                    let newValue_2 = {
+                        name: 'splice-2',
+                        age: 50,
+                        isMale: true
+                    }
+                    let newValue_3 = {
+                        name: 'splice-2',
+                        age: 50,
+                        isMale: true
+                    }
+                    let oldArray = store.state.array_object;
+                    store.rstate.array_object.push(newValue_0)
+                    store.rstate.array_object.push(newValue_1)
+                    store.rstate.array_object.push(newValue_2)
+                    await delay(0)
+                    let poppedElements = store.rstate.array_object.splice(2, 2, newValue_3)
+                    await delay(0)
+                    expect(store.rstate.array_object.length).toEqual(4)
+                    expect(poppedElements).toEqual([newValue_0, newValue_1])
+                    expect(store.rstate.array_object[2]).toEqual(newValue_3)
+                    expect(store.rstate.array_object[3]).toEqual(newValue_2)
                 })
 
             })
 
             describe('sort', async function(){
-                
+
             })
 
             describe('reverse', async function(){
