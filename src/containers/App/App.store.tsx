@@ -65,6 +65,10 @@ class Store extends XStore<State>{
             })
         },
 
+        popPet: () => {
+            this.rstate.pets.pop()
+        },
+
         addFirstAge: () => {
             this.rstate.pets[0].age += 1
         },

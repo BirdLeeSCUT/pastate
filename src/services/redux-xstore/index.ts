@@ -87,8 +87,19 @@ export class XStore<State extends XType> {
 
 
     // MARK: 响应式 rstate 的处理相关函数
-    private makeRState(path: string[]): any {
-        let node = XStore.getValueByPath(this.state, path);
+    private makeRState(path: string[], newValue?: any): any {
+        let node: any;
+        if (newValue) {
+            let newValueTypeName: string = (Object.prototype.toString.call(node) as string).slice(8, -1);
+            switch (newValueTypeName) {
+                case 'Object': node = { ...newValue }; break;
+                case 'Array': node = [...newValue]; break;
+                default: node = newValue;
+            }
+
+        } else {
+            node = XStore.getValueByPath(this.state, path);
+        }
         let typeName: string = (Object.prototype.toString.call(node) as string).slice(8, -1);
 
         let rnode: any;
@@ -98,14 +109,94 @@ export class XStore<State extends XType> {
             // 待往外封装（需要把 set 操作改为非 this.xx 模式才可以封装）
             rnode = [];
             let context = this;
+
+            // 这种实现模式看起来比较耗资源， 考虑使用对象原因的模式  
+            // 目前只支持 push 单一元素          
             Object.defineProperty(rnode, 'push', {
                 enumerable: false,
                 get: function () {
                     return function (element: any) {
-                        context.set(XStore.getValueByPath(context.state, path), [...XStore.getValueByPath(context.state, path), element]);
+                        context.update(XStore.getValueByPath(context.state, path), arr => [...arr, element]);
+                        let rValue = context.makeRState([...path, rnode.length], element)
+                        Object.defineProperty(rnode, rnode.length, {
+                            enumerable: true,
+                            configurable: true,
+                            get: () => {
+                                return rValue;
+                            },
+                            set: (_newValue: any) => {
+                                context.set(XStore.getValueByPath(context.state, path)[rnode.length], _newValue)
+                            }
+                        })
                     }
                 }
             })
+
+            Object.defineProperty(rnode, 'pop', {
+                enumerable: false,
+                get: function () {
+                    return function () {
+                        let lastOneIndex = rnode.length - 1;
+                        // FIXME: 把 arr.slice(0, lastOneIndex) 改为 arr.slice(0, -1) 会发生无法多次pop的问题 ？
+                        context.update(XStore.getValueByPath(context.state, path), arr => arr.slice(0, lastOneIndex));
+                        delete rnode[lastOneIndex]
+                        rnode.length -= 1
+                        return XStore.getValueByPath(context.state, path)[lastOneIndex]
+                    }
+                }
+            })
+
+            // 目前只支持 unshift 单一元素 
+            Object.defineProperty(rnode, 'unshift', {
+                enumerable: false,
+                get: function () {
+                    return function (element: any) {
+                        context.update(XStore.getValueByPath(context.state, path), arr => [element, ...arr]);
+                        let rValue = context.makeRState([...path, rnode.length], element)
+                        Object.defineProperty(rnode, rnode.length, {
+                            enumerable: true,
+                            configurable: true,
+                            get: () => {
+                                return rValue;
+                            },
+                            set: (_newValue: any) => {
+                                context.set(XStore.getValueByPath(context.state, path)[rnode.length], _newValue)
+                            }
+                        })
+                    }
+                }
+            })
+
+            // DELAY: 这个方法兼容push的新值结构不一致的情况
+            // 基于 pathstate 的模式在数组对象的需要变化时，会导致所有需要重新遍历所有子树的 pathstate 值, 此处有优化空间
+            // Object.defineProperty(rnode, '_unshift', {
+            //     enumerable: false,
+            //     get: function () {
+            //         return function (element: any) {
+            //             // 基于 pathstate 的模式在数组对象的需要变化时，会导致所有需要重新遍历所有子树的 pathstate 值, 此处有优化空间
+
+            //             element = {...element}
+            //             context.update(XStore.getValueByPath(context.state, path), arr => [element, ...arr]);
+            //             let newRNode = context.makeRState(path, [element, ...XStore.getValueByPath(context.state, path)]);
+            //             // TODO: 更新挂载点
+            //         }
+            //     }
+            // })
+
+            Object.defineProperty(rnode, 'shift', {
+                enumerable: false,
+                get: function () {
+                    return function () {
+                        context.update(XStore.getValueByPath(context.state, path), arr => arr.slice(1));
+                        delete rnode[0]
+                        rnode.length -= 1
+                        let targetArray = XStore.getValueByPath(context.state, path);
+                        return targetArray[targetArray.length - rnode.length - 1]
+                    }
+                }
+            })
+
+
         } else {
             throw new Error('updateRState meet not object value, this is an error of pastate')
         }
@@ -121,17 +212,19 @@ export class XStore<State extends XType> {
                     let rValue = this.makeRState([...path, prop])
                     Object.defineProperty(rnode, prop, {
                         enumerable: true,
+                        configurable: true,
                         get: () => {
                             return rValue;
                         },
-                        set: (newValue: any) => {
-                            this.set(XStore.getValueByPath(this.state, path)[prop], newValue)
+                        set: (_newValue: any) => {
+                            this.set(XStore.getValueByPath(this.state, path)[prop], _newValue)
                         }
                     })
                 } else {
                     // 基本类型
                     Object.defineProperty(rnode, prop, {
                         enumerable: true,
+                        configurable: true,
                         get: () => {
                             switch (valueTypeName) {
                                 case 'Number': return +XStore.getValueByPath(this.state, path)[prop];
@@ -139,8 +232,8 @@ export class XStore<State extends XType> {
                                 default: return XStore.getValueByPath(this.state, path)[prop]
                             }
                         },
-                        set: (newValue: any) => {
-                            this.set(XStore.getValueByPath(this.state, path)[prop], newValue)
+                        set: (_newValue: any) => {
+                            this.set(XStore.getValueByPath(this.state, path)[prop], _newValue)
                         }
                     })
                 }
@@ -386,7 +479,7 @@ export class XStore<State extends XType> {
                 type: '__XSTORE_UPDATE__: ' + (this.name || '(you can add a name to your xstore via name prop)')
             })
         } else {
-            console.error('[XStore] dispatch method is not injected')
+            // console.error('[XStore] dispatch method is not injected');
         }
 
         this.stateDidReducedOperations({
@@ -517,25 +610,30 @@ export class XStore<State extends XType> {
                 tookEffect: true // 这里暂时均为生效
             }
         }
+
         // update 作用于任何值
         else if (operation.operation == 'update') {
 
+
             let oldValue = XStore.getValueByPath(this.state, pathArr);
 
-            if (valueType == 'Array') {
-                oldValue = [...oldValue]
-            } else if (valueType == 'Object') {
-                oldValue = { ...oldValue }
+            if (oldValue === preValue) {
+                if (valueType == 'Array') {
+                    oldValue = [...oldValue]
+                } else if (valueType == 'Object') {
+                    oldValue = { ...oldValue }
+                }
             }
 
             newValue = operation.payload(oldValue)
+            let newXTypeValue = this.toXType(newValue, operation.path!);
 
             if (pathArr.length == 0) {
-                this.state = this.toXType(newValue, operation.path!) as State;
+                this.state = newXTypeValue as State;
             } else {
                 endPath = pathArr.pop();
                 fatherNode = this.getNewReference(pathArr);
-                fatherNode[Array.isArray(fatherNode) ? [endPath - 0] : endPath] = this.toXType(newValue, operation.path!)
+                fatherNode[Array.isArray(fatherNode) ? [endPath - 0] : endPath] = newXTypeValue;
             }
 
             return {
@@ -575,7 +673,9 @@ export class XStore<State extends XType> {
 
             curValue = Array.isArray(preValue) ? [...preValue] as XType : { ...preValue } as XType;
             Object.defineProperty(curValue, "__xpath__", {
-                value: preValue.__xpath__
+                enumerable: false,
+                value: preValue.__xpath__,
+                writable: true
             });
 
             // 溯源更新 后 挂载新值（此处不可逆序，否则会导致 preState 被改动）
@@ -640,16 +740,19 @@ export class XStore<State extends XType> {
                     console.error('[XStore] XType transform error:', typeName);
                     xNewData = new XObject(undefined);
             }
+            Object.defineProperty(xNewData, "__xpath__", {
+                value: path,
+                enumerable: false,
+                writable: true
+            });
         }
         // 处理 xtype 类型
         else {
             xNewData = rawData;
-            // NOTE: 根据 im 特性，对于 array 和 object 类型，如果内部数据改变，则溯源节点的引用都会更新，此时该节点会变成 plain 类型，会走上面的转化过程
+            xNewData.__xpath__ = path
+            // NOTE: 根据 im 特性，对于 array 和 object 类型，如果内部数据改变，
+            // 则溯源节点的引用都会更新，此时该节点会变成 plain 类型，会走上面的转化过程
         }
-        Object.defineProperty(xNewData, "__xpath__", {
-            value: path,
-
-        });
 
         return xNewData;
     }

@@ -24,6 +24,7 @@ class App extends React.Component<{ state: State } & DispatchProp<any>> {
           ))}
           <br />
           <button onClick={actions.addPet} >增加宠物</button>
+          <button onClick={actions.popPet} >减少宠物</button>
           <button onClick={actions.addFirstAge} >增加1岁</button>
         </div>
         <div><Link to="/home">go to home</Link></div>

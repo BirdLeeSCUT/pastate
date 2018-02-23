@@ -770,7 +770,21 @@ describe('Test: reduce operation "update" ', function (){
             expect(myStore.state).not.toBe(myStore.preState)
         })
 
-
+        it('array continuous push', async function(){
+            myStore.update(myStore.state.pets, pets => [...pets, {
+                name: 'Kitty',
+                age: 6,
+                isDog: false
+            }])
+            myStore.update(myStore.state.pets, pets => [...pets, {
+                name: 'Kitty',
+                age: 6,
+                isDog: false
+            }])
+            expect(myStore.state.pets.length).toEqual(3)
+            await delay(0)
+            expect(myStore.state.pets.length).toEqual(5)
+        })
 
     })
 

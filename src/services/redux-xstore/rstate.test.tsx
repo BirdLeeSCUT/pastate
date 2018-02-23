@@ -32,8 +32,7 @@ interface SimpleState extends XType {
 }
 
 class SimpleStore extends XStore<SimpleState>{ }
-
-let store = new SimpleStore({
+let initState = {
     name: 'Peter',
     age: 10,
     isMale: true,
@@ -65,7 +64,8 @@ let store = new SimpleStore({
         ['a00', 'a01'],
         ['a10', 'a11']
     ]
-})
+}
+let store = new SimpleStore(initState);
 
 describe('responsive state test suit', function () {
 
@@ -238,4 +238,253 @@ describe('responsive state test suit', function () {
         })
 
     })
+
+    describe('state change', function(){
+
+        describe('array mutate method', function(){
+
+            describe('push', function(){
+
+                it('first push', async function(){
+                    // 插入新元素
+                    expect(store.state.array_object.length).toEqual(2)
+                    let newElement = {
+                        name: 'n2',
+                        age: 40,
+                        isMale: false
+                    }
+                    store.rstate.array_object.push(newElement)
+                    await delay(0)
+                    expect(store.state.array_object.length).toEqual(3)
+                    expect(store.rstate.array_object.length).toEqual(3)
+                    expect(store.state.array_object[2]).toEqual(newElement)
+                    expect(store.rstate.array_object[2]).toEqual(newElement)
+
+                    // 新元素的操作
+                    store.rstate.array_object[2].name = 'n2!'
+                    await delay(0)
+                    expect(store.state.array_object[2].name).toEqual('n2!')
+                })
+
+                it('next push in different async batch', async function(){
+                    let newElement = {
+                        name: 'n3',
+                        age: 50,
+                        isMale: true
+                    }
+                    store.rstate.array_object.push(newElement)
+                    await delay(0)
+                    store.rstate.array_object[3].age = 100
+                    await delay(0)
+                    expect(store.state.array_object.length).toEqual(4)
+                    expect(store.rstate.array_object.length).toEqual(4)
+                    expect(store.state.array_object[3].age).toEqual(100)
+                    expect(store.rstate.array_object[3].age).toEqual(100)
+                })
+
+                it('next push in the same async batch', async function(){
+
+                    let newElement0 = {
+                        name: 'new-0',
+                        age: 50,
+                        isMale: true
+                    }
+
+                    let newElement1 = {
+                        name: 'new-1',
+                        age: 50,
+                        isMale: true
+                    }
+
+                    // 如果 push 是按引用传递，这里有个问题要注意，如果两个都是压入相同的引用element, 会导致无法压入第二个
+                    // 遇到问题要考虑这一点：按值传递和按引用传递的控制，本框架的修改会统一用按值传递的模式实现（如果发现按引用传递则需要修改）
+
+                    store.rstate.array_object.push(newElement0)
+                    expect(store.rstate.array_object.length).toEqual(5) 
+                    store.rstate.array_object.push(newElement1)
+                    expect(store.rstate.array_object.length).toEqual(6)
+                    await delay(0)
+                    
+                    expect(store.state.array_object.length).toEqual(6)
+                    expect(store.state.array_object[4]).toEqual(newElement0)
+                    expect(store.rstate.array_object[4]).toEqual(newElement0)
+                    expect(store.state.array_object[5]).toEqual(newElement1)
+                    expect(store.rstate.array_object[5]).toEqual(newElement1)
+                })
+            })
+
+            describe('pop', function(){
+
+                // 注意，此时通过 store.rstate.array_object[3] 获取的对象，已经不可以访问了，因为数据里没有第3个元素了
+                it('first pop', async function(){
+                    let lastValue_pop = store.rstate.array_object.pop()
+                    await delay(0)
+                    expect(lastValue_pop).toEqual({
+                        name: 'new-1',
+                        age: 50,
+                        isMale: true
+                    })
+                    expect(store.state.array_object[5]).toEqual(undefined)
+                    expect(store.state.array_object.length).toEqual(5)
+                    expect(store.rstate.array_object.length).toEqual(5)
+                })
+
+                // 异步间连续操作
+                it('next pop in different async batch', async function(){
+                    let lastValue_pop = store.rstate.array_object.pop()
+                    expect(store.rstate.array_object.length).toEqual(4)
+
+                    await delay(0)
+                    expect(store.state.array_object.length).toEqual(4)
+                    expect(lastValue_pop).toEqual({
+                        name: 'new-0',
+                        age: 50,
+                        isMale: true
+                    })
+                    expect(store.state.array_object[4]).toEqual(undefined)
+                })
+
+                // 异步内连续操作
+                it('next pop in the same async batch', async function(){
+                    let value_3 = store.state.array_object[3]
+                    let value_2 = store.state.array_object[2]
+                    let lastValue_pop0 = store.rstate.array_object.pop()
+                    let lastValue_pop1 = store.rstate.array_object.pop()
+                    expect(store.state.array_object.length).toBe(4)
+                    await delay(0)
+                    expect(store.state.array_object.length).toBe(2)
+                    expect(lastValue_pop0).toBe(value_3)
+                    expect(lastValue_pop1).toBe(value_2)
+                })
+            })
+
+            describe('unshift', function(){
+                it('first unshift', async function(){
+                    expect(store.state.array_object.length).toBe(2)
+                    let newValue = {
+                        name: 'unshift-0',
+                        age: 50,
+                        isMale: true
+                    }
+                    let oldValue_0 = store.state.array_object[0]
+                    let oldValue_1 = store.state.array_object[1]
+                    store.rstate.array_object.unshift(newValue)
+                    expect(store.state.array_object.length).toBe(2)
+                    expect(store.rstate.array_object.length).toBe(3)
+                    await delay(0)
+                    expect(store.state.array_object.length).toBe(3)
+                    expect(store.rstate.array_object[0]).toEqual(newValue)
+                    expect(store.rstate.array_object[1]).toEqual(oldValue_0)
+                    expect(store.rstate.array_object[2]).toEqual(oldValue_1)
+                })
+
+                it('next unshift in different async batch', async function(){
+                    let newValue_0 = {
+                        name: 'unshift-1',
+                        age: 50,
+                        isMale: true
+                    }
+                    let newValue_1 = {
+                        name: 'unshift-2',
+                        age: 50,
+                        isMale: true
+                    }
+                    let oldArray = store.state.array_object;
+                    store.rstate.array_object.unshift(newValue_0)
+                    await delay(0)
+                    store.rstate.array_object.unshift(newValue_1)
+                    await delay(0)
+                    expect(store.rstate.array_object.length).toEqual(5)
+                    expect(store.rstate.array_object).toEqual([newValue_1, newValue_0, ...oldArray])
+                })
+
+                it('next unshift in the same async batch', async function(){
+                    let newValue_0 = {
+                        name: 'unshift-3',
+                        age: 50,
+                        isMale: true
+                    }
+                    let newValue_1 = {
+                        name: 'unshift-4',
+                        age: 50,
+                        isMale: true
+                    }
+                    let oldArray = store.state.array_object
+                    store.rstate.array_object.unshift(newValue_0)
+                    store.rstate.array_object.unshift(newValue_1)
+                    await delay(0)
+                    expect(store.rstate.array_object.length).toEqual(7)
+                    expect(store.rstate.array_object).toEqual([newValue_1, newValue_0, ...oldArray])
+                })
+
+            })
+
+            describe('shift', async function(){
+                
+                it('first shift', async function(){
+                    let oldArray = store.state.array_object
+                    let shiftedObject = store.rstate.array_object.shift()
+                    expect(store.state.array_object.length).toBe(7)
+                    expect(store.rstate.array_object.length).toBe(6)
+                    await delay(0)
+                    expect(store.state.array_object).toEqual(oldArray.slice(1))
+                    expect(shiftedObject).toEqual(oldArray[0])
+                })
+
+                it('next shift in different async batch', async function(){
+                    let oldArray = store.state.array_object
+                    let shiftedObject_0 = store.rstate.array_object.shift()
+                    await delay(0)
+                    let shiftedObject_1 = store.rstate.array_object.shift()
+                    await delay(0)
+                    expect(store.state.array_object).toEqual(oldArray.slice(2))
+                    expect(shiftedObject_0).toEqual(oldArray[0])
+                    expect(shiftedObject_1).toEqual(oldArray[1])
+                })
+
+                it('next shift in the same async batch', async function(){
+                    let oldArray = store.state.array_object
+                    let shiftedObject_0 = store.rstate.array_object.shift()
+                    let shiftedObject_1 = store.rstate.array_object.shift()
+                    await delay(0)
+                    expect(store.state.array_object).toEqual(oldArray.slice(2))
+                    expect(shiftedObject_0).toEqual(oldArray[0])
+                    expect(shiftedObject_1).toEqual(oldArray[1])
+                    // 注意， 连续 pop + push 混用会导致 pop 出来的元素可能出错（目前这两者存在依赖）
+                    // 但是 目标数组的处理结果时正确的
+                })
+
+            })
+
+            describe('splice', async function(){
+
+                it('first ', async function(){
+
+                })
+
+                it('next  in different async batch', async function(){
+                })
+
+                it('next  in the same async batch', async function(){
+
+                })
+
+            })
+
+            describe('sort', async function(){
+                
+            })
+
+            describe('reverse', async function(){
+
+            })
+
+        })
+
+    })
+
+    describe('null and not null switching', async function(){
+
+    })
+
 })
