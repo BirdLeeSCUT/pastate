@@ -65,6 +65,14 @@ class Store extends XStore<State>{
             })
         },
 
+        addPetBefore: () => {
+            this.rstate.pets.unshift({
+                name: 'Kitty',
+                age: 2,
+                isDog: false
+            })
+        },
+
         popPet: () => {
             this.rstate.pets.pop()
         },

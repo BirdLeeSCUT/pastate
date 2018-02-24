@@ -28,11 +28,16 @@ interface SimpleState extends XType {
         age: number,
         isMale: boolean
     }>,
+    array_object_empty: Array<{
+        name: string,
+        age: number,
+        isMale: boolean
+    }>,
     array_array: Array<Array<string>>
 }
 
 class SimpleStore extends XStore<SimpleState>{ }
-let initState = {
+let initState: SimpleState = {
     name: 'Peter',
     age: 10,
     isMale: true,
@@ -60,6 +65,7 @@ let initState = {
         age: 20,
         isMale: false
     }],
+    array_object_empty: [],
     array_array: [
         ['a00', 'a01'],
         ['a10', 'a11']
@@ -92,7 +98,7 @@ describe('responsive state test suit', function () {
                     store.rstate.name = 'Tom'
                     await delay(0)
                     expect(store.state.name).toEqual('Tom')
-                    expect(store.rstate.name).toBe(store.state.name)
+                    expect(store.rstate.name).toEqual(store.state.name)
                 })
 
                 it('number', async function () {
@@ -127,7 +133,7 @@ describe('responsive state test suit', function () {
 
                 describe('get', function () {
                     it('string', function () {
-                        expect(store.rstate.teacher.name).toBe(store.state.teacher.name)
+                        expect(store.rstate.teacher.name).toEqual(store.state.teacher.name)
                     })
                     it('number', function () {
                         expect(store.state.teacher.age).toEqual(store.rstate.teacher.age)
@@ -142,7 +148,7 @@ describe('responsive state test suit', function () {
                         store.rstate.teacher.name = 'Tom'
                         await delay(0)
                         expect(store.state.teacher.name).toEqual('Tom')
-                        expect(store.rstate.teacher.name).toBe(store.state.teacher.name)
+                        expect(store.rstate.teacher.name).toEqual(store.state.teacher.name)
                     })
 
                     it('number', async function () {
@@ -175,7 +181,7 @@ describe('responsive state test suit', function () {
                 describe('deep nested', function () {
 
                     it('level2', async function () {
-                        expect(store.rstate.deepNested.level2.value).toBe(store.state.deepNested.level2.value)
+                        expect(store.rstate.deepNested.level2.value).toEqual(store.state.deepNested.level2.value)
                         store.rstate.deepNested.level2.value += '!'
                         await delay(0)
                         expect(store.state.deepNested.level2.value).toEqual('l2!')
@@ -183,7 +189,7 @@ describe('responsive state test suit', function () {
                     })
 
                     it('level3', async function () {
-                        expect(store.rstate.deepNested.level2.level3.value).toBe(store.state.deepNested.level2.level3.value)
+                        expect(store.rstate.deepNested.level2.level3.value).toEqual(store.state.deepNested.level2.level3.value)
                         store.rstate.deepNested.level2.level3.value += '!'
                         await delay(0)
                         expect(store.state.deepNested.level2.level3.value).toEqual('l3!')
@@ -311,6 +317,9 @@ describe('responsive state test suit', function () {
                     expect(store.state.array_object[5]).toEqual(newElement1)
                     expect(store.rstate.array_object[5]).toEqual(newElement1)
                 })
+
+                it('push into an init empty array')
+
             })
 
             describe('pop', function () {
@@ -417,6 +426,8 @@ describe('responsive state test suit', function () {
                     expect(store.rstate.array_object).toEqual([newValue_1, newValue_0, ...oldArray])
                 })
 
+                it('unshift into an init empty array')
+
             })
 
             describe('shift', async function () {
@@ -498,7 +509,7 @@ describe('responsive state test suit', function () {
             })
 
             describe('sort', function () {
-                it('can sort', async function () { 
+                it('can sort', async function () {
                     store.rstate.array_object[1].age = 2;
                     store.rstate.array_object[2].age = 1;
                     store.rstate.array_object[0].age = 3;
@@ -512,7 +523,7 @@ describe('responsive state test suit', function () {
             })
 
             describe('reverse', async function () {
-                it('can reverse', async function () { 
+                it('can reverse', async function () {
                     store.rstate.array_object.reverse()
                     await delay(0)
                     expect(store.rstate.array_object.map(v => v.age)).toEqual([3, 2, 1, 0])
@@ -524,37 +535,181 @@ describe('responsive state test suit', function () {
     })
 
     describe('null situation', function () {
-        
-        // NOTE: 虽然可以，但是尽量不要用null值， 特别是不可以在初始化时把 object / array 节点设为 null
-        it('make an object to be null', async function(){
-            (store.rstate.teacher as any) = null;
-            await delay(0);
-            expect(store.state.teacher).toEqual(null);
-            expect(store.rstate.teacher).toEqual(null);
+
+        // NOTE: 虽然支持设为null值，但是一般不建议用null值
+
+        describe('plain node', function () {
+
+            it('string', async function(){
+
+                // to be null
+                (store.rstate.teacher.name as any) = null;
+                await delay(0);
+                expect(store.state.teacher.name).toEqual(null);
+                expect(store.rstate.teacher.name).toEqual(null);
+
+                // to be not null
+                store.rstate.teacher.name = 'new teacher';
+                await delay(0);
+                expect(store.state.teacher.name).toEqual('new teacher');
+                expect(store.rstate.teacher.name).toEqual('new teacher');
+
+            })
+
+            it('number', async function(){
+
+                // to be null
+                (store.rstate.teacher.age as any) = null;
+                await delay(0);
+                expect(store.state.teacher.age).toEqual(null);
+                expect(store.rstate.teacher.age).toEqual(null);
+
+                // to be not null
+                store.rstate.teacher.age = 100;
+                await delay(0);
+                expect(store.state.teacher.age).toEqual(100);
+                expect(store.rstate.teacher.age).toEqual(100);
+
+            })
+
+            it('boolean', async function(){
+
+                // to be null
+                (store.rstate.teacher.isMale as any) = null;
+                await delay(0);
+                expect(store.state.teacher.isMale).toEqual(null);
+                expect(store.rstate.teacher.isMale).toEqual(null);
+
+                // to be not null
+                store.rstate.teacher.isMale = true;
+                await delay(0);
+                expect(store.state.teacher.isMale).toEqual(true);
+                expect(store.rstate.teacher.isMale).toEqual(true);
+            })
+
         })
 
-        it('make null to be an object', async function(){
-            // 注意，新对象的结构要一致（正常业务逻辑下是一致的）
-            let newValue = {
-                name: 'Boy',
-                age: 20,
-                isMale: true
-            }
-            store.rstate.teacher = newValue
-            await delay(0);
-            expect(store.state.teacher).toEqual(newValue);
-            expect(store.rstate.teacher).toEqual(newValue);
+        describe('object node', function () {
 
-            store.rstate.teacher.name = 'Good'
-            await delay(0);
-            expect(store.state.teacher.name).toEqual('Good');
+            it('make an object to be null', async function () {
+                (store.rstate.teacher as any) = null;
+                await delay(0);
+                expect(store.state.teacher).toEqual(null);
+                expect(store.rstate.teacher).toEqual(null);
+            })
+
+            it('make null to be an object', async function () {
+                // 注意，新对象的结构要一致（正常业务逻辑下是一致的）
+                let newValue = {
+                    name: 'Boy',
+                    age: 20,
+                    isMale: true
+                }
+                store.rstate.teacher = newValue
+                await delay(0);
+                expect(store.state.teacher).toEqual(newValue);
+                expect(store.rstate.teacher).toEqual(newValue);
+
+                store.rstate.teacher.name = 'Good'
+                await delay(0);
+                expect(store.state.teacher.name).toEqual('Good');
+            })
         })
 
-        // 基本类型的情况
+        describe('array node', function () {
 
-        // TODO: array 的情况
+            it('make an array to be empty array', async function () {
+                store.rstate.array_object = [];
+                await delay(0);
+                expect(store.state.array_object).toEqual([]);
+                expect(store.rstate.array_object).toEqual([]);
+            })
 
-        // TODO: 数组赋值新值的情况
+            it('make middle empty array to return same stucture array', async function () {
+                // 注意，目前用方法二实现，新数组的结构不一定要要一致（正常业务逻辑下是一致的）
+                // 如果用方法一实现则需要，方法一性能会高一些
+                let newElement = {
+                    name: 'not empty array',
+                    age: 20,
+                    isMale: true
+                }
+                let newArray = [newElement, newElement, newElement]
+                store.rstate.array_object = newArray
+                await delay(0);
+                expect(store.state.array_object).toEqual(newArray);
+                expect(store.rstate.array_object).toEqual(newArray);
+
+                store.rstate.array_object[2].name = 'new value'
+                await delay(0);
+                expect(store.state.array_object[2].name).toEqual('new value');
+                expect(store.rstate.array_object[2].name).toEqual('new value');
+            })
+
+            it('make initial empty array to be not empty array', async function () {
+                let newElement = {
+                    name: 'not empty array',
+                    age: 20,
+                    isMale: true
+                }
+                let newArray = [newElement, newElement, newElement]
+                store.rstate.array_object_empty = newArray
+                await delay(0);
+                expect(store.state.array_object_empty).toEqual(newArray);
+                expect(store.rstate.array_object_empty).toEqual(newArray);
+
+                store.rstate.array_object_empty[2].name = 'new value'
+                await delay(0);
+                expect(store.state.array_object_empty[2].name).toEqual('new value');
+                expect(store.rstate.array_object_empty[2].name).toEqual('new value');
+            })
+
+            it('make array to be another array', async function () {
+                // 注意，目前用方法二实现，新数组的结构不一定要要一致（正常业务逻辑下是一致的）
+                // 如果用方法一实现则需要，方法一性能会高一些
+                let newElement = {
+                    name: 'another array',
+                    age: 21,
+                    isMale: false
+                }
+                let newArray = [newElement, newElement]
+                store.rstate.array_object = newArray
+                await delay(0);
+                expect(store.state.array_object).toEqual(newArray);
+                expect(store.rstate.array_object).toEqual(newArray);
+
+                store.rstate.array_object[1].name = 'new value'
+                await delay(0);
+                expect(store.state.array_object[1].name).toEqual('new value');
+                expect(store.rstate.array_object[1].name).toEqual('new value');
+            })
+
+            it('array and null switching', async function () {
+                // 支持设 array 为 null 但是不推荐，请使用 [] 代替
+
+                // to be null
+                (store.rstate.array_object as any) = null
+                await delay(0);
+                expect(store.state.array_object).toEqual(null);
+                expect(store.rstate.array_object).toEqual(null);
+                
+                // to be array
+                let newElement = {
+                    name: 'another array',
+                    age: 21,
+                    isMale: false
+                }
+                let newArray = [newElement, newElement]
+                store.rstate.array_object = newArray
+                await delay(0);
+                expect(store.state.array_object).toEqual(newArray);
+                expect(store.rstate.array_object).toEqual(newArray);
+
+                store.rstate.array_object[1].name = 'new value'
+                await delay(0);
+                expect(store.state.array_object[1].name).toEqual('new value');
+                expect(store.rstate.array_object[1].name).toEqual('new value');
+            })
+        })
 
     })
 

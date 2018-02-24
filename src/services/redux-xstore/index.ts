@@ -96,7 +96,6 @@ export class XStore<State extends XType> {
                 case 'Array': node = [...newValue]; break;
                 default: node = newValue;
             }
-
         } else {
             node = XStore.getValueByPath(this.state, path);
         }
@@ -241,7 +240,7 @@ export class XStore<State extends XType> {
 
 
         } else {
-            throw new Error('updateRState meet not object value, this is an error of pastate')
+            throw new Error('updateRState meet not object value, this is an error of pastate, typeName: ' + typeName)
         }
 
         for (let prop in node) {
@@ -252,13 +251,13 @@ export class XStore<State extends XType> {
                 // 对象嵌套响应式建立
                 if (valueTypeName == 'Object' || valueTypeName == 'Array') {
                     // 对象或数组，建立新的响应式节点
-                    let rValue = this.makeRState([...path, prop])
+                    let rValue = this.makeRState([...path, prop], node[prop])
                     Object.defineProperty(rnode, prop, {
                         enumerable: true,
                         configurable: true,
                         get: () => {
                             let valueToGet = XStore.getValueByPath(this.state, path)[prop];
-                            if(valueToGet === null || valueToGet === undefined){
+                            if(valueToGet === null || valueToGet === undefined || (valueTypeName == 'Array' && valueToGet.length == 0)){
                                 return valueToGet;
                             }else{
                                 return rValue;
@@ -269,16 +268,30 @@ export class XStore<State extends XType> {
                             
                             // 把对象节点设置为 null 的情况
                             if(_newValue === null || _newValue === undefined){
-                                console.warn(`[pastate] You are setting an ${valueTypeName} node to be ${_newValue}, which may result in 'undefined' error.`)
+                                console.warn(`[pastate] You are setting an ${valueTypeName} node to be '${_newValue}', which is deprecated.`)
                             }
 
                             let valueToSet = XStore.getValueByPath(this.state, path)[prop];
-                            if(valueToSet === null || _newValue === undefined){
-                                this.merge({__xpath__: path.join('.')}, {
+
+                            if(valueToSet === null || valueToSet === undefined){
+                                this.merge({__xpath__: path.map(p => '.' + p).join('')}, {
                                     [prop]: _newValue
                                 } as any)
                             }else{
                                 this.set(valueToSet, _newValue)
+                            }
+
+                            // 响应式数组长度变化处理
+                            if(valueTypeName == 'Array'){
+                                
+                                // DALAY: 方法一：为了提高效率，只做长度调整，重复利用现有元素
+                                // let adjustCount = _newValue.length - valueToSet.length;
+                                // if(adjustCount > 0){
+                                // }else if(adjustCount < 0){
+                                // }
+
+                                // 方法二：重新建立响应式节点
+                                rValue = this.makeRState([...path, prop], _newValue)
                             }
                             
                         }
@@ -289,19 +302,35 @@ export class XStore<State extends XType> {
                         enumerable: true,
                         configurable: true,
                         get: () => {
+                            let getValue = XStore.getValueByPath(this.state, path)[prop];
+                            if(getValue === null || getValue === undefined){
+                                return getValue
+                            }
                             switch (valueTypeName) {
-                                case 'Number': return +XStore.getValueByPath(this.state, path)[prop];
-                                case 'Boolean': return XStore.getValueByPath(this.state, path)[prop] == true;
-                                default: return XStore.getValueByPath(this.state, path)[prop]
+                                // 返回非对象类型的 plain 数据
+                                case 'Number': return +getValue;
+                                case 'Boolean': return getValue == true;
+                                // 文字保留对象类型也可以，此处不一定要转化
+                                case 'String': return getValue + '';
+                                default: return getValue
                             }
                         },
                         set: (_newValue: any) => {
+
+                            // DALAY: 下版本考虑支持把叶子转化为节点 (开发者水平容错性)
+                            let newValueTypeName: string = (Object.prototype.toString.call(_newValue) as string).slice(8, -1);
+                            if(newValueTypeName == 'Array' || newValueTypeName == 'Object'){
+                                console.error('[pastate] At present, you cannot set an node with the string | number | boolean | null | undefined value to be Array or Object. We will consider support it in the future.')
+                                return;
+                            }
+
                             let valueToSet = XStore.getValueByPath(this.state, path)[prop];
-                            if(valueToSet === null || _newValue === undefined){
-                                this.merge({__xpath__: path.join('.')}, {
+                            if(valueToSet === null || valueToSet === undefined){
+                                this.merge({__xpath__: path.map(p => '.' + p).join('')}, {
                                     [prop]: _newValue
                                 } as any)
                             }else{
+                                // TODO:看看原始值是否为null, 如果是，则需要建立响应式
                                 this.set(valueToSet, _newValue)
                             }
                         }
@@ -448,7 +477,7 @@ export class XStore<State extends XType> {
         // payload 合法性处理
         let payloadType: string = (Object.prototype.toString.call(rawParams.payload) as string).slice(8, -1);
         if (payloadType == 'Undefined' || payloadType == 'Null') {
-            console.warn(`You operation payload to ${path} is \`undefined\` or \`null\`, please check if you really want to do it.`)
+            console.warn(`[pastate] You are making ${path} to be \`undefined\` or \`null\`, which is deprecated.`)
         }
 
         // 执行 operation 队列插入操作

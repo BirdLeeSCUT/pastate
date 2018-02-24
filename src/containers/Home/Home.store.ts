@@ -1,4 +1,4 @@
-import { XStore, XType, XString } from '../../services/redux-xstore';
+import { XStore, XType } from '../../services/redux-xstore';
 
 interface State extends XType {
     name: string
