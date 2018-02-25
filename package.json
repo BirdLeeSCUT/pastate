@@ -1,6 +1,6 @@
 {
   "name": "pastate",
-  "version": "0.3.1",
+  "version": "0.4.0",
   "main": "./src/services/redux-xstore/index.js",
   "dependencies": {
     "autoprefixer": "7.1.2",
