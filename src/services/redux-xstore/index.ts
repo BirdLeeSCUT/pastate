@@ -1,11 +1,11 @@
 /**
  * XStore 实现
  */
-
 import { fromJS, Map } from 'immutable'
-import { Action } from 'redux';
-import { Dispatch, Store } from 'react-redux';
+import { Action, Reducer } from 'redux';
+import { Dispatch } from 'react-redux';
 import { ChangeEvent } from 'react';
+import { createStore, combineReducers, Store } from 'redux'
 
 interface XOperation {
     operation: 'set' | 'merge' | 'update' | 'mark',
@@ -15,6 +15,8 @@ interface XOperation {
 }
 
 export class XStore<State extends XType> {
+
+    public __PASTATE_STORE__ = true;
 
     /**
      * 制定当前 store 的名称，可选
@@ -78,7 +80,7 @@ export class XStore<State extends XType> {
     constructor(initState: State, config?: {
         useSpanNumber?: boolean
     }) {
-        config && (Object.assign(this.config, config));
+        config && ((Object as any).assign(this.config, config));
         this.state = this.toXType(initState, '') as State;
         // TODO: 处理新建对象的情况（数组函数, 把null设为对象值）
         this.rstate = this.makeRState([]);
@@ -984,8 +986,26 @@ export class XObject extends Object implements XType {
     __xpath__: string
 }
 
-export function injectDispatch(store: Store<any>, partStoreArr: Array<XStore<any>>) {
-    partStoreArr.forEach(xstore => {
-        xstore.dispatch = store.dispatch;
+export function makeRootStore(storeTree: any): Store<any>{
+    let partXStoreArr: Array<XStore<any>> = [];
+    let makePastateStoreToBeReducer = function(_storeTree: any): Reducer<any>{
+        let node = {}
+        for (const key in _storeTree) {
+            if (_storeTree.hasOwnProperty(key)) {
+                if(_storeTree[key].__PASTATE_STORE__){
+                    node[key] = _storeTree[key].getReduxReducer();
+                    partXStoreArr.push(_storeTree[key])
+                }else{
+                    node[key] = makePastateStoreToBeReducer(_storeTree[key])
+                }
+            }
+        }
+        return combineReducers(node);
+    }
+    let reduxDevTools = window['__REDUX_DEVTOOLS_EXTENSION__'] && window['__REDUX_DEVTOOLS_EXTENSION__']()
+    let rootStore = createStore(makePastateStoreToBeReducer(storeTree), reduxDevTools)
+    partXStoreArr.forEach( xstore => {
+        xstore.dispatch = rootStore.dispatch;
     })
+    return rootStore;
 }
