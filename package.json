@@ -1,6 +1,6 @@
 {
   "name": "pastate",
-  "version": "0.4.0",
+  "version": "0.5.0",
   "main": "./src/services/redux-xstore/index.js",
   "dependencies": {
     "react": "^16.0.0",
