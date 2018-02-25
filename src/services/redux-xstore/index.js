@@ -31,6 +31,10 @@ var XStore = /** @class */ (function () {
     function XStore(initState, config) {
         this.__PASTATE_STORE__ = true;
         /**
+         * 制定当前 store 的名称，可选
+         */
+        this.name = 'anonymous component';
+        /**
          * 表示是否正在累积操作
          */
         this.isQueuingOperations = false;
@@ -104,6 +108,9 @@ var XStore = /** @class */ (function () {
                 enumerable: false,
                 get: function () {
                     return function () {
+                        if (rnode.length <= 0) {
+                            return null;
+                        }
                         var lastOneIndex = rnode.length - 1;
                         // FIXME: 把 arr.slice(0, lastOneIndex) 改为 arr.slice(0, -1) 会发生无法多次pop的问题 ？
                         context_1.update(XStore.getValueByPath(context_1.state, path), function (arr) { return arr.slice(0, lastOneIndex); });
@@ -152,6 +159,9 @@ var XStore = /** @class */ (function () {
                 enumerable: false,
                 get: function () {
                     return function () {
+                        if (rnode.length <= 0) {
+                            return null;
+                        }
                         var lastOneIndex = rnode.length - 1;
                         context_1.update(XStore.getValueByPath(context_1.state, path), function (arr) { return arr.slice(1); });
                         delete rnode[lastOneIndex];
@@ -214,7 +224,7 @@ var XStore = /** @class */ (function () {
                         configurable: true,
                         get: function () {
                             var valueToGet = XStore.getValueByPath(_this.state, path)[prop];
-                            if (valueToGet === null || valueToGet === undefined || (valueTypeName_1 == 'Array' && valueToGet.length == 0)) {
+                            if (valueToGet === null || valueToGet === undefined) {
                                 return valueToGet;
                             }
                             else {

@@ -318,7 +318,22 @@ describe('responsive state test suit', function () {
                     expect(store.rstate.array_object[5]).toEqual(newElement1)
                 })
 
-                it('push into an init empty array')
+                it('push into an init empty array', async function(){
+
+                    let newElement = {
+                        name: 'newElement',
+                        age: 10,
+                        isMale: true
+                    }
+                    expect(store.rstate.array_object_empty.length).toEqual(0)
+                    store.rstate.array_object_empty.push(newElement);
+                    await delay(0)
+                    expect(store.rstate.array_object_empty).toEqual([newElement])
+                    expect(store.rstate.array_object_empty.length).toEqual(1)
+
+                    store.rstate.array_object_empty = []
+                    await delay(0)
+                })
 
             })
 

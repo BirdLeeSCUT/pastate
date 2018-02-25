@@ -1,9 +1,10 @@
 import * as React from 'react';
-import { connect, DispatchProp } from 'react-redux';
+import { DispatchProp } from 'react-redux';
 import { store, State } from './App.store';
 import { Link } from 'react-router-dom';
 import './App.style.css';
 import Input from '../../services/redux-xstore/HOC/Input';
+import { makeConnectedComponent } from '../../services/redux-xstore';
 
 
 class App extends React.Component<{ state: State } & DispatchProp<any>> {
@@ -55,6 +56,4 @@ class Pet extends React.PureComponent<{pet: State['pets'][0]}>{
   }
 }
 
-export default connect((state: any) => ({
-    state: state.app
-}))(App);
+export default makeConnectedComponent(App, 'app')

@@ -3,8 +3,8 @@
  */
 import { fromJS, Map } from 'immutable'
 import { Action, Reducer } from 'redux';
-import { Dispatch } from 'react-redux';
-import { ChangeEvent } from 'react';
+import { Dispatch, connect } from 'react-redux';
+import { ChangeEvent, Component } from 'react';
 import { createStore, combineReducers, Store } from 'redux'
 
 interface XOperation {
@@ -21,7 +21,7 @@ export class XStore<State extends XType> {
     /**
      * 制定当前 store 的名称，可选
      */
-    public name: string;
+    public name: string = 'anonymous component';
 
     /** 
      * state 对象
@@ -138,6 +138,9 @@ export class XStore<State extends XType> {
                 enumerable: false,
                 get: function () {
                     return function () {
+                        if(rnode.length <= 0){
+                            return null
+                        }
                         let lastOneIndex = rnode.length - 1;
                         // FIXME: 把 arr.slice(0, lastOneIndex) 改为 arr.slice(0, -1) 会发生无法多次pop的问题 ？
                         context.update(XStore.getValueByPath(context.state, path), arr => arr.slice(0, lastOneIndex));
@@ -190,6 +193,9 @@ export class XStore<State extends XType> {
                 enumerable: false,
                 get: function () {
                     return function () {
+                        if(rnode.length <= 0){
+                            return null
+                        }
                         let lastOneIndex = rnode.length - 1;
                         context.update(XStore.getValueByPath(context.state, path), arr => arr.slice(1));
                         delete rnode[lastOneIndex]
@@ -259,7 +265,7 @@ export class XStore<State extends XType> {
                         configurable: true,
                         get: () => {
                             let valueToGet = XStore.getValueByPath(this.state, path)[prop];
-                            if(valueToGet === null || valueToGet === undefined || (valueTypeName == 'Array' && valueToGet.length == 0)){
+                            if(valueToGet === null || valueToGet === undefined){
                                 return valueToGet;
                             }else{
                                 return rValue;
@@ -1008,4 +1014,33 @@ export function makeRootStore(storeTree: any): Store<any>{
         xstore.dispatch = rootStore.dispatch;
     })
     return rootStore;
+}
+
+export function makeConnectedComponent(component: any, selector: string | object): any {
+    let selectorType = typeof selector;
+    let selectFunction;
+    if(selectorType == 'string'){
+        selectFunction = state => {
+            return {
+                state: (selector as string).split('.').reduce((preValue, curValue) => {
+                    return preValue[curValue]
+                }, state)
+            }
+        }
+    }else if( selectorType == 'object' ){
+        selectFunction = state => {
+            let selectResult = {}
+            for (const key in selector as any) {
+                if (selector.hasOwnProperty(key)) {
+                    selectResult[key] = selector[key].split('.').reduce((preValue, curValue) => {
+                        return preValue[curValue]
+                    }, state)
+                }
+            }
+            return selectResult
+        }
+    }else{
+        selectFunction = selector
+    }
+    return connect(selectFunction)(component)
 }
