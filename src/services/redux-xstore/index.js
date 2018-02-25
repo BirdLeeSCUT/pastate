@@ -18,6 +18,8 @@ var __assign = (this && this.__assign) || Object.assign || function(t) {
     return t;
 };
 exports.__esModule = true;
+var react_redux_1 = require("react-redux");
+var react_1 = require("react");
 var redux_1 = require("redux");
 var XStore = /** @class */ (function () {
     // 兼容原始 reducer 的功能暂不实现
@@ -717,6 +719,7 @@ var XStore = /** @class */ (function () {
                     break;
                 case 'Number':
                     xNewData = new Number(rawData);
+                    this.config.useSpanNumber && Object.assign(xNewData, react_1.createElement('span', undefined, +rawData));
                     break;
                 case 'String':
                     xNewData = new String(rawData);
@@ -909,3 +912,34 @@ function makeRootStore(storeTree) {
     return rootStore;
 }
 exports.makeRootStore = makeRootStore;
+function makeConnectedComponent(component, selector) {
+    var selectorType = typeof selector;
+    var selectFunction;
+    if (selectorType == 'string') {
+        selectFunction = function (state) {
+            return {
+                state: selector.split('.').reduce(function (preValue, curValue) {
+                    return preValue[curValue];
+                }, state)
+            };
+        };
+    }
+    else if (selectorType == 'object') {
+        selectFunction = function (state) {
+            var selectResult = {};
+            for (var key in selector) {
+                if (selector.hasOwnProperty(key)) {
+                    selectResult[key] = selector[key].split('.').reduce(function (preValue, curValue) {
+                        return preValue[curValue];
+                    }, state);
+                }
+            }
+            return selectResult;
+        };
+    }
+    else {
+        selectFunction = selector;
+    }
+    return react_redux_1.connect(selectFunction)(component);
+}
+exports.makeConnectedComponent = makeConnectedComponent;

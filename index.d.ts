@@ -276,3 +276,5 @@ export class XObject extends Object implements XType {
 }
 
 export function makeRootStore(storeTree: any): Store<any>
+
+export function makeConnectedComponent(component: any, selector: string | object | Function): any

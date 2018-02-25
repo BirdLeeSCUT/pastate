@@ -4,7 +4,7 @@
 import { fromJS, Map } from 'immutable'
 import { Action, Reducer } from 'redux';
 import { Dispatch, connect } from 'react-redux';
-import { ChangeEvent, Component } from 'react';
+import { ChangeEvent, Component, createElement } from 'react';
 import { createStore, combineReducers, Store } from 'redux'
 
 interface XOperation {
@@ -821,6 +821,7 @@ export class XStore<State extends XType> {
                     break;
                 case 'Number':
                     xNewData = new Number(rawData) as XNumber;
+                    this.config.useSpanNumber && (Object as any).assign(xNewData, createElement('span', undefined, +rawData));
                     break;
                 case 'String':
                     xNewData = new String(rawData) as XString;
@@ -1016,7 +1017,7 @@ export function makeRootStore(storeTree: any): Store<any>{
     return rootStore;
 }
 
-export function makeConnectedComponent(component: any, selector: string | object): any {
+export function makeConnectedComponent(component: any, selector: string | object | Function): any {
     let selectorType = typeof selector;
     let selectFunction;
     if(selectorType == 'string'){
