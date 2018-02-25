@@ -23,13 +23,11 @@ interface StateModel {
             city: string
         },
     },
-    pets: [
-        {
-            name: string,
-            animal: string,
-            age: number
-        }
-    ]
+    pets: Array<{
+        name: string,
+        animal: string,
+        age: number
+    }>
 }
 
 const preState: StateModel = {
