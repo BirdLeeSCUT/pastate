@@ -3,9 +3,9 @@
  */
 import { fromJS, Map } from 'immutable'
 import { Action, Reducer } from 'redux';
-import { Dispatch, connect } from 'react-redux';
+import { Dispatch, connect, Provider } from 'react-redux';
 import { ChangeEvent, Component, createElement } from 'react';
-import { createStore, combineReducers, Store } from 'redux'
+import { createStore, combineReducers, Store } from 'redux';
 
 interface XOperation {
     operation: 'set' | 'merge' | 'update' | 'mark',
@@ -993,9 +993,12 @@ export class XObject extends Object implements XType {
     __xpath__: string
 }
 
-export function makeRootStore(storeTree: any): Store<any>{
+export function makeReduxStore(storeTree: any): Store<any>{
     let partXStoreArr: Array<XStore<any>> = [];
     let makePastateStoreToBeReducer = function(_storeTree: any): Reducer<any>{
+        if(_storeTree.__PASTATE_STORE__){
+            return _storeTree.getReduxReducer();
+        }
         let node = {}
         for (const key in _storeTree) {
             if (_storeTree.hasOwnProperty(key)) {
@@ -1011,16 +1014,23 @@ export function makeRootStore(storeTree: any): Store<any>{
     }
     let reduxDevTools = window['__REDUX_DEVTOOLS_EXTENSION__'] && window['__REDUX_DEVTOOLS_EXTENSION__']()
     let rootStore = createStore(makePastateStoreToBeReducer(storeTree), reduxDevTools)
-    partXStoreArr.forEach( xstore => {
-        xstore.dispatch = rootStore.dispatch;
-    })
+    if(partXStoreArr.length == 0){
+        storeTree.dispatch = rootStore.dispatch;
+    }else{
+        partXStoreArr.forEach( xstore => {
+            xstore.dispatch = rootStore.dispatch;
+        })
+    }
     return rootStore;
 }
 
-export function makeConnectedComponent(component: any, selector: string | object | Function): any {
+export function makeContainer(component: any, selector?: string | object | Function): any {
     let selectorType = typeof selector;
     let selectFunction;
-    if(selectorType == 'string'){
+    
+    if(selector == undefined){
+        selectFunction = state => ({state: state})
+    }else if(selectorType == 'string'){
         selectFunction = state => {
             return {
                 state: (selector as string).split('.').reduce((preValue, curValue) => {
@@ -1045,3 +1055,11 @@ export function makeConnectedComponent(component: any, selector: string | object
     }
     return connect(selectFunction)(component)
 }
+
+export function makeOnlyContainer(component: any, store: any){
+    return createElement(Provider, {
+        store: makeReduxStore(store)
+    }, createElement(makeContainer(component)))
+}
+
+export { Provider as RootContainer} 

@@ -1,7 +1,7 @@
 /**
  * XStore 实现
  */
-import { Dispatch } from 'react-redux';
+import { Dispatch, Provider } from 'react-redux';
 import { Store } from 'redux';
 
 interface XOperation {
@@ -275,6 +275,10 @@ export class XObject extends Object implements XType {
     __xpath__: string
 }
 
-export function makeRootStore(storeTree: any): Store<any>
+export function makeReduxStore(storeTree: any): Store<any>
 
-export function makeConnectedComponent(component: any, selector: string | object | Function): any
+export function makeContainer(component: any, selector?: string | object | Function): React.Component
+
+export function makeOnlyContainer(component: any, store: any): React.ReactElement<any>
+
+export { Provider as RootContainer }

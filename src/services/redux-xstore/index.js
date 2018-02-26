@@ -19,6 +19,7 @@ var __assign = (this && this.__assign) || Object.assign || function(t) {
 };
 exports.__esModule = true;
 var react_redux_1 = require("react-redux");
+exports.RootContainer = react_redux_1.Provider;
 var react_1 = require("react");
 var redux_1 = require("redux");
 var XStore = /** @class */ (function () {
@@ -887,9 +888,12 @@ var XObject = /** @class */ (function (_super) {
     return XObject;
 }(Object));
 exports.XObject = XObject;
-function makeRootStore(storeTree) {
+function makeReduxStore(storeTree) {
     var partXStoreArr = [];
     var makePastateStoreToBeReducer = function (_storeTree) {
+        if (_storeTree.__PASTATE_STORE__) {
+            return _storeTree.getReduxReducer();
+        }
         var node = {};
         for (var key in _storeTree) {
             if (_storeTree.hasOwnProperty(key)) {
@@ -906,16 +910,24 @@ function makeRootStore(storeTree) {
     };
     var reduxDevTools = window['__REDUX_DEVTOOLS_EXTENSION__'] && window['__REDUX_DEVTOOLS_EXTENSION__']();
     var rootStore = redux_1.createStore(makePastateStoreToBeReducer(storeTree), reduxDevTools);
-    partXStoreArr.forEach(function (xstore) {
-        xstore.dispatch = rootStore.dispatch;
-    });
+    if (partXStoreArr.length == 0) {
+        storeTree.dispatch = rootStore.dispatch;
+    }
+    else {
+        partXStoreArr.forEach(function (xstore) {
+            xstore.dispatch = rootStore.dispatch;
+        });
+    }
     return rootStore;
 }
-exports.makeRootStore = makeRootStore;
-function makeConnectedComponent(component, selector) {
+exports.makeReduxStore = makeReduxStore;
+function makeContainer(component, selector) {
     var selectorType = typeof selector;
     var selectFunction;
-    if (selectorType == 'string') {
+    if (selector == undefined) {
+        selectFunction = function (state) { return ({ state: state }); };
+    }
+    else if (selectorType == 'string') {
         selectFunction = function (state) {
             return {
                 state: selector.split('.').reduce(function (preValue, curValue) {
@@ -942,4 +954,10 @@ function makeConnectedComponent(component, selector) {
     }
     return react_redux_1.connect(selectFunction)(component);
 }
-exports.makeConnectedComponent = makeConnectedComponent;
+exports.makeContainer = makeContainer;
+function makeOnlyContainer(component, store) {
+    return react_1.createElement(react_redux_1.Provider, {
+        store: makeReduxStore(store)
+    }, react_1.createElement(makeContainer(component)));
+}
+exports.makeOnlyContainer = makeOnlyContainer;
