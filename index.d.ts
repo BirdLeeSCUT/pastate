@@ -21,14 +21,14 @@ export class XStore<State extends XType> {
     public name: string
 
     /** 
-     * state 对象
+     * immutable state 对象
      */
-    public state: State
+    public imState: State
 
     /**
      * 响应式 state
      */
-    public rstate: State
+    public state: State
 
     /**
      * 执行 operation 操作前暂存的 state 值

@@ -49,16 +49,16 @@ class Store extends XStore<State>{
 
         setup: () => {
             // this.update(this.state.age, a => a + 1)
-            this.rstate.age += 2;
+            this.state.age += 2;
         },
 
         change: () => {
             // this.update(this.state.isMale, v => v == false)
-            this.rstate.isMale = !this.rstate.isMale
+            this.state.isMale = !this.state.isMale
         },
 
         addPet: () => {
-            this.rstate.pets.push({
+            this.state.pets.push({
                 name: 'Kitty',
                 age: 2,
                 isDog: false
@@ -66,7 +66,7 @@ class Store extends XStore<State>{
         },
 
         addPetBefore: () => {
-            this.rstate.pets.unshift({
+            this.state.pets.unshift({
                 name: 'Kitty',
                 age: 2,
                 isDog: false
@@ -74,11 +74,11 @@ class Store extends XStore<State>{
         },
 
         popPet: () => {
-            this.rstate.pets.pop()
+            this.state.pets.pop()
         },
 
         addFirstAge: () => {
-            this.rstate.pets[0].age += 1
+            this.state.pets[0].age += 1
         },
 
         doFourActions: () => {
@@ -93,7 +93,7 @@ class Store extends XStore<State>{
         },
 
         longName: () => {
-            this.rstate.name += "!"
+            this.state.name += "!"
         }
     }
 }

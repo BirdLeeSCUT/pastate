@@ -52,12 +52,12 @@ var XStore = /** @class */ (function () {
             useSpanNumber: true
         };
         config && (Object.assign(this.config, config));
-        this.state = this.toXType(initState, '');
+        this.imState = this.toXType(initState, '');
         // TODO: 处理新建对象的情况（数组函数, 把null设为对象值）
-        this.rstate = this.makeRState([]);
-        this.preState = this.state;
+        this.state = this.makeRState([]);
+        this.preState = this.imState;
     }
-    // MARK: 响应式 rstate 的处理相关函数
+    // MARK: 响应式 state 的处理相关函数
     XStore.prototype.makeRState = function (path, newValue) {
         var _this = this;
         var node;
@@ -74,7 +74,7 @@ var XStore = /** @class */ (function () {
             }
         }
         else {
-            node = XStore.getValueByPath(this.state, path);
+            node = XStore.getValueByPath(this.imState, path);
         }
         var typeName = Object.prototype.toString.call(node).slice(8, -1);
         var rnode;
@@ -92,7 +92,7 @@ var XStore = /** @class */ (function () {
                 get: function () {
                     // 目前只支持插入一个元素，新版本将支持插入多个元素
                     return function (element) {
-                        context_1.update(XStore.getValueByPath(context_1.state, path), function (arr) { return arr.concat([element]); });
+                        context_1.update(XStore.getValueByPath(context_1.imState, path), function (arr) { return arr.concat([element]); });
                         var rValue = context_1.makeRState(path.concat([rnode.length]), element);
                         Object.defineProperty(rnode, rnode.length, {
                             enumerable: true,
@@ -101,7 +101,7 @@ var XStore = /** @class */ (function () {
                                 return rValue;
                             },
                             set: function (_newValue) {
-                                context_1.set(XStore.getValueByPath(context_1.state, path)[rnode.length], _newValue);
+                                context_1.set(XStore.getValueByPath(context_1.imState, path)[rnode.length], _newValue);
                             }
                         });
                     };
@@ -116,10 +116,10 @@ var XStore = /** @class */ (function () {
                         }
                         var lastOneIndex = rnode.length - 1;
                         // FIXME: 把 arr.slice(0, lastOneIndex) 改为 arr.slice(0, -1) 会发生无法多次pop的问题 ？
-                        context_1.update(XStore.getValueByPath(context_1.state, path), function (arr) { return arr.slice(0, lastOneIndex); });
+                        context_1.update(XStore.getValueByPath(context_1.imState, path), function (arr) { return arr.slice(0, lastOneIndex); });
                         delete rnode[lastOneIndex];
                         rnode.length -= 1;
-                        return XStore.getValueByPath(context_1.state, path)[lastOneIndex];
+                        return XStore.getValueByPath(context_1.imState, path)[lastOneIndex];
                     };
                 }
             });
@@ -129,7 +129,7 @@ var XStore = /** @class */ (function () {
                 get: function () {
                     // 目前只支持插入一个元素，新版本将支持插入多个元素
                     return function (element) {
-                        context_1.update(XStore.getValueByPath(context_1.state, path), function (arr) { return [element].concat(arr); });
+                        context_1.update(XStore.getValueByPath(context_1.imState, path), function (arr) { return [element].concat(arr); });
                         var rValue = context_1.makeRState(path.concat([rnode.length]), element);
                         Object.defineProperty(rnode, rnode.length, {
                             enumerable: true,
@@ -138,7 +138,7 @@ var XStore = /** @class */ (function () {
                                 return rValue;
                             },
                             set: function (_newValue) {
-                                context_1.set(XStore.getValueByPath(context_1.state, path)[rnode.length], _newValue);
+                                context_1.set(XStore.getValueByPath(context_1.imState, path)[rnode.length], _newValue);
                             }
                         });
                     };
@@ -152,8 +152,8 @@ var XStore = /** @class */ (function () {
             //         return function (element: any) {
             //             // 基于 pathstate 的模式在数组对象的需要变化时，会导致所有需要重新遍历所有子树的 pathstate 值, 此处有优化空间
             //             element = {...element}
-            //             context.update(XStore.getValueByPath(context.state, path), arr => [element, ...arr]);
-            //             let newRNode = context.makeRState(path, [element, ...XStore.getValueByPath(context.state, path)]);
+            //             context.update(XStore.getValueByPath(context.imState, path), arr => [element, ...arr]);
+            //             let newRNode = context.makeRState(path, [element, ...XStore.getValueByPath(context.imState, path)]);
             //             // TODO: 更新挂载点
             //         }
             //     }
@@ -166,10 +166,10 @@ var XStore = /** @class */ (function () {
                             return null;
                         }
                         var lastOneIndex = rnode.length - 1;
-                        context_1.update(XStore.getValueByPath(context_1.state, path), function (arr) { return arr.slice(1); });
+                        context_1.update(XStore.getValueByPath(context_1.imState, path), function (arr) { return arr.slice(1); });
                         delete rnode[lastOneIndex];
                         rnode.length -= 1;
-                        var targetArray = XStore.getValueByPath(context_1.state, path);
+                        var targetArray = XStore.getValueByPath(context_1.imState, path);
                         return targetArray[targetArray.length - rnode.length - 1];
                     };
                 }
@@ -179,7 +179,7 @@ var XStore = /** @class */ (function () {
                 get: function () {
                     // 目前只支持插入一个元素，新版本将支持插入多个元素
                     return function (start, deleteCount, newElement) {
-                        context_1.update(XStore.getValueByPath(context_1.state, path), function (arr) {
+                        context_1.update(XStore.getValueByPath(context_1.imState, path), function (arr) {
                             arr.splice(start, deleteCount, newElement);
                             return arr;
                         });
@@ -188,7 +188,7 @@ var XStore = /** @class */ (function () {
                             delete rnode[lastOneIndex - i];
                         }
                         rnode.length -= (deleteCount - (newElement !== undefined ? 1 : 0));
-                        var targetArray = XStore.getValueByPath(context_1.state, path);
+                        var targetArray = XStore.getValueByPath(context_1.imState, path);
                         return targetArray.slice(start, start + deleteCount);
                     };
                 }
@@ -197,8 +197,8 @@ var XStore = /** @class */ (function () {
                 enumerable: false,
                 get: function () {
                     return function (compareFunction) {
-                        context_1.update(XStore.getValueByPath(context_1.state, path), function (arr) { return arr.sort(compareFunction); });
-                        return XStore.getValueByPath(context_1.state, path);
+                        context_1.update(XStore.getValueByPath(context_1.imState, path), function (arr) { return arr.sort(compareFunction); });
+                        return XStore.getValueByPath(context_1.imState, path);
                     };
                 }
             });
@@ -206,8 +206,8 @@ var XStore = /** @class */ (function () {
                 enumerable: false,
                 get: function () {
                     return function () {
-                        context_1.update(XStore.getValueByPath(context_1.state, path), function (arr) { return arr.reverse(); });
-                        return XStore.getValueByPath(context_1.state, path);
+                        context_1.update(XStore.getValueByPath(context_1.imState, path), function (arr) { return arr.reverse(); });
+                        return XStore.getValueByPath(context_1.imState, path);
                     };
                 }
             });
@@ -226,7 +226,7 @@ var XStore = /** @class */ (function () {
                         enumerable: true,
                         configurable: true,
                         get: function () {
-                            var valueToGet = XStore.getValueByPath(_this.state, path)[prop];
+                            var valueToGet = XStore.getValueByPath(_this.imState, path)[prop];
                             if (valueToGet === null || valueToGet === undefined) {
                                 return valueToGet;
                             }
@@ -239,7 +239,7 @@ var XStore = /** @class */ (function () {
                             if (_newValue === null || _newValue === undefined) {
                                 console.warn("[pastate] You are setting an " + valueTypeName_1 + " node to be '" + _newValue + "', which is deprecated.");
                             }
-                            var valueToSet = XStore.getValueByPath(_this.state, path)[prop];
+                            var valueToSet = XStore.getValueByPath(_this.imState, path)[prop];
                             if (valueToSet === null || valueToSet === undefined) {
                                 _this.merge({ __xpath__: path.map(function (p) { return '.' + p; }).join('') }, (_a = {},
                                     _a[prop] = _newValue,
@@ -268,7 +268,7 @@ var XStore = /** @class */ (function () {
                         enumerable: true,
                         configurable: true,
                         get: function () {
-                            var getValue = XStore.getValueByPath(_this.state, path)[prop];
+                            var getValue = XStore.getValueByPath(_this.imState, path)[prop];
                             if (getValue === null || getValue === undefined) {
                                 return getValue;
                             }
@@ -288,7 +288,7 @@ var XStore = /** @class */ (function () {
                                 console.error('[pastate] At present, you cannot set an node with the string | number | boolean | null | undefined value to be Array or Object. We will consider support it in the future.');
                                 return;
                             }
-                            var valueToSet = XStore.getValueByPath(_this.state, path)[prop];
+                            var valueToSet = XStore.getValueByPath(_this.imState, path)[prop];
                             if (valueToSet === null || valueToSet === undefined) {
                                 _this.merge({ __xpath__: path.map(function (p) { return '.' + p; }).join('') }, (_a = {},
                                     _a[prop] = _newValue,
@@ -311,7 +311,7 @@ var XStore = /** @class */ (function () {
         return rnode;
     };
     XStore.prototype.getState = function () {
-        return this.state;
+        return this.imState;
     };
     // MARK: operation 输入相关方法 -----------------------------------------------------------
     /**
@@ -409,7 +409,7 @@ var XStore = /** @class */ (function () {
             console.warn('Opertion can only perform operation using `path inferrence` when the state is not undefined or null state.');
             console.warn('`stateToOperate` is given ', rawParams.stateToOperate, ', please checkout are there some errors in `stateToOperate`. If not, try below:');
             console.warn('There are some ways to go, choose one as you like:');
-            console.warn('- Use `setNew` instead: for example, this.setNew(\'this.state.propThatIsNull\', ...)');
+            console.warn('- Use `setNew` instead: for example, this.setNew(\'this.imState.propThatIsNull\', ...)');
             console.warn('- If you want to use operation with path inferrence from, you should use {}, \'\', NaN to be the initial value, and do not set any state value to be undefined or null');
             if (rawParams.operate == 'set') {
                 console.warn('- You also can use `merge` operation to set the new value into the state that is having undefined or null value.');
@@ -483,7 +483,7 @@ var XStore = /** @class */ (function () {
         }
         var loadingOperationQueue = this.pendingOperationQueue;
         this.pendingOperationQueue = [];
-        this.preState = this.state;
+        this.preState = this.imState;
         var hadRan = 0;
         var tookEffect = 0;
         var isDone = false;
@@ -530,10 +530,10 @@ var XStore = /** @class */ (function () {
         });
     };
     XStore.prototype.forceUpdate = function () {
-        if (this.state == this.preState) {
-            this.state = __assign({}, this.state);
+        if (this.imState == this.preState) {
+            this.imState = __assign({}, this.imState);
         }
-        this.preState = this.state;
+        this.preState = this.imState;
         if (this.dispatch) {
             this.dispatch({
                 type: '__XSTORE_FORCE_UPDATE__: ' + (this.name || '(you can add a name to your xstore via name prop)')
@@ -554,7 +554,7 @@ var XStore = /** @class */ (function () {
             console.log("[Operation Marker]  ----------- " + operation.description + " ----------- ");
             return {
                 isMarker: true,
-                oldValue: this.state,
+                oldValue: this.imState,
                 tookEffect: false
             };
         }
@@ -594,7 +594,7 @@ var XStore = /** @class */ (function () {
             }
             // 更新根值的情况
             if (pathArr.length == 0) {
-                this.state = this.toXType(payload, operation.path);
+                this.imState = this.toXType(payload, operation.path);
                 console.info('[set] You are setting the entire state, please check if you really want to do it.');
             }
             else {
@@ -631,7 +631,7 @@ var XStore = /** @class */ (function () {
             };
         }
         else if (operation.operation == 'update') {
-            var oldValue = XStore.getValueByPath(this.state, pathArr);
+            var oldValue = XStore.getValueByPath(this.imState, pathArr);
             if (oldValue === preValue) {
                 if (valueType == 'Array') {
                     oldValue = oldValue.slice();
@@ -643,7 +643,7 @@ var XStore = /** @class */ (function () {
             newValue = operation.payload(oldValue);
             var newXTypeValue = this.toXType(newValue, operation.path);
             if (pathArr.length == 0) {
-                this.state = newXTypeValue;
+                this.imState = newXTypeValue;
             }
             else {
                 endPath = pathArr.pop();
@@ -675,7 +675,7 @@ var XStore = /** @class */ (function () {
      */
     XStore.prototype.getNewReference = function (pathArr) {
         pathArr = pathArr.slice();
-        var curValue = XStore.getValueByPath(this.state, pathArr);
+        var curValue = XStore.getValueByPath(this.imState, pathArr);
         var preValue = XStore.getValueByPath(this.preState, pathArr);
         // 该函数只（需）支持对象或数组的情况
         // 测试时请勿传入指向基本值的 path , 实际情况中无需实现
@@ -688,7 +688,7 @@ var XStore = /** @class */ (function () {
             });
             // 溯源更新 后 挂载新值（此处不可逆序，否则会导致 preState 被改动）
             if (pathArr.length == 0) {
-                this.state = curValue;
+                this.imState = curValue;
             }
             else {
                 var endPath = pathArr.pop();
@@ -835,7 +835,7 @@ var XStore = /** @class */ (function () {
     XStore.prototype.getReduxReducer = function () {
         var _this = this;
         // 只需传回 state 即可
-        return function () { return _this.state; };
+        return function () { return _this.imState; };
     };
     // -------------------------------- form 对接函数 -----------------------------
     XStore.prototype.syncInput = function (state) {

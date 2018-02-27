@@ -8,11 +8,9 @@ import './index.css';
 
 // 引入组件
 import App, { store as appStore } from './containers/App';
-import Home, { store as homeStore } from './containers/Home';
 
 let store = makeReduxStore({
-    app: appStore,
-    home: homeStore
+    app: appStore
 })
 
 ReactDOM.render(
@@ -20,7 +18,6 @@ ReactDOM.render(
         <Router>
             <div>
                 <Route exact={true} path="/" component={App} />
-                <Route path="/home" component={Home} />
             </div>
         </Router>
     </Provider>

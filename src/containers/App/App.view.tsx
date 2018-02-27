@@ -1,10 +1,9 @@
 import * as React from 'react';
 import { DispatchProp } from 'react-redux';
 import { store, State } from './App.store';
-import { Link } from 'react-router-dom';
 import './App.style.css';
 import Input from '../../services/redux-xstore/HOC/Input';
-import { makeConnectedComponent } from '../../services/redux-xstore';
+import { makeContainer } from '../../services/redux-xstore';
 
 
 class App extends React.Component<{ state: State } & DispatchProp<any>> {
@@ -29,7 +28,6 @@ class App extends React.Component<{ state: State } & DispatchProp<any>> {
           <button onClick={actions.popPet} >减少宠物</button>
           <button onClick={actions.addFirstAge} >增加1岁</button>
         </div>
-        <div><Link to="/home">go to home</Link></div>
         <button onClick={actions.doFourActions}>批量任务</button>
         <button onClick={actions.longName}>名字加长</button>
         
@@ -56,4 +54,4 @@ class Pet extends React.PureComponent<{pet: State['pets'][0]}>{
   }
 }
 
-export default makeConnectedComponent(App, 'app')
+export default makeContainer(App, 'app')

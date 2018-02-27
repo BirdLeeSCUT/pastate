@@ -24,14 +24,14 @@ export class XStore<State extends XType> {
     public name: string = 'anonymous component';
 
     /** 
-     * state 对象
+     * immutable state 对象
      */
-    public state: State;
+    public imState: State;
 
     /**
      * 响应式 state
      */
-    public rstate: State;
+    public state: State;
 
     /**
      * 执行 operation 操作前暂存的 state 值
@@ -81,14 +81,14 @@ export class XStore<State extends XType> {
         useSpanNumber?: boolean
     }) {
         config && ((Object as any).assign(this.config, config));
-        this.state = this.toXType(initState, '') as State;
+        this.imState = this.toXType(initState, '') as State;
         // TODO: 处理新建对象的情况（数组函数, 把null设为对象值）
-        this.rstate = this.makeRState([]);
-        this.preState = this.state;
+        this.state = this.makeRState([]);
+        this.preState = this.imState;
     }
 
 
-    // MARK: 响应式 rstate 的处理相关函数
+    // MARK: 响应式 state 的处理相关函数
     private makeRState(path: string[], newValue?: any): any {
         let node: any;
         if (newValue) {
@@ -99,7 +99,7 @@ export class XStore<State extends XType> {
                 default: node = newValue;
             }
         } else {
-            node = XStore.getValueByPath(this.state, path);
+            node = XStore.getValueByPath(this.imState, path);
         }
         let typeName: string = (Object.prototype.toString.call(node) as string).slice(8, -1);
 
@@ -118,7 +118,7 @@ export class XStore<State extends XType> {
                 get: function () {
                     // 目前只支持插入一个元素，新版本将支持插入多个元素
                     return function (element: any) {
-                        context.update(XStore.getValueByPath(context.state, path), arr => [...arr, element]);
+                        context.update(XStore.getValueByPath(context.imState, path), arr => [...arr, element]);
                         let rValue = context.makeRState([...path, rnode.length], element)
                         Object.defineProperty(rnode, rnode.length, {
                             enumerable: true,
@@ -127,7 +127,7 @@ export class XStore<State extends XType> {
                                 return rValue;
                             },
                             set: (_newValue: any) => {
-                                context.set(XStore.getValueByPath(context.state, path)[rnode.length], _newValue)
+                                context.set(XStore.getValueByPath(context.imState, path)[rnode.length], _newValue)
                             }
                         })
                     }
@@ -143,10 +143,10 @@ export class XStore<State extends XType> {
                         }
                         let lastOneIndex = rnode.length - 1;
                         // FIXME: 把 arr.slice(0, lastOneIndex) 改为 arr.slice(0, -1) 会发生无法多次pop的问题 ？
-                        context.update(XStore.getValueByPath(context.state, path), arr => arr.slice(0, lastOneIndex));
+                        context.update(XStore.getValueByPath(context.imState, path), arr => arr.slice(0, lastOneIndex));
                         delete rnode[lastOneIndex]
                         rnode.length -= 1
-                        return XStore.getValueByPath(context.state, path)[lastOneIndex]
+                        return XStore.getValueByPath(context.imState, path)[lastOneIndex]
                     }
                 }
             })
@@ -157,7 +157,7 @@ export class XStore<State extends XType> {
                 get: function () {
                     // 目前只支持插入一个元素，新版本将支持插入多个元素
                     return function (element: any) {
-                        context.update(XStore.getValueByPath(context.state, path), arr => [element, ...arr]);
+                        context.update(XStore.getValueByPath(context.imState, path), arr => [element, ...arr]);
                         let rValue = context.makeRState([...path, rnode.length], element)
                         Object.defineProperty(rnode, rnode.length, {
                             enumerable: true,
@@ -166,7 +166,7 @@ export class XStore<State extends XType> {
                                 return rValue;
                             },
                             set: (_newValue: any) => {
-                                context.set(XStore.getValueByPath(context.state, path)[rnode.length], _newValue)
+                                context.set(XStore.getValueByPath(context.imState, path)[rnode.length], _newValue)
                             }
                         })
                     }
@@ -182,8 +182,8 @@ export class XStore<State extends XType> {
             //             // 基于 pathstate 的模式在数组对象的需要变化时，会导致所有需要重新遍历所有子树的 pathstate 值, 此处有优化空间
 
             //             element = {...element}
-            //             context.update(XStore.getValueByPath(context.state, path), arr => [element, ...arr]);
-            //             let newRNode = context.makeRState(path, [element, ...XStore.getValueByPath(context.state, path)]);
+            //             context.update(XStore.getValueByPath(context.imState, path), arr => [element, ...arr]);
+            //             let newRNode = context.makeRState(path, [element, ...XStore.getValueByPath(context.imState, path)]);
             //             // TODO: 更新挂载点
             //         }
             //     }
@@ -197,10 +197,10 @@ export class XStore<State extends XType> {
                             return null
                         }
                         let lastOneIndex = rnode.length - 1;
-                        context.update(XStore.getValueByPath(context.state, path), arr => arr.slice(1));
+                        context.update(XStore.getValueByPath(context.imState, path), arr => arr.slice(1));
                         delete rnode[lastOneIndex]
                         rnode.length -= 1
-                        let targetArray = XStore.getValueByPath(context.state, path);
+                        let targetArray = XStore.getValueByPath(context.imState, path);
                         return targetArray[targetArray.length - rnode.length - 1]
                     }
                 }
@@ -211,7 +211,7 @@ export class XStore<State extends XType> {
                 get: function () {
                     // 目前只支持插入一个元素，新版本将支持插入多个元素
                     return function (start: number, deleteCount: number, newElement: any) {
-                        context.update(XStore.getValueByPath(context.state, path), arr => {
+                        context.update(XStore.getValueByPath(context.imState, path), arr => {
                             arr.splice(start, deleteCount, newElement)
                             return arr
                         });
@@ -220,7 +220,7 @@ export class XStore<State extends XType> {
                             delete rnode[lastOneIndex - i]
                         }
                         rnode.length -= (deleteCount - (newElement !== undefined ? 1 : 0))
-                        let targetArray = XStore.getValueByPath(context.state, path);
+                        let targetArray = XStore.getValueByPath(context.imState, path);
                         return targetArray.slice(start, start + deleteCount)
                     }
                 }
@@ -230,8 +230,8 @@ export class XStore<State extends XType> {
                 enumerable: false,
                 get: function () {
                     return function (compareFunction: any) {
-                        context.update(XStore.getValueByPath(context.state, path), arr => arr.sort(compareFunction));
-                        return XStore.getValueByPath(context.state, path)
+                        context.update(XStore.getValueByPath(context.imState, path), arr => arr.sort(compareFunction));
+                        return XStore.getValueByPath(context.imState, path)
                     }
                 }
             })
@@ -240,8 +240,8 @@ export class XStore<State extends XType> {
                 enumerable: false,
                 get: function () {
                     return function () {
-                        context.update(XStore.getValueByPath(context.state, path), arr => arr.reverse());
-                        return XStore.getValueByPath(context.state, path)
+                        context.update(XStore.getValueByPath(context.imState, path), arr => arr.reverse());
+                        return XStore.getValueByPath(context.imState, path)
                     }
                 }
             })
@@ -264,7 +264,7 @@ export class XStore<State extends XType> {
                         enumerable: true,
                         configurable: true,
                         get: () => {
-                            let valueToGet = XStore.getValueByPath(this.state, path)[prop];
+                            let valueToGet = XStore.getValueByPath(this.imState, path)[prop];
                             if(valueToGet === null || valueToGet === undefined){
                                 return valueToGet;
                             }else{
@@ -279,7 +279,7 @@ export class XStore<State extends XType> {
                                 console.warn(`[pastate] You are setting an ${valueTypeName} node to be '${_newValue}', which is deprecated.`)
                             }
 
-                            let valueToSet = XStore.getValueByPath(this.state, path)[prop];
+                            let valueToSet = XStore.getValueByPath(this.imState, path)[prop];
 
                             if(valueToSet === null || valueToSet === undefined){
                                 this.merge({__xpath__: path.map(p => '.' + p).join('')}, {
@@ -310,7 +310,7 @@ export class XStore<State extends XType> {
                         enumerable: true,
                         configurable: true,
                         get: () => {
-                            let getValue = XStore.getValueByPath(this.state, path)[prop];
+                            let getValue = XStore.getValueByPath(this.imState, path)[prop];
                             if(getValue === null || getValue === undefined){
                                 return getValue
                             }
@@ -332,7 +332,7 @@ export class XStore<State extends XType> {
                                 return;
                             }
 
-                            let valueToSet = XStore.getValueByPath(this.state, path)[prop];
+                            let valueToSet = XStore.getValueByPath(this.imState, path)[prop];
                             if(valueToSet === null || valueToSet === undefined){
                                 this.merge({__xpath__: path.map(p => '.' + p).join('')}, {
                                     [prop]: _newValue
@@ -351,7 +351,7 @@ export class XStore<State extends XType> {
     }
 
     private getState(): State {
-        return this.state;
+        return this.imState;
     }
 
     // MARK: operation 输入相关方法 -----------------------------------------------------------
@@ -461,7 +461,7 @@ export class XStore<State extends XType> {
             console.warn('Opertion can only perform operation using `path inferrence` when the state is not undefined or null state.')
             console.warn('`stateToOperate` is given ', rawParams.stateToOperate, ', please checkout are there some errors in `stateToOperate`. If not, try below:')
             console.warn('There are some ways to go, choose one as you like:')
-            console.warn('- Use `setNew` instead: for example, this.setNew(\'this.state.propThatIsNull\', ...)')
+            console.warn('- Use `setNew` instead: for example, this.setNew(\'this.imState.propThatIsNull\', ...)')
             console.warn('- If you want to use operation with path inferrence from, you should use {}, \'\', NaN to be the initial value, and do not set any state value to be undefined or null')
 
             if (rawParams.operate == 'set') {
@@ -544,7 +544,7 @@ export class XStore<State extends XType> {
 
         let loadingOperationQueue = this.pendingOperationQueue;
         this.pendingOperationQueue = [];
-        this.preState = this.state;
+        this.preState = this.imState;
 
 
         let hadRan = 0;
@@ -601,10 +601,10 @@ export class XStore<State extends XType> {
     }
 
     public forceUpdate() {
-        if (this.state == this.preState) {
-            this.state = { ...(this.state as XObject) } as State;
+        if (this.imState == this.preState) {
+            this.imState = { ...(this.imState as XObject) } as State;
         }
-        this.preState = this.state;
+        this.preState = this.imState;
         if (this.dispatch) {
             this.dispatch({
                 type: '__XSTORE_FORCE_UPDATE__: ' + (this.name || '(you can add a name to your xstore via name prop)')
@@ -630,7 +630,7 @@ export class XStore<State extends XType> {
             console.log(`[Operation Marker]  ----------- ${operation.description} ----------- `)
             return {
                 isMarker: true,
-                oldValue: this.state,
+                oldValue: this.imState,
                 tookEffect: false
             }
         }
@@ -675,7 +675,7 @@ export class XStore<State extends XType> {
 
             // 更新根值的情况
             if (pathArr.length == 0) {
-                this.state = this.toXType(payload, operation.path!) as State;
+                this.imState = this.toXType(payload, operation.path!) as State;
                 console.info('[set] You are setting the entire state, please check if you really want to do it.')
             } else {
                 endPath = pathArr.pop();
@@ -721,7 +721,7 @@ export class XStore<State extends XType> {
         // update 作用于任何值
         else if (operation.operation == 'update') {
 
-            let oldValue = XStore.getValueByPath(this.state, pathArr);
+            let oldValue = XStore.getValueByPath(this.imState, pathArr);
             if (oldValue === preValue) {
                 if (valueType == 'Array') {
                     oldValue = [...oldValue]
@@ -734,7 +734,7 @@ export class XStore<State extends XType> {
             let newXTypeValue = this.toXType(newValue, operation.path!);
 
             if (pathArr.length == 0) {
-                this.state = newXTypeValue as State;
+                this.imState = newXTypeValue as State;
             } else {
                 endPath = pathArr.pop();
                 fatherNode = this.getNewReference(pathArr);
@@ -770,7 +770,7 @@ export class XStore<State extends XType> {
      */
     public getNewReference(pathArr: Array<string>): XType {
         pathArr = [...pathArr];
-        let curValue: XType = XStore.getValueByPath(this.state, pathArr);
+        let curValue: XType = XStore.getValueByPath(this.imState, pathArr);
         let preValue: XType = XStore.getValueByPath(this.preState, pathArr);
         // 该函数只（需）支持对象或数组的情况
         // 测试时请勿传入指向基本值的 path , 实际情况中无需实现
@@ -785,7 +785,7 @@ export class XStore<State extends XType> {
 
             // 溯源更新 后 挂载新值（此处不可逆序，否则会导致 preState 被改动）
             if (pathArr.length == 0) {
-                this.state = curValue as State;
+                this.imState = curValue as State;
             } else {
                 let endPath: any = pathArr.pop();
                 let fatherValue = this.getNewReference([...pathArr]); // 此处特别注意要 “按值传参”
@@ -955,7 +955,7 @@ export class XStore<State extends XType> {
     // -------------------------- redux 对接函数 ------------------------------
     public getReduxReducer() {
         // 只需传回 state 即可
-        return () => this.state;
+        return () => this.imState;
     }
 
     // -------------------------------- form 对接函数 -----------------------------
