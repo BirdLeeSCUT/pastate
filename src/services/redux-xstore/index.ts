@@ -847,6 +847,7 @@ export class XStore<State extends XType> {
         let typeName: string = (Object.prototype.toString.call(rawData) as string).slice(8, -1);
 
         // 处理 raw 类型
+
         if (rawData.__xpath__ === undefined) {
             switch (typeName) {
                 case 'Boolean':
@@ -884,6 +885,15 @@ export class XStore<State extends XType> {
                 enumerable: false,
                 writable: true
             });
+
+            if (xNewData.__store__ === undefined) {
+                Object.defineProperty(xNewData, "__store__", {
+                    value: this,
+                    enumerable: false,
+                    writable: false
+                });
+            }
+
         }
         // 处理 xtype 类型
         else {
@@ -1003,7 +1013,8 @@ export class XStore<State extends XType> {
 
 // TODO: 处理不可枚举的情况
 export interface XType {
-    __xpath__?: string
+    __xpath__?: string,
+    __store__?: XStore<any>
 }
 
 export class XBoolean extends Boolean implements XType {

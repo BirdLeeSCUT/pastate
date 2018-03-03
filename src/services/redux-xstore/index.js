@@ -784,6 +784,13 @@ var XStore = /** @class */ (function () {
                 enumerable: false,
                 writable: true
             });
+            if (xNewData.__store__ === undefined) {
+                Object.defineProperty(xNewData, "__store__", {
+                    value: this,
+                    enumerable: false,
+                    writable: false
+                });
+            }
         }
         else {
             xNewData = rawData;

@@ -87,6 +87,7 @@ describe('toXType function test suit', function () {
 
         it('can transform initState into state', function () {
             expect(myStore.imState.__xpath__).toBe('');
+            expect(myStore.imState.__store__).toBe(myStore);
         })
 
         describe('can transform boolean correctly', function () {
@@ -99,6 +100,10 @@ describe('toXType function test suit', function () {
                 it('transform boolean: has the correct __xpath__ value', function () {
                     expect((myStore.imState.isMale as XType).__xpath__).toEqual('.isMale')
                 })
+
+                it('transform boolean: has the correct __store__ value', function () {
+                    expect((myStore.imState.isMale as XType).__store__).toBe(myStore)
+                })
             })
 
             describe('can transform boolean->false correctly', function () {
@@ -108,6 +113,10 @@ describe('toXType function test suit', function () {
 
                 it('transform boolean: has the correct __xpath__ value', function () {
                     expect((myStore.imState.isFemale as XType).__xpath__).toEqual('.isFemale')
+                })
+
+                it('transform boolean: has the correct __store__ value', function () {
+                    expect((myStore.imState.isFemale as XType).__store__).toBe(myStore)
                 })
             })
         })
@@ -121,6 +130,10 @@ describe('toXType function test suit', function () {
             it('transform number: has the correct __xpath__ value', function () {
                 expect((myStore.imState.age as XType).__xpath__).toEqual('.age')
             })
+
+            it('transform number: has the correct __store__ value', function () {
+                expect((myStore.imState.age as XType).__store__).toBe(myStore)
+            })
         })
 
         describe('can transform string correctly', function () {
@@ -132,6 +145,10 @@ describe('toXType function test suit', function () {
             it('transform string: has the correct __xpath__ value', function () {
                 expect((myStore.imState.name as XType).__xpath__).toEqual('.name')
             })
+
+            it('transform string: has the correct __store__ value', function () {
+                expect((myStore.imState.name as XType).__store__).toBe(myStore)
+            })
         })
     })
 
@@ -141,6 +158,10 @@ describe('toXType function test suit', function () {
 
             it('has correct __xpath__', function () {
                 expect((myStore.imState.homeInfo as XType).__xpath__).toEqual('.homeInfo')
+            })
+
+            it('has correct __store__', function () {
+                expect((myStore.imState.homeInfo as XType).__store__).toBe(myStore)
             })
 
             it('object props have correct primitive value', function () {
@@ -155,12 +176,22 @@ describe('toXType function test suit', function () {
                 expect((myStore.imState.homeInfo.NO as XType).__xpath__).toEqual('.homeInfo.NO')
             })
 
+            it('object props have correct __store__ value', function () {
+                expect((myStore.imState.homeInfo.city as XType).__store__).toBe(myStore)
+                expect((myStore.imState.homeInfo.isRent as XType).__store__).toBe(myStore)
+                expect((myStore.imState.homeInfo.NO as XType).__store__).toBe(myStore)
+            })
+
         })
 
         describe('can transform nested object', function () {
 
             it('has correct __xpath__', function () {
                 expect((myStore.imState.homeInfo.applianceInfo as XType).__xpath__).toEqual('.homeInfo.applianceInfo')
+            })
+
+            it('has correct __store__', function () {
+                expect((myStore.imState.homeInfo.applianceInfo as XType).__store__).toBe(myStore)
             })
 
             it('object props have correct primitive value', function () {
@@ -178,6 +209,15 @@ describe('toXType function test suit', function () {
                     .toEqual('.homeInfo.applianceInfo.brand')
             })
 
+            it('object props have correct __store__ value', function () {
+                expect((myStore.imState.homeInfo.applianceInfo.isRent as XType).__store__)
+                    .toBe(myStore)
+                expect((myStore.imState.homeInfo.applianceInfo.count as XType).__store__)
+                    .toBe(myStore)
+                expect((myStore.imState.homeInfo.applianceInfo.brand as XType).__store__)
+                    .toBe(myStore)
+            })
+
         })
 
         describe('can transform numberStringProp', function () {
@@ -185,14 +225,24 @@ describe('toXType function test suit', function () {
             // Note: support but not suggest to use this kind of data structure,
             // please use Array in place of it
 
-            it('has correct root xpath', function () {
+            it('has correct root __xpath__', function () {
                 expect((myStore.imState.numberStringProp as XType).__xpath__)
                     .toEqual('.numberStringProp')
             })
 
-            it('has correct value xpath', function () {
+            it('has correct root __store__', function () {
+                expect((myStore.imState.numberStringProp as XType).__store__)
+                    .toBe(myStore)
+            })
+
+            it('has correct value __xpath__', function () {
                 expect((myStore.imState.numberStringProp['0001'] as XType).__xpath__)
                     .toEqual('.numberStringProp.0001')
+            })
+
+            it('has correct value __store__', function () {
+                expect((myStore.imState.numberStringProp['0001'] as XType).__store__)
+                    .toBe(myStore)
             })
 
             it('has correct primetive value', function () {
@@ -212,6 +262,11 @@ describe('toXType function test suit', function () {
                     .toEqual('.creditCardInfo')
             })
 
+            it('has correct __store__', function () {
+                expect((myStore.imState.creditCardInfo as XType).__store__)
+                    .toBe(myStore)
+            })
+
             describe('boolean elements', function () {
 
                 it('has correct __xpath__', function () {
@@ -219,11 +274,23 @@ describe('toXType function test suit', function () {
                         .toEqual('.creditCardInfo.isValids')
                 })
 
+                it('has correct __store__', function () {
+                    expect((myStore.imState.creditCardInfo.isValids as XType).__store__)
+                        .toBe(myStore)
+                })
+
                 it('array elements have correct __xpath__ value', function () {
                     expect((myStore.imState.creditCardInfo.isValids[0] as XType).__xpath__)
                         .toEqual('.creditCardInfo.isValids.0')
                     expect((myStore.imState.creditCardInfo.isValids[1] as XType).__xpath__)
                         .toEqual('.creditCardInfo.isValids.1')
+                })
+
+                it('array elements have correct __store__ value', function () {
+                    expect((myStore.imState.creditCardInfo.isValids[0] as XType).__store__)
+                        .toBe(myStore)
+                    expect((myStore.imState.creditCardInfo.isValids[1] as XType).__store__)
+                        .toBe(myStore)
                 })
 
                 it('array elements have correct primitive value', function () {
@@ -241,11 +308,23 @@ describe('toXType function test suit', function () {
                         .toEqual('.creditCardInfo.limits')
                 })
 
+                it('has correct __store__', function () {
+                    expect((myStore.imState.creditCardInfo.limits as XType).__store__)
+                        .toBe(myStore)
+                })
+
                 it('array elements have correct __xpath__ value', function () {
                     expect((myStore.imState.creditCardInfo.limits[0] as XType).__xpath__)
                         .toEqual('.creditCardInfo.limits.0')
                     expect((myStore.imState.creditCardInfo.limits[1] as XType).__xpath__)
                         .toEqual('.creditCardInfo.limits.1')
+                })
+
+                it('array elements have correct __store__ value', function () {
+                    expect((myStore.imState.creditCardInfo.limits[0] as XType).__store__)
+                        .toBe(myStore)
+                    expect((myStore.imState.creditCardInfo.limits[1] as XType).__store__)
+                        .toBe(myStore)
                 })
 
                 it('array elements have correct primitive value', function () {
@@ -263,11 +342,23 @@ describe('toXType function test suit', function () {
                         .toEqual('.creditCardInfo.name')
                 })
 
+                it('has correct __store__', function () {
+                    expect((myStore.imState.creditCardInfo.name as XType).__store__)
+                        .toBe(myStore)
+                })
+
                 it('array elements have correct __xpath__ value', function () {
                     expect((myStore.imState.creditCardInfo.name[0] as XType).__xpath__)
                         .toEqual('.creditCardInfo.name.0')
                     expect((myStore.imState.creditCardInfo.name[1] as XType).__xpath__)
                         .toEqual('.creditCardInfo.name.1')
+                })
+
+                it('array elements have correct __store__ value', function () {
+                    expect((myStore.imState.creditCardInfo.name[0] as XType).__store__)
+                        .toBe(myStore)
+                    expect((myStore.imState.creditCardInfo.name[1] as XType).__store__)
+                        .toBe(myStore)
                 })
 
                 it('array elements have correct primitive value', function () {
@@ -287,11 +378,23 @@ describe('toXType function test suit', function () {
                     .toEqual('.pets')
             })
 
+            it('has correct __store__', function () {
+                expect((myStore.imState.pets as XType).__store__)
+                    .toBe(myStore)
+            })
+
             it('obejct has correct __xpath__ value', function () {
                 expect((myStore.imState.pets[0] as XType).__xpath__)
                     .toEqual('.pets.0')
                 expect((myStore.imState.pets[1] as XType).__xpath__)
                     .toEqual('.pets.1')
+            })
+
+            it('obejct has correct __store__ value', function () {
+                expect((myStore.imState.pets[0] as XType).__store__)
+                    .toBe(myStore)
+                expect((myStore.imState.pets[1] as XType).__store__)
+                    .toBe(myStore)
             })
 
             describe('object`s boolean prop', function () {
@@ -301,6 +404,13 @@ describe('toXType function test suit', function () {
                         .toEqual('.pets.0.isCat')
                     expect((myStore.imState.pets[1].isCat as XType).__xpath__)
                         .toEqual('.pets.1.isCat')
+                })
+
+                it('object` props has correct __store__ value', function () {
+                    expect((myStore.imState.pets[0].isCat as XType).__store__)
+                        .toBe(myStore)
+                    expect((myStore.imState.pets[1].isCat as XType).__store__)
+                        .toBe(myStore)
                 })
 
                 it('object` props has correct primetive value', function () {
@@ -321,6 +431,13 @@ describe('toXType function test suit', function () {
                         .toEqual('.pets.1.age')
                 })
 
+                it('object` props has correct __store__ value', function () {
+                    expect((myStore.imState.pets[0].age as XType).__store__)
+                        .toBe(myStore)
+                    expect((myStore.imState.pets[1].age as XType).__store__)
+                        .toBe(myStore)
+                })
+
                 it('object` props has correct primetive value', function () {
                     expect(myStore.imState.pets[0].age)
                         .toEqual(1)
@@ -339,6 +456,13 @@ describe('toXType function test suit', function () {
                         .toEqual('.pets.1.name')
                 })
 
+                it('object` props has correct __store__ value', function () {
+                    expect((myStore.imState.pets[0].name as XType).__store__)
+                        .toBe(myStore)
+                    expect((myStore.imState.pets[1].name as XType).__store__)
+                        .toBe(myStore)
+                })
+
                 it('object` props has correct primetive value', function () {
                     expect(myStore.imState.pets[0].name)
                         .toEqual('Kitty')
@@ -354,19 +478,31 @@ describe('toXType function test suit', function () {
 
         describe('can transform array with array elements (multidimensional array)', function () {
 
-            it('has correct root xpath', function () {
+            it('has correct root __xpath__', function () {
                 expect((myStore.imState.twoDimensionalArray as XType).__xpath__)
                     .toEqual('.twoDimensionalArray')
             })
 
-            it('has correct prop xpath, 1st dime', function () {
+            it('has correct root __store__', function () {
+                expect((myStore.imState.twoDimensionalArray as XType).__store__)
+                    .toBe(myStore)
+            })
+
+            it('has correct prop __xpath__, 1st dime', function () {
                 expect((myStore.imState.twoDimensionalArray[0] as XType).__xpath__)
                     .toEqual('.twoDimensionalArray.0')
                 expect((myStore.imState.twoDimensionalArray[1] as XType).__xpath__)
                     .toEqual('.twoDimensionalArray.1')
             })
 
-            it('has correct prop xpath, 2nd dime', function () {
+            it('has correct prop __store__, 1st dime', function () {
+                expect((myStore.imState.twoDimensionalArray[0] as XType).__store__)
+                    .toBe(myStore)
+                expect((myStore.imState.twoDimensionalArray[1] as XType).__store__)
+                    .toBe(myStore)
+            })
+
+            it('has correct prop __xpath__, 2nd dime', function () {
                 expect((myStore.imState.twoDimensionalArray[0][0] as XType).__xpath__)
                     .toEqual('.twoDimensionalArray.0.0')
                 expect((myStore.imState.twoDimensionalArray[0][1] as XType).__xpath__)
@@ -375,6 +511,17 @@ describe('toXType function test suit', function () {
                     .toEqual('.twoDimensionalArray.1.0')
                 expect((myStore.imState.twoDimensionalArray[1][1] as XType).__xpath__)
                     .toEqual('.twoDimensionalArray.1.1')
+            })
+
+            it('has correct prop __store__, 2nd dime', function () {
+                expect((myStore.imState.twoDimensionalArray[0][0] as XType).__store__)
+                    .toBe(myStore)
+                expect((myStore.imState.twoDimensionalArray[0][1] as XType).__store__)
+                    .toBe(myStore)
+                expect((myStore.imState.twoDimensionalArray[1][0] as XType).__store__)
+                    .toBe(myStore)
+                expect((myStore.imState.twoDimensionalArray[1][1] as XType).__store__)
+                    .toBe(myStore)
             })
 
             it('has correct prop value', function () {
