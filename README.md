@@ -20,14 +20,14 @@ class AppView extends Component {
 ```
 
 ## pastate 文档
-使用 pastate 只需要你会 react 的基础知识! 如果你没有接触过 redux 或 vue, 可以直接跳过下面的介绍，直接从下面的文档开始上手 pastate！  
+使用 pastate 只需要你会 react 的基础知识! 如果你没有接触过 redux 或 vue, 可以直接跳过下面的介绍，直接从 pastate 文档开始上手 pastate！  
 
 [pastate 文档](https://github.com/BirdLeeSCUT/pastate/tree/master/docs/)  
 
 ## 特性
 - **便捷易用**：pastate 对复杂概念进行了友好封装，无需学习 redux 相关概念就可以轻松上手
 - **响应式 state**: 可以直接用js原生模式更新 state 的值，pastate 会响应式地为你更新相关视图
-- **类型提示**：pastat 具有完善的类型定义文件，可以借助类型提示极大地提高开发效率
+- **类型提示**：pastate 具有完善的类型定义文件，可以借助类型提示极大地提高开发效率
 - **按需渲染**：pastate 实现了精确的 state 节点应用更新机制，可以在复杂的页面里高效响应 state 的变化
 - **异步更新机制**：当你对 state 进行连续的复杂修改时，pastate 会高效地为你只做一次异步视图更新
 - **兼容原生 redux 项目**：你可以把 pastate 轻松整合到现有的 redux 项目中，把部分 Container 实现为 pastate 模式

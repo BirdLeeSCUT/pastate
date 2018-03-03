@@ -526,8 +526,10 @@ export class XStore<State extends XType> {
             if (!this.isQueuingOperations) {
                 this.isQueuingOperations = true;
                 setTimeout(() => {
-                    this.isQueuingOperations = false;
-                    this.beginReduceOpertions();
+                    if(this.isQueuingOperations == true){
+                        this.isQueuingOperations = false;
+                        this.beginReduceOpertions();
+                    }
                 }, 0);
             }
             this.pendingOperationQueue.push(operation)
@@ -622,6 +624,27 @@ export class XStore<State extends XType> {
         } else {
             console.error('[XStore] dispatch method is not injected')
         }
+    }
+
+    /**
+     * 当更新输入当前计划的输入值
+     * @param state 
+     * @param newValue 
+     */
+    public setTextValue(state: any, newValue: any) {
+        if(state.__xpath__){
+            this.setSync(state, newValue)
+        }else{
+            state = newValue;
+            this.beginReduceOpertions();
+        }
+    }
+
+    /** 
+     * 手动地对应用state进行更新
+     */
+    public sync(){
+        this.beginReduceOpertions();
     }
 
     /** 

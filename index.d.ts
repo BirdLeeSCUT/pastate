@@ -1,6 +1,7 @@
 /**
  * XStore 实现
  */
+import * as React from 'react';
 import { Dispatch, Provider } from 'react-redux';
 import { Store } from 'redux';
 
@@ -162,6 +163,18 @@ export class XStore<State extends XType> {
     public beginReduceOpertions(): void
 
     public forceUpdate(): void
+
+    /**
+     * 当更新输入当前计划的输入值
+     * @param state 
+     * @param newValue 
+     */
+    public setTextValue(state: any, newValue: any): void
+
+    /** 
+     * 手动地对应用state进行更新
+     */
+    public sync();
 
     /** 
      * operation 项处理器，负责 imState = imState + operation 的逻辑
