@@ -1,13 +1,15 @@
 
-# Pastate ：响应式 react state 框架  
+# Pastate ：响应式 react state 管理框架  
 
 ## Pastate 是什么
 Pastate 是一个响应式的 react state 管理框架，实现了对 state 的异步响应式管理。Pastate 是一个精益 (lean) 框架，它对很多高级概念进行了友好封装，这意味着你**不必学习**很一堆难以理解的概念，就可以在一个简单的应用中便捷地使用 pastate。当应用变得逐渐变得复杂的过程中，你只要逐渐学习并使用 pastate 中被封装的概念或规范，以满逐渐变得复杂的系统开发需求。同时，pastate 也是一个向后兼容的渐进式框架，你可以把现有的 react 或 redux 项目的一部分组件改用 pastate 的状态管理方案，再慢慢地拓展到整个项目。 
 
-项目 GitHub: [Pastate github](TODO)  
+项目 GitHub: [Pastate github](https://github.com/BirdLeeSCUT/pastate)  
 项目 npm: [Pastate npm](https://www.npmjs.com/package/pastate) 
 
-使用 pastate 只需要基础的 react 知识! 如果你没有接触过 redux 或 vue, 可以直接跳过下面的介绍，直接从 **1.开始使用** 章节直接上手 pastate！
+## pastate 文档
+使用 pastate 只需要基础的 react 知识! 如果你没有接触过 redux 或 vue, 可以直接跳过下面的介绍，直接从下面的文档开始上手 pastate！
+[pastate 文档](https://github.com/BirdLeeSCUT/pastate/tree/master/docs/)
 
 ## 特性
 - **便捷易用**：pastate 对复杂概念进行了友好封装，无需学习 redux 相关概念就可以轻松上手
@@ -29,6 +31,5 @@ Pastate 已经通过 130+ 个测试用例的全面测试，具有可靠性保障
 Pastate 内部基于 react + redux 实现，受启发于 Immutable.js 的 immutable state 管理模式， Vue.js 的响应式 state 设计模式； 同时受《精益创业》(The Lean Startup) 精益思想的熏染。
 
 ## 欢迎反馈
-如果发现 pastate 的 bug 或有好建议，欢迎在 issue 中提出，感谢大家的反馈。如果你喜欢 pastate, 希望能给个宝贵的 star `^_^`：[Pastate github](TODO) 。
+如果发现 pastate 的 bug 或有好建议，欢迎在 issue 中提出，感谢大家的反馈。如果你喜欢 pastate, 希望能给个宝贵的 star `^_^`：[Pastate github](https://github.com/BirdLeeSCUT/pastate) 。
 
-下面让我们开始动手用 pastate 做一个最简单的应用。
