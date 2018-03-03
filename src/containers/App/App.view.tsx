@@ -2,8 +2,7 @@ import * as React from 'react';
 import { DispatchProp } from 'react-redux';
 import { store, State } from './App.store';
 import './App.style.css';
-import Input from '../../services/redux-xstore/HOC/Input';
-import { makeContainer } from '../../services/redux-xstore';
+import { makeContainer, Input } from '../../services/redux-xstore/index';
 
 
 class App extends React.Component<{ state: State } & DispatchProp<any>> {
@@ -31,7 +30,7 @@ class App extends React.Component<{ state: State } & DispatchProp<any>> {
         <button onClick={actions.doFourActions}>批量任务</button>
         <button onClick={actions.longName}>名字加长</button>
         
-        <Input value={state.name} store={store} />
+        <Input value={state.name} />
 
         <input type="text" value={state.pets[0].name} onChange={store.syncInput(state.pets[0].name)}/>
         

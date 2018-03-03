@@ -20,7 +20,7 @@ var __assign = (this && this.__assign) || Object.assign || function(t) {
 exports.__esModule = true;
 var react_redux_1 = require("react-redux");
 exports.RootContainer = react_redux_1.Provider;
-var react_1 = require("react");
+var React = require("react");
 var redux_1 = require("redux");
 var XStore = /** @class */ (function () {
     // 兼容原始 reducer 的功能暂不实现
@@ -754,7 +754,7 @@ var XStore = /** @class */ (function () {
                     break;
                 case 'Number':
                     xNewData = new Number(rawData);
-                    this.config.useSpanNumber && Object.assign(xNewData, react_1.createElement('span', undefined, +rawData));
+                    this.config.useSpanNumber && Object.assign(xNewData, React.createElement("span", null, "+rawData"));
                     break;
                 case 'String':
                     xNewData = new String(rawData);
@@ -997,9 +997,83 @@ function makeContainer(component, selector) {
 }
 exports.makeContainer = makeContainer;
 function makeOnlyContainer(component, store) {
-    return react_1.createElement(react_redux_1.Provider, {
-        store: makeReduxStore(store)
-    }, react_1.createElement(makeContainer(component)));
+    var RootContainer = makeContainer(component);
+    return React.createElement(react_redux_1.Provider, { store: makeReduxStore(store) },
+        React.createElement(RootContainer, null));
 }
 exports.makeOnlyContainer = makeOnlyContainer;
+var Input = /** @class */ (function (_super) {
+    __extends(Input, _super);
+    function Input() {
+        var _this = _super !== null && _super.apply(this, arguments) || this;
+        _this.onChange = function (e) {
+            var store = _this.props.value.__store__;
+            if (!store) {
+                throw new Error('[pastate] You can only give state node from this.props to pastate two-ways binding HOC component');
+            }
+            store.setSync(_this.props.value, e.target.value);
+        };
+        return _this;
+    }
+    Input.prototype.render = function () {
+        var props = Object.assign({
+            onChange: this.onChange,
+            type: "text"
+        }, this.props);
+        return this.props.textarea == true ?
+            React.createElement("textarea", __assign({}, props))
+            :
+                React.createElement("input", __assign({}, props));
+    };
+    return Input;
+}(React.PureComponent));
+exports.Input = Input;
+var Checkbox = /** @class */ (function (_super) {
+    __extends(Checkbox, _super);
+    function Checkbox() {
+        var _this = _super !== null && _super.apply(this, arguments) || this;
+        _this.onChange = function (e) {
+            var store = _this.props.checked.__store__;
+            if (!store) {
+                throw new Error('[pastate] You can only give state node from this.props to pastate two-ways binding HOC component');
+            }
+            store.setSync(_this.props.checked, e.target.checked);
+        };
+        return _this;
+    }
+    Checkbox.prototype.render = function () {
+        var props = Object.assign({
+            onChange: this.onChange
+        }, this.props, {
+            checked: this.props.checked == true
+        });
+        return React.createElement("input", __assign({ type: "checkbox" }, props));
+    };
+    return Checkbox;
+}(React.PureComponent));
+exports.Checkbox = Checkbox;
+var Radiobox = /** @class */ (function (_super) {
+    __extends(Radiobox, _super);
+    function Radiobox() {
+        var _this = _super !== null && _super.apply(this, arguments) || this;
+        _this.onChange = function (e) {
+            var store = _this.props.value.__store__;
+            if (!store) {
+                throw new Error('[pastate] You can only give state node from this.props to pastate two-ways binding HOC component');
+            }
+            store.setSync(_this.props.value, e.target.value);
+        };
+        return _this;
+    }
+    Radiobox.prototype.render = function () {
+        var _this = this;
+        return (React.createElement("span", { style: this.props.style, className: this.props.className, id: this.props.id }, this.props.options.map(function (option, index) {
+            return React.createElement("span", { key: index, style: { marginRight: 6, display: _this.props.vertical == true ? "block" : "inline-bock" } },
+                React.createElement("input", __assign({ type: "radio", checked: _this.props.value == option, value: option, onChange: _this.onChange }, _this.props.radioProps)),
+                option);
+        })));
+    };
+    return Radiobox;
+}(React.PureComponent));
+exports.Radiobox = Radiobox;
 // TODO: 改 XStore 为 PaStore 

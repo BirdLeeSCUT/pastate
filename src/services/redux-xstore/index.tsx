@@ -1,12 +1,12 @@
-/**
- * XStore 实现
- */
-import { fromJS, Map } from 'immutable'
-import { Action, Reducer } from 'redux';
-import { Dispatch, connect, Provider } from 'react-redux';
-import { ChangeEvent, Component, createElement } from 'react';
-import { createStore, combineReducers, Store } from 'redux';
 
+import * as React from 'react';
+import { Action, Reducer, createStore, combineReducers, Store } from 'redux';
+import { Dispatch, connect, Provider } from 'react-redux';
+import * as objectAssign from 'object.assign/polyfill';
+
+// 处理 Object.assign 兼容性
+Object.assign = objectAssign()
+ 
 interface XOperation {
     operation: 'set' | 'merge' | 'update' | 'mark',
     path?: string,
@@ -855,7 +855,7 @@ export class XStore<State extends XType> {
                     break;
                 case 'Number':
                     xNewData = new Number(rawData) as XNumber;
-                    this.config.useSpanNumber && (Object as any).assign(xNewData, createElement('span', undefined, +rawData));
+                    this.config.useSpanNumber && (Object as any).assign(xNewData, <span>+rawData</span>);
                     break;
                 case 'String':
                     xNewData = new String(rawData) as XString;
@@ -1002,9 +1002,9 @@ export class XStore<State extends XType> {
     }
 
     // -------------------------------- form 对接函数 -----------------------------
-    public syncInput(state: any): (event: ChangeEvent<any>) => void {
+    public syncInput(state: any): (event: React.ChangeEvent<any>) => void {
         // 请使用对象state, 其他特殊用法未测试
-        return (event: ChangeEvent<any>) => {
+        return (event: React.ChangeEvent<any>) => {
             this.setSync(state, event.target.value)
         }
     }
@@ -1101,11 +1101,85 @@ export function makeContainer(component: any, selector?: string | object | Funct
 }
 
 export function makeOnlyContainer(component: any, store: any){
-    return createElement(Provider, {
-        store: makeReduxStore(store)
-    }, createElement(makeContainer(component)))
+    let RootContainer = makeContainer(component)
+    return <Provider store={makeReduxStore(store)}><RootContainer /></Provider>
 }
 
 export { Provider as RootContainer} 
+
+export class Input extends React.PureComponent<any, any> {
+
+    onChange = e => {
+        let store = this.props.value.__store__
+        if(!store){
+            throw new Error('[pastate] You can only give state node from this.props to pastate two-ways binding HOC component')
+        }
+        store.setSync(this.props.value, e.target.value)
+    }
+
+    render() {
+        let props = (Object as any).assign( {
+            onChange: this.onChange,
+            type: "text" 
+        }, this.props);
+        return this.props.textarea == true ?
+            <textarea {...props} />
+            :
+            <input {...props} /> 
+    }
+}
+
+export class Checkbox extends React.PureComponent<any, any> {
+
+    onChange = e => {
+        let store = this.props.checked.__store__
+        if(!store){
+            throw new Error('[pastate] You can only give state node from this.props to pastate two-ways binding HOC component')
+        }
+        store.setSync(this.props.checked, e.target.checked)
+    }
+
+    render() {
+        let props = (Object as any).assign( {
+            onChange: this.onChange,
+        }, this.props, {
+            checked: this.props.checked == true
+        });
+        return <input type="checkbox" {...props} />
+    }
+}
+
+export class Radiobox extends React.PureComponent<any, any> {
+
+    onChange = (e) => {
+        let store = this.props.value.__store__
+        if(!store){
+            throw new Error('[pastate] You can only give state node from this.props to pastate two-ways binding HOC component')
+        }
+        store.setSync(this.props.value, e.target.value)
+    }
+
+    render() {
+        return (
+            <span style={this.props.style} className={this.props.className} id={this.props.id}>
+                {
+                    this.props.options.map((option, index) => 
+                    <span key={index} style={{marginRight: 6, display: this.props.vertical == true ? "block" : "inline-bock"}}>
+                        <input 
+                            type="radio"
+                            checked={this.props.value == option}
+                            value={option}
+                            onChange={this.onChange}
+                            {...this.props.radioProps}
+                        />
+                        {option}
+                    </span>)
+                }
+            </span>
+        )
+    }
+}
+
+
 
 // TODO: 改 XStore 为 PaStore
