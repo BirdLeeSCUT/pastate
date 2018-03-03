@@ -21,7 +21,8 @@ class AppView extends Component {
 
 ## pastate 文档
 使用 pastate 只需要基础的 react 知识! 如果你没有接触过 redux 或 vue, 可以直接跳过下面的介绍，直接从下面的文档开始上手 pastate！  
-[pastate 文档](https://github.com/BirdLeeSCUT/pastate/tree/master/docs/)
+
+[pastate 文档](https://github.com/BirdLeeSCUT/pastate/tree/master/docs/)  
 
 ## 特性
 - **便捷易用**：pastate 对复杂概念进行了友好封装，无需学习 redux 相关概念就可以轻松上手
