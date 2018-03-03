@@ -296,3 +296,23 @@ export function makeContainer(component: any, selector?: string | object | Funct
 export function makeOnlyContainer(component: any, store: any): React.ReactElement<any>
 
 export { Provider as RootContainer }
+
+export class Input extends React.PureComponent<{
+    /** 输入文本值 */
+    value: string,
+    /** 是否多行文本 */
+    textarea: boolean
+} & React.InputHTMLAttributes<any>, any> {}
+
+export class Checkbox extends React.PureComponent<React.InputHTMLAttributes<any>, any> {}
+
+export class Radiobox extends React.PureComponent<{
+    /** 是否垂直显示 */
+    vertical: boolean,
+    /** 选项数组 */
+    options: Array<string>,
+    /** 数据值 */
+    value: string,
+    /** 传递给每个 radio 的属性 */
+    radioProps: any
+} & React.InputHTMLAttributes<any>, any>{}

@@ -38,7 +38,7 @@ class AppView extends Component {
 Pastate 是 Path State 的简写，pastate 在 state 的每个节点上增加节点的位置(path)信息，从而来方便地控制节点对象或数组的引用更新，实现 react 推荐的 immutable state 特性，使得 pastate 可以管理复杂的 state 树，并实现的高效的异步按需渲染逻辑。同时 pastate 基于 ES5 的 Object.assign 实现了 state 的全节点响应式操作支持，你只需像修改普通变量一样 state 即可, 如 `state.userinfo.name = 'myName'`, 这时 pastate 的响应式引擎会为自动为你高效更新相关视图。
 
 ## 可靠性
-Pastate 已经通过 130+ 个测试用例的全面测试，具有可靠性保障。测试用例的具体内容可查看项目中的 `xxx.test.js` 文件。
+Pastate 已经通过 160+ 个测试用例的全面测试，具有可靠性保障。测试用例的具体内容可查看项目中的 `xxx.test.js` 文件。
 
 ## 灵感来源
 Pastate 内部基于 react + redux 实现，受启发于 Immutable.js 的 immutable state 管理模式， Vue.js 的响应式 state 设计模式； 同时受《精益创业》(The Lean Startup) 精益思想的熏染。
