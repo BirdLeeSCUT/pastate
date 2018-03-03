@@ -5,7 +5,7 @@ import { Dispatch, connect, Provider } from 'react-redux';
 import * as objectAssign from 'object.assign/polyfill';
 
 // 处理 Object.assign 兼容性
-Object.assign = objectAssign()
+(Object as any).assign = objectAssign()
  
 interface XOperation {
     operation: 'set' | 'merge' | 'update' | 'mark',
@@ -973,7 +973,7 @@ export class XStore<State extends XType> {
     public stateDidAppliedOperation(info: {
         index: number,
         tookEffect: boolean,
-        oldValue: Map<any, any>
+        oldValue: any
     }): boolean {
         // 可以实现 operation细节logger 等功能
         return true

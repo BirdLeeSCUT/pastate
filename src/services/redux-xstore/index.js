@@ -18,10 +18,13 @@ var __assign = (this && this.__assign) || Object.assign || function(t) {
     return t;
 };
 exports.__esModule = true;
-var react_redux_1 = require("react-redux");
-exports.RootContainer = react_redux_1.Provider;
 var React = require("react");
 var redux_1 = require("redux");
+var react_redux_1 = require("react-redux");
+exports.RootContainer = react_redux_1.Provider;
+var objectAssign = require("object.assign/polyfill");
+// 处理 Object.assign 兼容性
+Object.assign = objectAssign();
 var XStore = /** @class */ (function () {
     // 兼容原始 reducer 的功能暂不实现
     // private reducer: Function

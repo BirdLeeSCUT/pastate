@@ -22,6 +22,15 @@
     "watch-css": "npm run build-css && node-sass-chokidar src/ -o src/ --watch --recursive",
     "test": "node scripts/test.js --env=jsdom"
   },
+  "keywords": [
+		"react",
+		"redux",
+    "immutable",
+    "responsive",
+    "progressive",
+    "asynchronous",
+    "lean"
+	],
   "devDependencies": {
     "@types/jest": "^21.1.5",
     "@types/node": "^8.0.47",
