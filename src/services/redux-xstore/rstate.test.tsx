@@ -441,7 +441,20 @@ describe('responsive state test suit', function () {
                     expect(store.state.array_object).toEqual([newValue_1, newValue_0, ...oldArray])
                 })
 
-                it('unshift into an init empty array')
+                it('unshift into an init empty array', async function(){
+                    let newElement = {
+                        name: 'newElement',
+                        age: 10,
+                        isMale: true
+                    }
+                    expect(store.state.array_object_empty.length).toEqual(0)
+                    store.state.array_object_empty.push(newElement);
+                    await delay(0)
+                    expect(store.state.array_object_empty).toEqual([newElement])
+                    expect(store.state.array_object_empty.length).toEqual(1)
+                    store.state.array_object_empty = []
+                    await delay(0)
+                })
 
             })
 
@@ -726,6 +739,17 @@ describe('responsive state test suit', function () {
             })
         })
 
+    })
+
+    describe('get rstate', function(){
+        it('root', function(){
+            expect(store.getResponsiveState(store.imState)).toBe(store.state)
+        })
+        it('nest', function(){
+            expect(store.getResponsiveState(store.imState.age as XType)).toBe(store.state.age)
+            expect(store.getResponsiveState(store.imState.teacher as XType)).toBe(store.state.teacher)
+            expect(store.getResponsiveState(store.imState.teacher.name as XType)).toBe(store.state.teacher.name)
+        })
     })
 
 })

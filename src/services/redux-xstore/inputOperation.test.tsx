@@ -53,7 +53,6 @@ let myStore = new XStore<SimpleState>({
 
 describe("Add Operation Test Suit", function () {
 
-    pending();
 
     describe('initial value check', function () {
         it('isQueuingOperations is false', function () {
@@ -92,7 +91,7 @@ describe("Add Operation Test Suit", function () {
             })
 
             it('SET operation', async function () {
-                myStore.set(myStore.state.age, 11);
+                myStore.set(myStore.imState.age, 11);
                 expectedOperation = {
                     operation: 'set',
                     path: '.age',
@@ -110,7 +109,7 @@ describe("Add Operation Test Suit", function () {
             })
 
             it('MERGE operation', async function () {
-                myStore.merge(myStore.state, {
+                myStore.merge(myStore.imState, {
                     age: 12
                 });
                 expectedOperation = {
@@ -124,7 +123,7 @@ describe("Add Operation Test Suit", function () {
 
             it('UPDATE operation', async function () {
                 let updater = (age: number) => age + 1;
-                myStore.update(myStore.state.age, updater);
+                myStore.update(myStore.imState.age, updater);
                 expectedOperation = {
                     operation: 'update',
                     path: '.age',
@@ -133,7 +132,7 @@ describe("Add Operation Test Suit", function () {
             })
 
             it('setup operation with description', async function () {
-                myStore.set(myStore.state.age, 14, 'I am description');
+                myStore.set(myStore.imState.age, 14, 'I am description');
                 expectedOperation = {
                     operation: 'set',
                     path: '.age',

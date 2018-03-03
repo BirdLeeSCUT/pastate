@@ -350,8 +350,18 @@ export class XStore<State extends XType> {
         return rnode;
     }
 
-    private getState(): State {
-        return this.imState;
+    // 通过获取
+    public getResponsiveState(imState: XType): any {
+        let pathArr: Array<string>;
+        if(imState.__xpath__ === undefined){
+            throw new Error('[pastate] getResponsiveState: you shuold give an imState node')
+        }else if(imState.__xpath__ == ''){
+            pathArr = []
+        }else{
+            pathArr = imState.__xpath__.split('.');
+            pathArr.shift();
+        }
+        return XStore.getValueByPath(this.state, pathArr);
     }
 
     // MARK: operation 输入相关方法 -----------------------------------------------------------
@@ -471,7 +481,7 @@ export class XStore<State extends XType> {
                 console.warn('- If you want to update a state without using present it`s value, it is no need to use `update` operation, please use `set` or `merge` instead.')
             }
 
-            throw Error(`[Error store.${rawParams.operate}] \`stateToOperate\` is undefined or null.`)
+            throw new Error(`[Error store.${rawParams.operate}] \`stateToOperate\` is undefined or null.`)
         }
 
         // 路径提取
@@ -479,7 +489,7 @@ export class XStore<State extends XType> {
         if (typeof (rawParams.stateToOperate as XType).__xpath__ == 'string') {
             path = (rawParams.stateToOperate as XType).__xpath__ as string
         } else {
-            throw Error(`[Error store.${rawParams.operate}] \`stateToOperate\` has no string __xpath__`)
+            throw new Error(`[Error store.${rawParams.operate}] \`stateToOperate\` has no string __xpath__`)
         }
 
         // payload 合法性处理
@@ -583,7 +593,7 @@ export class XStore<State extends XType> {
 
         if (this.dispatch) {
             this.dispatch({
-                type: '__XSTORE_UPDATE__: ' + (this.name || '(you can add a name to your xstore via name prop)')
+                type: '__PASTORE_UPDATE__: ' + (this.name || '(you can add a name to your xstore via name prop)')
             })
         } else {
             // console.error('[XStore] dispatch method is not injected');
@@ -694,11 +704,11 @@ export class XStore<State extends XType> {
 
             // 仅支持对对象进行处理
             if (valueType != 'Object') {
-                throw Error('[merge] You can only apply `merge` operation on object')
+                throw new Error('[merge] You can only apply `merge` operation on an object')
             }
 
             if ((Object.prototype.toString.call(payload) as string).slice(8, -1) != 'Object') {
-                throw Error('[merge] You can only apply `merge` operation with an object payload')
+                throw new Error('[merge] You can only apply `merge` operation with an object payload')
             }
 
             fatherNode = this.getNewReference(pathArr);
@@ -748,7 +758,7 @@ export class XStore<State extends XType> {
             }
 
         } else {
-            throw Error('[XStore] operation invalid!')
+            throw new Error('[XStore] operation invalid!')
         }
 
 
@@ -1063,3 +1073,5 @@ export function makeOnlyContainer(component: any, store: any){
 }
 
 export { Provider as RootContainer} 
+
+// TODO: 改 XStore 为 PaStore

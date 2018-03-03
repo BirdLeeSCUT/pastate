@@ -310,8 +310,20 @@ var XStore = /** @class */ (function () {
         }
         return rnode;
     };
-    XStore.prototype.getState = function () {
-        return this.imState;
+    // 通过获取
+    XStore.prototype.getResponsiveState = function (imState) {
+        var pathArr;
+        if (imState.__xpath__ === undefined) {
+            throw new Error('[pastate] getResponsiveState: you shuold give an imState node');
+        }
+        else if (imState.__xpath__ == '') {
+            pathArr = [];
+        }
+        else {
+            pathArr = imState.__xpath__.split('.');
+            pathArr.shift();
+        }
+        return XStore.getValueByPath(this.state, pathArr);
     };
     // MARK: operation 输入相关方法 -----------------------------------------------------------
     /**
@@ -417,7 +429,7 @@ var XStore = /** @class */ (function () {
             if (rawParams.operate == 'update') {
                 console.warn('- If you want to update a state without using present it`s value, it is no need to use `update` operation, please use `set` or `merge` instead.');
             }
-            throw Error("[Error store." + rawParams.operate + "] `stateToOperate` is undefined or null.");
+            throw new Error("[Error store." + rawParams.operate + "] `stateToOperate` is undefined or null.");
         }
         // 路径提取
         var path = '';
@@ -425,7 +437,7 @@ var XStore = /** @class */ (function () {
             path = rawParams.stateToOperate.__xpath__;
         }
         else {
-            throw Error("[Error store." + rawParams.operate + "] `stateToOperate` has no string __xpath__");
+            throw new Error("[Error store." + rawParams.operate + "] `stateToOperate` has no string __xpath__");
         }
         // payload 合法性处理
         var payloadType = Object.prototype.toString.call(rawParams.payload).slice(8, -1);
@@ -515,7 +527,7 @@ var XStore = /** @class */ (function () {
         }
         if (this.dispatch) {
             this.dispatch({
-                type: '__XSTORE_UPDATE__: ' + (this.name || '(you can add a name to your xstore via name prop)')
+                type: '__PASTORE_UPDATE__: ' + (this.name || '(you can add a name to your xstore via name prop)')
             });
         }
         else {
@@ -611,10 +623,10 @@ var XStore = /** @class */ (function () {
         else if (operation.operation == 'merge') {
             // 仅支持对对象进行处理
             if (valueType != 'Object') {
-                throw Error('[merge] You can only apply `merge` operation on object');
+                throw new Error('[merge] You can only apply `merge` operation on an object');
             }
             if (Object.prototype.toString.call(payload).slice(8, -1) != 'Object') {
-                throw Error('[merge] You can only apply `merge` operation with an object payload');
+                throw new Error('[merge] You can only apply `merge` operation with an object payload');
             }
             fatherNode = this.getNewReference(pathArr);
             for (var key in payload) {
@@ -657,7 +669,7 @@ var XStore = /** @class */ (function () {
             };
         }
         else {
-            throw Error('[XStore] operation invalid!');
+            throw new Error('[XStore] operation invalid!');
         }
     };
     /**
@@ -961,3 +973,4 @@ function makeOnlyContainer(component, store) {
     }, react_1.createElement(makeContainer(component)));
 }
 exports.makeOnlyContainer = makeOnlyContainer;
+// TODO: 改 XStore 为 PaStore 
