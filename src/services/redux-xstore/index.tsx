@@ -855,7 +855,7 @@ export class XStore<State extends XType> {
                     break;
                 case 'Number':
                     xNewData = new Number(rawData) as XNumber;
-                    this.config.useSpanNumber && (Object as any).assign(xNewData, <span>+rawData</span>);
+                    this.config.useSpanNumber && (Object as any).assign(xNewData, <span>{+rawData}</span>);
                     break;
                 case 'String':
                     xNewData = new String(rawData) as XString;

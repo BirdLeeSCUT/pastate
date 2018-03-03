@@ -757,7 +757,7 @@ var XStore = /** @class */ (function () {
                     break;
                 case 'Number':
                     xNewData = new Number(rawData);
-                    this.config.useSpanNumber && Object.assign(xNewData, React.createElement("span", null, "+rawData"));
+                    this.config.useSpanNumber && Object.assign(xNewData, React.createElement("span", null, +rawData));
                     break;
                 case 'String':
                     xNewData = new String(rawData);
