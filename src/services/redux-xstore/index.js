@@ -471,8 +471,10 @@ var XStore = /** @class */ (function () {
             if (!this.isQueuingOperations) {
                 this.isQueuingOperations = true;
                 setTimeout(function () {
-                    _this.isQueuingOperations = false;
-                    _this.beginReduceOpertions();
+                    if (_this.isQueuingOperations == true) {
+                        _this.isQueuingOperations = false;
+                        _this.beginReduceOpertions();
+                    }
                 }, 0);
             }
             this.pendingOperationQueue.push(operation);
@@ -554,6 +556,26 @@ var XStore = /** @class */ (function () {
         else {
             console.error('[XStore] dispatch method is not injected');
         }
+    };
+    /**
+     * 当更新输入当前计划的输入值
+     * @param state
+     * @param newValue
+     */
+    XStore.prototype.setTextValue = function (state, newValue) {
+        if (state.__xpath__) {
+            this.setSync(state, newValue);
+        }
+        else {
+            state = newValue;
+            this.beginReduceOpertions();
+        }
+    };
+    /**
+     * 手动地对应用state进行更新
+     */
+    XStore.prototype.sync = function () {
+        this.beginReduceOpertions();
     };
     /**
      * operation 项处理器，负责 imState = imState + operation 的逻辑
