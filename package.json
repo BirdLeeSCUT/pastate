@@ -1,6 +1,6 @@
 {
   "name": "pastate",
-  "version": "0.6.3",
+  "version": "0.6.4",
   "main": "./src/services/redux-xstore/index.js",
   "repository": {
     "type": "git",
@@ -23,14 +23,14 @@
     "test": "node scripts/test.js --env=jsdom"
   },
   "keywords": [
-		"react",
-		"redux",
+    "react",
+    "redux",
     "immutable",
     "responsive",
     "progressive",
     "asynchronous",
     "lean"
-	],
+  ],
   "devDependencies": {
     "@types/jest": "^21.1.5",
     "@types/node": "^8.0.47",
