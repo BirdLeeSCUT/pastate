@@ -2,6 +2,10 @@
   "name": "pastate",
   "version": "0.6.1",
   "main": "./src/services/redux-xstore/index.js",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/BirdLeeSCUT/pastate"
+  },
   "dependencies": {
     "react": "^16.0.0",
     "react-dom": "^16.0.0",
