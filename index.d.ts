@@ -81,7 +81,8 @@ export class XStore<State extends XType> {
     // MARK: 响应式 rstate 的处理相关函数
     private makeRState(path: string[], newValue?: any): any
 
-    private getState(): State
+    // 通过 imState 获取响应式 state
+    public getResponsiveState(imState: XType): any
 
     // MARK: operation 输入相关方法 -----------------------------------------------------------
 
