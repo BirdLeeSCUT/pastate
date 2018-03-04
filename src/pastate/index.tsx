@@ -1019,22 +1019,27 @@ export interface XType {
 
 export class XBoolean extends Boolean implements XType {
     __xpath__: string
+    __store__: XStore<any>
 }
 
 export class XNumber extends Number implements XType {
     __xpath__: string
+    __store__: XStore<any>
 }
 
 export class XString extends String implements XType {
     __xpath__: string
+    __store__: XStore<any>
 }
 
 export class XArray extends Array<any> implements XType {
     __xpath__: string
+    __store__: XStore<any>
 }
 
 export class XObject extends Object implements XType {
     __xpath__: string
+    __store__: XStore<any>
 }
 
 export function makeReduxStore(storeTree: any): Store<any>{
@@ -1107,72 +1112,97 @@ export function makeOnlyContainer(component: any, store: any){
 
 export { Provider as RootContainer} 
 
-export class Input extends React.PureComponent<any, any> {
+export { default as Input } from './HOC/Input'
 
-    onChange = e => {
-        let store = this.props.value.__store__
-        if(!store){
-            throw new Error('[pastate] You can only give state node from this.props to pastate two-ways binding HOC component')
-        }
-        store.setSync(this.props.value, e.target.value)
-    }
+export { default as Checkbox } from './HOC/Checkbox'
 
-    render() {
-        let props = (Object as any).assign( {
-            onChange: this.onChange,
-            type: "text" 
-        }, this.props);
-        return this.props.textarea == true ?
-            <textarea {...props} />
-            :
-            <input {...props} /> 
-    }
-}
 
-export class Checkbox extends React.PureComponent<any, any> {
-
-    onChange = e => {
-        let store = this.props.checked.__store__
-        if(!store){
-            throw new Error('[pastate] You can only give state node from this.props to pastate two-ways binding HOC component')
-        }
-        store.setSync(this.props.checked, e.target.checked)
-    }
-
-    render() {
-        let props = (Object as any).assign( {
-            onChange: this.onChange,
-        }, this.props, {
-            checked: this.props.checked == true
-        });
-        return <input type="checkbox" {...props} />
-    }
-}
-
-export class Radiobox extends React.PureComponent<any, any> {
+export class Radiobox extends React.PureComponent<{
+    options: Array<XString | string | {value: XString | string, disabled?: boolean}>
+    selected: string | XString
+    className?: string
+    radioClassName?: string
+    tagClassName?: string
+    disabledTagClassName?: string
+    id?: string
+    vertical?: boolean
+    onChange?: (value?: string) => void
+}, any> {
 
     onChange = (e) => {
-        let store = this.props.value.__store__
+        let store = (this.props.selected as XType).__store__
         if(!store){
             throw new Error('[pastate] You can only give state node from this.props to pastate two-ways binding HOC component')
         }
-        store.setSync(this.props.value, e.target.value)
+        store.setSync(this.props.selected, e.target.value)
+        this.props.onChange && this.props.onChange(e.target.value)
     }
 
     render() {
         return (
-            <span style={this.props.style} className={this.props.className} id={this.props.id}>
+            <span className={this.props.className} id={this.props.id}>
+                {
+                    this.props.options.map((rawOption, index) => {
+
+                        let optionsTypeName: string = (Object.prototype.toString.call(rawOption) as string).slice(8, -1);
+                        
+                        let option: string;
+                        let disabled: boolean;
+                        if(optionsTypeName == "String"){
+                            option = rawOption as string;
+                            disabled = false;
+                        }else{
+                            option = (rawOption as any).value;
+                            disabled = (rawOption as any).disabled == true;
+                        }
+
+                        let spanClassName = '';
+                        spanClassName += this.props.tagClassName || ''
+                        spanClassName += (disabled && (this.props.disabledTagClassName && (' ' + this.props.disabledTagClassName))) || ''
+
+                        return (
+                            <span key={index} style={{marginRight: 6, display: this.props.vertical == true ? "block" : "inline-bock"}}>
+                                <input 
+                                    type="radio"
+                                    checked={this.props.selected == (option as XType)}
+                                    value={option}
+                                    disabled={disabled}
+                                    onChange={this.onChange}
+                                    className={this.props.radioClassName}
+                                />
+                                <span className={spanClassName}>{option}</span>
+                            </span>
+                        )
+                    })
+                }
+            </span>
+        )
+    }
+}
+
+export class Select extends React.PureComponent<any, any> {
+    onChange = (e) => {
+        let store = this.props.selected.__store__
+        if(!store){
+            throw new Error('[pastate] You can only give state node from this.props to pastate two-ways binding HOC component')
+        }
+        store.setSync(this.props.selected, e.target.value)
+    }
+
+    render() {
+        return (
+            <span className={this.props.className} id={this.props.id}>
                 {
                     this.props.options.map((option, index) => 
                     <span key={index} style={{marginRight: 6, display: this.props.vertical == true ? "block" : "inline-bock"}}>
                         <input 
                             type="radio"
-                            checked={this.props.value == option}
+                            checked={this.props.selected == option}
                             value={option}
                             onChange={this.onChange}
-                            {...this.props.radioProps}
+                            
                         />
-                        {option}
+                        <span {...this.props.tagProps}>{option}</span>
                     </span>)
                 }
             </span>

@@ -1005,78 +1005,71 @@ function makeOnlyContainer(component, store) {
         React.createElement(RootContainer, null));
 }
 exports.makeOnlyContainer = makeOnlyContainer;
-var Input = /** @class */ (function (_super) {
-    __extends(Input, _super);
-    function Input() {
-        var _this = _super !== null && _super.apply(this, arguments) || this;
-        _this.onChange = function (e) {
-            var store = _this.props.value.__store__;
-            if (!store) {
-                throw new Error('[pastate] You can only give state node from this.props to pastate two-ways binding HOC component');
-            }
-            store.setSync(_this.props.value, e.target.value);
-        };
-        return _this;
-    }
-    Input.prototype.render = function () {
-        var props = Object.assign({
-            onChange: this.onChange,
-            type: "text"
-        }, this.props);
-        return this.props.textarea == true ?
-            React.createElement("textarea", __assign({}, props))
-            :
-                React.createElement("input", __assign({}, props));
-    };
-    return Input;
-}(React.PureComponent));
-exports.Input = Input;
-var Checkbox = /** @class */ (function (_super) {
-    __extends(Checkbox, _super);
-    function Checkbox() {
-        var _this = _super !== null && _super.apply(this, arguments) || this;
-        _this.onChange = function (e) {
-            var store = _this.props.checked.__store__;
-            if (!store) {
-                throw new Error('[pastate] You can only give state node from this.props to pastate two-ways binding HOC component');
-            }
-            store.setSync(_this.props.checked, e.target.checked);
-        };
-        return _this;
-    }
-    Checkbox.prototype.render = function () {
-        var props = Object.assign({
-            onChange: this.onChange
-        }, this.props, {
-            checked: this.props.checked == true
-        });
-        return React.createElement("input", __assign({ type: "checkbox" }, props));
-    };
-    return Checkbox;
-}(React.PureComponent));
-exports.Checkbox = Checkbox;
+var Input_1 = require("./HOC/Input");
+exports.Input = Input_1["default"];
+var Checkbox_1 = require("./HOC/Checkbox");
+exports.Checkbox = Checkbox_1["default"];
 var Radiobox = /** @class */ (function (_super) {
     __extends(Radiobox, _super);
     function Radiobox() {
         var _this = _super !== null && _super.apply(this, arguments) || this;
         _this.onChange = function (e) {
-            var store = _this.props.value.__store__;
+            var store = _this.props.selected.__store__;
             if (!store) {
                 throw new Error('[pastate] You can only give state node from this.props to pastate two-ways binding HOC component');
             }
-            store.setSync(_this.props.value, e.target.value);
+            store.setSync(_this.props.selected, e.target.value);
+            _this.props.onChange && _this.props.onChange(e.target.value);
         };
         return _this;
     }
     Radiobox.prototype.render = function () {
         var _this = this;
-        return (React.createElement("span", { style: this.props.style, className: this.props.className, id: this.props.id }, this.props.options.map(function (option, index) {
-            return React.createElement("span", { key: index, style: { marginRight: 6, display: _this.props.vertical == true ? "block" : "inline-bock" } },
-                React.createElement("input", __assign({ type: "radio", checked: _this.props.value == option, value: option, onChange: _this.onChange }, _this.props.radioProps)),
-                option);
+        return (React.createElement("span", { className: this.props.className, id: this.props.id }, this.props.options.map(function (rawOption, index) {
+            var optionsTypeName = Object.prototype.toString.call(rawOption).slice(8, -1);
+            var option;
+            var disabled;
+            if (optionsTypeName == "String") {
+                option = rawOption;
+                disabled = false;
+            }
+            else {
+                option = rawOption.value;
+                disabled = rawOption.disabled == true;
+            }
+            var spanClassName = '';
+            spanClassName += _this.props.tagClassName || '';
+            spanClassName += (disabled && (_this.props.disabledTagClassName && (' ' + _this.props.disabledTagClassName))) || '';
+            return (React.createElement("span", { key: index, style: { marginRight: 6, display: _this.props.vertical == true ? "block" : "inline-bock" } },
+                React.createElement("input", { type: "radio", checked: _this.props.selected == option, value: option, disabled: disabled, onChange: _this.onChange, className: _this.props.radioClassName }),
+                React.createElement("span", { className: spanClassName }, option)));
         })));
     };
     return Radiobox;
 }(React.PureComponent));
 exports.Radiobox = Radiobox;
+var Select = /** @class */ (function (_super) {
+    __extends(Select, _super);
+    function Select() {
+        var _this = _super !== null && _super.apply(this, arguments) || this;
+        _this.onChange = function (e) {
+            var store = _this.props.selected.__store__;
+            if (!store) {
+                throw new Error('[pastate] You can only give state node from this.props to pastate two-ways binding HOC component');
+            }
+            store.setSync(_this.props.selected, e.target.value);
+        };
+        return _this;
+    }
+    Select.prototype.render = function () {
+        var _this = this;
+        return (React.createElement("span", { className: this.props.className, id: this.props.id }, this.props.options.map(function (option, index) {
+            return React.createElement("span", { key: index, style: { marginRight: 6, display: _this.props.vertical == true ? "block" : "inline-bock" } },
+                React.createElement("input", { type: "radio", checked: _this.props.selected == option, value: option, onChange: _this.onChange }),
+                React.createElement("span", __assign({}, _this.props.tagProps), option));
+        })));
+    };
+    return Select;
+}(React.PureComponent));
+exports.Select = Select;
 // TODO: 改 XStore 为 PaStore 

@@ -1,6 +1,5 @@
 .App {
   text-align: center;
-  color: #096;
 
   .pet{
     display: inline-block;
@@ -8,4 +7,17 @@
     padding: 4px;
     margin: 4px;
   }
+}
+
+.my-radio{
+  margin-left: 20px;
+}
+
+.my-radio-tag{
+  color: #096;
+  font-size: 20px;
+}
+
+.my-radio-tag-disabled{
+  color: #ccc;
 }

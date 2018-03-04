@@ -1,4 +1,4 @@
-import { XStore, XType } from '../../services/redux-xstore';
+import { XStore, XType } from '../../pastate';
 import { ChangeEvent } from 'react';
 
 interface State extends XType {

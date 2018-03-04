@@ -1,0 +1,45 @@
+"use strict";
+var __extends = (this && this.__extends) || (function () {
+    var extendStatics = Object.setPrototypeOf ||
+        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+        function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+var __assign = (this && this.__assign) || Object.assign || function(t) {
+    for (var s, i = 1, n = arguments.length; i < n; i++) {
+        s = arguments[i];
+        for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p))
+            t[p] = s[p];
+    }
+    return t;
+};
+exports.__esModule = true;
+var React = require("react");
+var Checkbox = /** @class */ (function (_super) {
+    __extends(Checkbox, _super);
+    function Checkbox() {
+        var _this = _super !== null && _super.apply(this, arguments) || this;
+        _this.onChange = function (e) {
+            var store = _this.props.checked.__store__;
+            if (!store) {
+                throw new Error('[pastate] You can only give state node from this.props to pastate two-ways binding HOC component');
+            }
+            store.setSync(_this.props.checked, e.target.checked);
+        };
+        return _this;
+    }
+    Checkbox.prototype.render = function () {
+        var props = Object.assign({
+            onChange: this.onChange
+        }, this.props, {
+            checked: this.props.checked == true
+        });
+        return React.createElement("input", __assign({ type: "checkbox" }, props));
+    };
+    return Checkbox;
+}(React.PureComponent));
+exports["default"] = Checkbox;

@@ -2,10 +2,26 @@ import * as React from 'react';
 import { DispatchProp } from 'react-redux';
 import { store, State } from './App.store';
 import './App.style.css';
-import { makeContainer, Input } from '../../services/redux-xstore/index';
+import { makeContainer, Input, Radiobox } from '../../pastate';
 
+
+const options1 = ["o1", "o2", "o3"]
+const options2 = [
+  {value: "o1", disabled: false},
+  {value: "o2", disabled: true},
+  {value: "o3", disabled: false}
+]
 
 class App extends React.Component<{ state: State } & DispatchProp<any>> {
+
+  handleBeforeTextChange(newValue: string, oldValue: string): string {
+    return newValue;
+  }
+
+  handleAfterTextChange(newValue: string) {
+    console.log(newValue)
+  }
+
   render() {
     let state = this.props.state;
     let actions = store.actions;
@@ -30,9 +46,24 @@ class App extends React.Component<{ state: State } & DispatchProp<any>> {
         <button onClick={actions.doFourActions}>批量任务</button>
         <button onClick={actions.longName}>名字加长</button>
         
-        <Input value={state.name} />
+        <Input 
+          value={state.name} 
+          beforeChange={this.handleBeforeTextChange}
+          afterChange={this.handleAfterTextChange}
+          textarea={false} 
+          disabled={false}
+          useComposedValue={false}
+          className="class-test"
+          id="id-test"
+        />
 
-        <input type="text" value={state.pets[0].name} onChange={store.syncInput(state.pets[0].name)}/>
+        <Radiobox 
+          options={options2}
+          selected={state.name}
+          radioClassName="my-radio"
+          tagClassName="my-radio-tag"
+          disabledTagClassName="my-radio-tag-disabled"
+        />
         
       </div>
     );
