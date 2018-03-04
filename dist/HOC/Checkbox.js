@@ -19,6 +19,9 @@ var __assign = (this && this.__assign) || Object.assign || function(t) {
 };
 exports.__esModule = true;
 var React = require("react");
+/**
+ * pastate 双向数据绑定复选框组件
+ */
 var Checkbox = /** @class */ (function (_super) {
     __extends(Checkbox, _super);
     function Checkbox() {
@@ -28,7 +31,9 @@ var Checkbox = /** @class */ (function (_super) {
             if (!store) {
                 throw new Error('[pastate] You can only give state node from this.props to pastate two-ways binding HOC component');
             }
-            store.setSync(_this.props.checked, e.target.checked);
+            var newValue = e.target.checked;
+            store.setSync(_this.props.checked, newValue);
+            _this.props.afterChange && _this.props.afterChange(newValue);
         };
         return _this;
     }

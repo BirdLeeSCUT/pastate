@@ -163,7 +163,7 @@ export class XStore<State extends XType> {
                 enumerable: false,
                 get: function () {
                     return function () {
-                        if(rnode.length <= 0){
+                        if (rnode.length <= 0) {
                             return null
                         }
                         let lastOneIndex = rnode.length - 1;
@@ -218,7 +218,7 @@ export class XStore<State extends XType> {
                 enumerable: false,
                 get: function () {
                     return function () {
-                        if(rnode.length <= 0){
+                        if (rnode.length <= 0) {
                             return null
                         }
                         let lastOneIndex = rnode.length - 1;
@@ -290,33 +290,33 @@ export class XStore<State extends XType> {
                         configurable: true,
                         get: () => {
                             let valueToGet = XStore.getValueByPath(this.imState, path)[prop];
-                            if(valueToGet === null || valueToGet === undefined){
+                            if (valueToGet === null || valueToGet === undefined) {
                                 return valueToGet;
-                            }else{
+                            } else {
                                 return rValue;
                             }
-                            
+
                         },
                         set: (_newValue: any) => {
-                            
+
                             // 把对象节点设置为 null 的情况
-                            if(_newValue === null || _newValue === undefined){
+                            if (_newValue === null || _newValue === undefined) {
                                 console.warn(`[pastate] You are setting an ${valueTypeName} node to be '${_newValue}', which is deprecated.`)
                             }
 
                             let valueToSet = XStore.getValueByPath(this.imState, path)[prop];
 
-                            if(valueToSet === null || valueToSet === undefined){
-                                this.merge({__xpath__: path.map(p => '.' + p).join('')}, {
+                            if (valueToSet === null || valueToSet === undefined) {
+                                this.merge({ __xpath__: path.map(p => '.' + p).join('') }, {
                                     [prop]: _newValue
                                 } as any)
-                            }else{
+                            } else {
                                 this.set(valueToSet, _newValue)
                             }
 
                             // 响应式数组长度变化处理
-                            if(valueTypeName == 'Array'){
-                                
+                            if (valueTypeName == 'Array') {
+
                                 // DALAY: 方法一：为了提高效率，只做长度调整，重复利用现有元素
                                 // let adjustCount = _newValue.length - valueToSet.length;
                                 // if(adjustCount > 0){
@@ -326,7 +326,7 @@ export class XStore<State extends XType> {
                                 // 方法二：重新建立响应式节点
                                 rValue = this.makeRState([...path, prop], _newValue)
                             }
-                            
+
                         }
                     })
                 } else {
@@ -336,7 +336,7 @@ export class XStore<State extends XType> {
                         configurable: true,
                         get: () => {
                             let getValue = XStore.getValueByPath(this.imState, path)[prop];
-                            if(getValue === null || getValue === undefined){
+                            if (getValue === null || getValue === undefined) {
                                 return getValue
                             }
                             switch (valueTypeName) {
@@ -352,17 +352,17 @@ export class XStore<State extends XType> {
 
                             // DALAY: 下版本考虑支持把叶子转化为节点 (开发者水平容错性)
                             let newValueTypeName: string = (Object.prototype.toString.call(_newValue) as string).slice(8, -1);
-                            if(newValueTypeName == 'Array' || newValueTypeName == 'Object'){
+                            if (newValueTypeName == 'Array' || newValueTypeName == 'Object') {
                                 console.error('[pastate] At present, you cannot set an node with the string | number | boolean | null | undefined value to be Array or Object. We will consider support it in the future.')
                                 return;
                             }
 
                             let valueToSet = XStore.getValueByPath(this.imState, path)[prop];
-                            if(valueToSet === null || valueToSet === undefined){
-                                this.merge({__xpath__: path.map(p => '.' + p).join('')}, {
+                            if (valueToSet === null || valueToSet === undefined) {
+                                this.merge({ __xpath__: path.map(p => '.' + p).join('') }, {
                                     [prop]: _newValue
                                 } as any)
-                            }else{
+                            } else {
                                 // TODO:看看原始值是否为null, 如果是，则需要建立响应式
                                 this.set(valueToSet, _newValue)
                             }
@@ -378,11 +378,11 @@ export class XStore<State extends XType> {
     // 通过获取
     public getResponsiveState(imState: XType): any {
         let pathArr: Array<string>;
-        if(imState.__xpath__ === undefined){
+        if (imState.__xpath__ === undefined) {
             throw new Error('[pastate] getResponsiveState: you shuold give an imState node')
-        }else if(imState.__xpath__ == ''){
+        } else if (imState.__xpath__ == '') {
             pathArr = []
-        }else{
+        } else {
             pathArr = imState.__xpath__.split('.');
             pathArr.shift();
         }
@@ -551,7 +551,7 @@ export class XStore<State extends XType> {
             if (!this.isQueuingOperations) {
                 this.isQueuingOperations = true;
                 setTimeout(() => {
-                    if(this.isQueuingOperations == true){
+                    if (this.isQueuingOperations == true) {
                         this.isQueuingOperations = false;
                         this.beginReduceOpertions();
                     }
@@ -657,9 +657,9 @@ export class XStore<State extends XType> {
      * @param newValue 
      */
     public setTextValue(state: any, newValue: any) {
-        if(state.__xpath__){
+        if (state.__xpath__) {
             this.setSync(state, newValue)
-        }else{
+        } else {
             state = newValue;
             this.beginReduceOpertions();
         }
@@ -668,7 +668,7 @@ export class XStore<State extends XType> {
     /** 
      * 手动地对应用state进行更新
      */
-    public sync(){
+    public sync() {
         this.beginReduceOpertions();
     }
 
@@ -1036,19 +1036,19 @@ export class XStore<State extends XType> {
 
 }
 
-export function makeReduxStore(storeTree: any): Store<any>{
+export function makeReduxStore(storeTree: any): Store<any> {
     let partXStoreArr: Array<XStore<any>> = [];
-    let makePastateStoreToBeReducer = function(_storeTree: any): Reducer<any>{
-        if(_storeTree.__PASTATE_STORE__){
+    let makePastateStoreToBeReducer = function (_storeTree: any): Reducer<any> {
+        if (_storeTree.__PASTATE_STORE__) {
             return _storeTree.getReduxReducer();
         }
         let node = {}
         for (const key in _storeTree) {
             if (_storeTree.hasOwnProperty(key)) {
-                if(_storeTree[key].__PASTATE_STORE__){
+                if (_storeTree[key].__PASTATE_STORE__) {
                     node[key] = _storeTree[key].getReduxReducer();
                     partXStoreArr.push(_storeTree[key])
-                }else{
+                } else {
                     node[key] = makePastateStoreToBeReducer(_storeTree[key])
                 }
             }
@@ -1057,10 +1057,10 @@ export function makeReduxStore(storeTree: any): Store<any>{
     }
     let reduxDevTools = window['__REDUX_DEVTOOLS_EXTENSION__'] && window['__REDUX_DEVTOOLS_EXTENSION__']()
     let rootStore = createStore(makePastateStoreToBeReducer(storeTree), reduxDevTools)
-    if(partXStoreArr.length == 0){
+    if (partXStoreArr.length == 0) {
         storeTree.dispatch = rootStore.dispatch;
-    }else{
-        partXStoreArr.forEach( xstore => {
+    } else {
+        partXStoreArr.forEach(xstore => {
             xstore.dispatch = rootStore.dispatch;
         })
     }
@@ -1070,10 +1070,10 @@ export function makeReduxStore(storeTree: any): Store<any>{
 export function makeContainer(component: any, selector?: string | object | Function): any {
     let selectorType = typeof selector;
     let selectFunction;
-    
-    if(selector == undefined){
-        selectFunction = state => ({state: state})
-    }else if(selectorType == 'string'){
+
+    if (selector == undefined) {
+        selectFunction = state => ({ state: state })
+    } else if (selectorType == 'string') {
         selectFunction = state => {
             return {
                 state: (selector as string).split('.').reduce((preValue, curValue) => {
@@ -1081,7 +1081,7 @@ export function makeContainer(component: any, selector?: string | object | Funct
                 }, state)
             }
         }
-    }else if( selectorType == 'object' ){
+    } else if (selectorType == 'object') {
         selectFunction = state => {
             let selectResult = {}
             for (const key in selector as any) {
@@ -1093,117 +1093,27 @@ export function makeContainer(component: any, selector?: string | object | Funct
             }
             return selectResult
         }
-    }else{
+    } else {
         selectFunction = selector
     }
     return connect(selectFunction)(component)
 }
 
-export function makeOnlyContainer(component: any, store: any){
+export function makeOnlyContainer(component: any, store: any) {
     let RootContainer = makeContainer(component)
     return <Provider store={makeReduxStore(store)}><RootContainer /></Provider>
 }
 
-export { Provider as RootContainer } 
+export { Provider as RootContainer }
 
 export { default as Input } from './HOC/Input'
 
 export { default as Checkbox } from './HOC/Checkbox'
 
+export { default as Radiobox } from './HOC/Radiobox'
 
-export class Radiobox extends React.PureComponent<{
-    options: Array<XString | string | {value: XString | string, disabled?: boolean}>
-    selected: string | XString
-    className?: string
-    radioClassName?: string
-    tagClassName?: string
-    disabledTagClassName?: string
-    id?: string
-    vertical?: boolean
-    onChange?: (value?: string) => void
-}, any> {
-
-    onChange = (e) => {
-        let store = (this.props.selected as XType).__store__
-        if(!store){
-            throw new Error('[pastate] You can only give state node from this.props to pastate two-ways binding HOC component')
-        }
-        store.setSync(this.props.selected, e.target.value)
-        this.props.onChange && this.props.onChange(e.target.value)
-    }
-
-    render() {
-        return (
-            <span className={this.props.className} id={this.props.id}>
-                {
-                    this.props.options.map((rawOption, index) => {
-
-                        let optionsTypeName: string = (Object.prototype.toString.call(rawOption) as string).slice(8, -1);
-                        
-                        let option: string;
-                        let disabled: boolean;
-                        if(optionsTypeName == "String"){
-                            option = rawOption as string;
-                            disabled = false;
-                        }else{
-                            option = (rawOption as any).value;
-                            disabled = (rawOption as any).disabled == true;
-                        }
-
-                        let spanClassName = '';
-                        spanClassName += this.props.tagClassName || ''
-                        spanClassName += (disabled && (this.props.disabledTagClassName && (' ' + this.props.disabledTagClassName))) || ''
-
-                        return (
-                            <span key={index} style={{marginRight: 6, display: this.props.vertical == true ? "block" : "inline-bock"}}>
-                                <input 
-                                    type="radio"
-                                    checked={this.props.selected == (option as XType)}
-                                    value={option}
-                                    disabled={disabled}
-                                    onChange={this.onChange}
-                                    className={this.props.radioClassName}
-                                />
-                                <span className={spanClassName}>{option}</span>
-                            </span>
-                        )
-                    })
-                }
-            </span>
-        )
-    }
-}
-
-export class Select extends React.PureComponent<any, any> {
-    onChange = (e) => {
-        let store = this.props.selected.__store__
-        if(!store){
-            throw new Error('[pastate] You can only give state node from this.props to pastate two-ways binding HOC component')
-        }
-        store.setSync(this.props.selected, e.target.value)
-    }
-
-    render() {
-        return (
-            <span className={this.props.className} id={this.props.id}>
-                {
-                    this.props.options.map((option, index) => 
-                    <span key={index} style={{marginRight: 6, display: this.props.vertical == true ? "block" : "inline-bock"}}>
-                        <input 
-                            type="radio"
-                            checked={this.props.selected == option}
-                            value={option}
-                            onChange={this.onChange}
-                            
-                        />
-                        <span {...this.props.tagProps}>{option}</span>
-                    </span>)
-                }
-            </span>
-        )
-    }
-}
+export { default as Select } from './HOC/Select'
 
 
 
-// TODO: 改 XStore 为 PaStore
+// FIXME-THINK: 改 XStore 为 PaStore

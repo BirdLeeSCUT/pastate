@@ -2,13 +2,20 @@ import * as React from 'react';
 import { DispatchProp } from 'react-redux';
 import { store, State } from './App.store';
 import './App.style.css';
-import { makeContainer, Input, Radiobox, Checkbox } from '../../pastate';
+import { makeContainer, Input, Radiobox, Checkbox, Select } from '../../pastate';
 
 
 const options1 = ["o1", "o2", "o3"]
 const options2 = [
   { value: "o1", disabled: false },
   { value: "o2", disabled: true },
+  { value: "o3", disabled: false }
+]
+
+const options3 = [
+  { value: "请选择", disabled: true },
+  { value: "o1", disabled: false },
+  { value: "o2", disabled: false },
   { value: "o3", disabled: false }
 ]
 
@@ -19,15 +26,19 @@ class App extends React.Component<{ state: State } & DispatchProp<any>> {
   }
 
   handleTextAfterChange(newValue: string) {
-    console.log(newValue)
-  }
-
-  handleCheckboxBeforeChange(newValue: boolean): boolean {
-    return newValue
+    console.log('handleTextAfterChange', newValue)
   }
 
   handleCheckboxAfterChange(newValue: boolean) {
-    console.log('after', newValue);
+    console.log('handleCheckboxAfterChange', newValue);
+  }
+
+  handleRadioboxAfterChange(newValue: string) {
+    console.log('handleRadioboxAfterChange', newValue);
+  }
+
+  handleSelectboxAfterChange(newValue: string) {
+    console.log('handleSelectboxAfterChange', newValue);
   }
 
   render() {
@@ -68,18 +79,30 @@ class App extends React.Component<{ state: State } & DispatchProp<any>> {
         <Checkbox
           checked={state.isMale}
           disabled={false}
-          beforeChange={this.handleCheckboxBeforeChange}
           afterChange={this.handleCheckboxAfterChange}
-          className="checked-input"
-          id="checked-input"
+          className="class-checked"
+          id="id-checked"
         />
 
         <Radiobox
           options={options2}
           selected={state.name}
+          className="class-radiobox"
+          id="id-radiobox"
           radioClassName="my-radio"
           tagClassName="my-radio-tag"
           disabledTagClassName="my-radio-tag-disabled"
+          vertical={false}
+          afterChange={this.handleRadioboxAfterChange}
+        />
+
+        <Select
+          options={options3}
+          selected={state.name}
+          className="class-select"
+          id="id-select"
+          disabled={false}
+          afterChange={this.handleSelectboxAfterChange}
         />
 
       </div>

@@ -223,24 +223,5 @@ export declare function makeOnlyContainer(component: any, store: any): JSX.Eleme
 export { Provider as RootContainer };
 export { default as Input } from './HOC/Input';
 export { default as Checkbox } from './HOC/Checkbox';
-export declare class Radiobox extends React.PureComponent<{
-    options: Array<XString | string | {
-        value: XString | string;
-        disabled?: boolean;
-    }>;
-    selected: string | XString;
-    className?: string;
-    radioClassName?: string;
-    tagClassName?: string;
-    disabledTagClassName?: string;
-    id?: string;
-    vertical?: boolean;
-    onChange?: (value?: string) => void;
-}, any> {
-    onChange: (e: any) => void;
-    render(): JSX.Element;
-}
-export declare class Select extends React.PureComponent<any, any> {
-    onChange: (e: any) => void;
-    render(): JSX.Element;
-}
+export { default as Radiobox } from './HOC/Radiobox';
+export { default as Select } from './HOC/Select';
