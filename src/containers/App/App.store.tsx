@@ -1,4 +1,4 @@
-import { XStore, XType } from '../../pastate';
+import { XStore, XType } from '../../pastate/pastore';
 import { ChangeEvent } from 'react';
 
 interface State extends XType {

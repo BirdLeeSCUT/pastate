@@ -1,4 +1,4 @@
-import { XStore, XType, XString } from '../index';
+import { XStore, XType, XString } from '../pastore';
 
 // TODO: 把测试对象的属性名改为 “数据结构名”， 使含义更明确
 
