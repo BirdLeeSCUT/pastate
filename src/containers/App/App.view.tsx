@@ -47,10 +47,10 @@ class App extends React.Component<{ state: State } & DispatchProp<any>> {
         <button onClick={actions.longName}>名字加长</button>
         
         <Input 
-          value={state.name} 
+          value={state.name}
+          type="password"
           beforeChange={this.handleBeforeTextChange}
           afterChange={this.handleAfterTextChange}
-          textarea={false} 
           disabled={false}
           useComposedValue={false}
           className="class-test"

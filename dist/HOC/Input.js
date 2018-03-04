@@ -19,7 +19,7 @@ var __assign = (this && this.__assign) || Object.assign || function(t) {
 };
 exports.__esModule = true;
 var React = require("react");
-var Input = /** @class */ (function (_super) {
+var Input = (function (_super) {
     __extends(Input, _super);
     function Input(props) {
         var _this = _super.call(this, props) || this;
@@ -67,7 +67,7 @@ var Input = /** @class */ (function (_super) {
     Input.prototype.render = function () {
         var props = {
             onChange: this.handleChange,
-            type: "text",
+            type: this.props.type || "text",
             onCompositionStart: this.handleCompositionStart,
             onCompositionEnd: this.handleCompositionEnd,
             value: this.innerValue,
@@ -75,7 +75,7 @@ var Input = /** @class */ (function (_super) {
             className: this.props.className,
             id: this.props.id
         };
-        return this.props.textarea == true ?
+        return this.props.type == "textarea" ?
             React.createElement("textarea", __assign({}, props))
             :
                 React.createElement("input", __assign({}, props));

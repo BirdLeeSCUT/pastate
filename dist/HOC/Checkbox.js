@@ -19,7 +19,7 @@ var __assign = (this && this.__assign) || Object.assign || function(t) {
 };
 exports.__esModule = true;
 var React = require("react");
-var Checkbox = /** @class */ (function (_super) {
+var Checkbox = (function (_super) {
     __extends(Checkbox, _super);
     function Checkbox() {
         var _this = _super !== null && _super.apply(this, arguments) || this;
@@ -33,11 +33,13 @@ var Checkbox = /** @class */ (function (_super) {
         return _this;
     }
     Checkbox.prototype.render = function () {
-        var props = Object.assign({
-            onChange: this.onChange
-        }, this.props, {
-            checked: this.props.checked == true
-        });
+        var props = {
+            onChange: this.onChange,
+            checked: this.props.checked == true,
+            disabled: this.props.disabled,
+            className: this.props.className,
+            id: this.props.id
+        };
         return React.createElement("input", __assign({ type: "checkbox" }, props));
     };
     return Checkbox;

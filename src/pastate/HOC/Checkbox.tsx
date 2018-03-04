@@ -1,10 +1,17 @@
+
 import * as React from 'react';
 
-
-export default class Checkbox extends React.PureComponent<any, any> {
+export default class Checkbox extends React.PureComponent<{
+    checked: boolean
+    disabled?: boolean
+    beforeChange?: (newValue?: boolean) => boolean
+    afterChange?: (newValue?: string) => void
+    className?: string
+    id?: string
+}, any> {
 
     onChange = e => {
-        let store = this.props.checked.__store__
+        let store = (this.props.checked as any).__store__
         if(!store){
             throw new Error('[pastate] You can only give state node from this.props to pastate two-ways binding HOC component')
         }
@@ -12,11 +19,13 @@ export default class Checkbox extends React.PureComponent<any, any> {
     }
 
     render() {
-        let props = (Object as any).assign( {
+        let props = {
             onChange: this.onChange,
-        }, this.props, {
-            checked: this.props.checked == true
-        });
+            checked: this.props.checked == true,
+            disabled: this.props.disabled,
+            className: this.props.className,
+            id: this.props.id
+        };
         return <input type="checkbox" {...props} />
     }
 }

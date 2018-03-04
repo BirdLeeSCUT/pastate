@@ -1,13 +1,12 @@
 {
   "name": "pastate",
   "version": "0.6.6",
-  "main": "./dist/index.js",
+  "main": "./dist/",
   "repository": {
     "type": "git",
     "url": "https://github.com/BirdLeeSCUT/pastate"
   },
   "dependencies": {
-    "object.assign": "^4.1.0",
     "react": "^16.0.0",
     "react-dom": "^16.0.0",
     "react-redux": "^5.0.6",
@@ -21,7 +20,7 @@
     "build-css": "node-sass-chokidar src/ -o src/",
     "watch-css": "npm run build-css && node-sass-chokidar src/ -o src/ --watch --recursive",
     "test": "node scripts/test.js --env=jsdom",
-    "dist": "tsc src/pastate/index.tsx --jsx react --outDir ./dist"
+    "dist": "tsc src/pastate/index.tsx --jsx react --outDir ./dist --removeComments --declaration"
   },
   "keywords": [
     "react",

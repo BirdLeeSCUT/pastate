@@ -2,18 +2,43 @@
 import * as React from 'react';
 import { Action, Reducer, createStore, combineReducers, Store } from 'redux';
 import { Dispatch, connect, Provider } from 'react-redux';
-import * as objectAssign from 'object.assign/polyfill';
 
-// 处理 Object.assign 兼容性
-(Object as any).assign = objectAssign()
- 
-interface XOperation {
+// TODO: 处理不可枚举的情况
+export interface XType {
+    __xpath__?: string,
+    __store__?: XStore<any>
+}
+
+export class XBoolean extends Boolean implements XType {
+    __xpath__: string
+    __store__: XStore<any>
+}
+
+export class XNumber extends Number implements XType {
+    __xpath__: string
+    __store__: XStore<any>
+}
+
+export class XString extends String implements XType {
+    __xpath__: string
+    __store__: XStore<any>
+}
+
+export class XArray extends Array<any> implements XType {
+    __xpath__: string
+    __store__: XStore<any>
+}
+
+export interface XOperation {
     operation: 'set' | 'merge' | 'update' | 'mark',
     path?: string,
     payload?: any,
     description?: string
 }
-
+export class XObject extends Object implements XType {
+    __xpath__: string
+    __store__: XStore<any>
+}
 export class XStore<State extends XType> {
 
     public __PASTATE_STORE__ = true;
@@ -1011,37 +1036,6 @@ export class XStore<State extends XType> {
 
 }
 
-// TODO: 处理不可枚举的情况
-export interface XType {
-    __xpath__?: string,
-    __store__?: XStore<any>
-}
-
-export class XBoolean extends Boolean implements XType {
-    __xpath__: string
-    __store__: XStore<any>
-}
-
-export class XNumber extends Number implements XType {
-    __xpath__: string
-    __store__: XStore<any>
-}
-
-export class XString extends String implements XType {
-    __xpath__: string
-    __store__: XStore<any>
-}
-
-export class XArray extends Array<any> implements XType {
-    __xpath__: string
-    __store__: XStore<any>
-}
-
-export class XObject extends Object implements XType {
-    __xpath__: string
-    __store__: XStore<any>
-}
-
 export function makeReduxStore(storeTree: any): Store<any>{
     let partXStoreArr: Array<XStore<any>> = [];
     let makePastateStoreToBeReducer = function(_storeTree: any): Reducer<any>{
@@ -1110,7 +1104,7 @@ export function makeOnlyContainer(component: any, store: any){
     return <Provider store={makeReduxStore(store)}><RootContainer /></Provider>
 }
 
-export { Provider as RootContainer} 
+export { Provider as RootContainer } 
 
 export { default as Input } from './HOC/Input'
 

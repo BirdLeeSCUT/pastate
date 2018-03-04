@@ -1,13 +1,13 @@
 import * as React from 'react';
 
 export default class Input extends React.PureComponent<{
-    value: string,
+    value: string
+    type?: "text" | "textarea" | "password" | "number"
     beforeChange?: (newValue?: string, oldValue?: string) => string
-    afterChange?: (newValue: string) => void
-    textarea?: boolean,
-    disabled?: boolean,
-    useComposedValue?: boolean,
-    className?: string,
+    afterChange?: (newValue?: string) => void
+    disabled?: boolean
+    useComposedValue?: boolean
+    className?: string
     id?: string
 }, any> {
 
@@ -67,7 +67,7 @@ export default class Input extends React.PureComponent<{
     render() {
         let props = {
             onChange: this.handleChange,
-            type: "text",
+            type: this.props.type || "text",
             onCompositionStart: this.handleCompositionStart,
             onCompositionEnd: this.handleCompositionEnd,
             value: this.innerValue,
@@ -75,7 +75,7 @@ export default class Input extends React.PureComponent<{
             className: this.props.className,
             id: this.props.id
         };
-        return this.props.textarea == true ?
+        return this.props.type  == "textarea" ?
             <textarea {...props} />
             :
             <input {...props} /> 
