@@ -19,7 +19,7 @@ var __assign = (this && this.__assign) || Object.assign || function(t) {
 };
 exports.__esModule = true;
 var React = require("react");
-var Checkbox = (function (_super) {
+var Checkbox = /** @class */ (function (_super) {
     __extends(Checkbox, _super);
     function Checkbox() {
         var _this = _super !== null && _super.apply(this, arguments) || this;
@@ -45,3 +45,4 @@ var Checkbox = (function (_super) {
     return Checkbox;
 }(React.PureComponent));
 exports["default"] = Checkbox;
+//# sourceMappingURL=Checkbox.js.map

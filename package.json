@@ -20,7 +20,7 @@
     "build-css": "node-sass-chokidar src/ -o src/",
     "watch-css": "npm run build-css && node-sass-chokidar src/ -o src/ --watch --recursive",
     "test": "node scripts/test.js --env=jsdom",
-    "dist": "tsc src/pastate/index.tsx --jsx react --outDir ./dist --removeComments --declaration"
+    "dist": "tsc src/pastate/index.tsx --jsx react --outDir ./dist --declaration --sourceMap"
   },
   "keywords": [
     "react",

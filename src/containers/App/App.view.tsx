@@ -48,7 +48,7 @@ class App extends React.Component<{ state: State } & DispatchProp<any>> {
         
         <Input 
           value={state.name}
-          type="password"
+          type="text"
           beforeChange={this.handleBeforeTextChange}
           afterChange={this.handleAfterTextChange}
           disabled={false}

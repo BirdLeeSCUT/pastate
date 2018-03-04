@@ -19,7 +19,10 @@ var __assign = (this && this.__assign) || Object.assign || function(t) {
 };
 exports.__esModule = true;
 var React = require("react");
-var Input = (function (_super) {
+/**
+ * pastate 双向数据绑定输入框组件
+ */
+var Input = /** @class */ (function (_super) {
     __extends(Input, _super);
     function Input(props) {
         var _this = _super.call(this, props) || this;
@@ -83,3 +86,4 @@ var Input = (function (_super) {
     return Input;
 }(React.PureComponent));
 exports["default"] = Input;
+//# sourceMappingURL=Input.js.map
