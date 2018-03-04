@@ -6,7 +6,7 @@
  * - this.submitOperation
  */
 
-import { XStore, XType, XString } from './index';
+import { XStore, XType, XString } from '../index';
 import { delay } from './helpers';
 
 interface SimpleState extends XType {

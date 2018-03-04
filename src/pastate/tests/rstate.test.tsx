@@ -2,7 +2,7 @@
  * 响应式 rstate 测试文件
  */
 
-import { XStore, XType, XString } from './index';
+import { XStore, XType, XString } from '../index';
 import { delay } from './helpers';
 
 interface SimpleState extends XType {
