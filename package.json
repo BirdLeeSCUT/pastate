@@ -1,6 +1,6 @@
 {
   "name": "pastate",
-  "version": "0.6.9",
+  "version": "0.6.10",
   "main": "./dist/",
   "repository": {
     "type": "git",
