@@ -2,21 +2,21 @@ import * as React from 'react';
 import { DispatchProp } from 'react-redux';
 import { store, State } from './App.store';
 import './App.style.css';
-import { makeContainer, Input, Radiobox, Checkbox, Select } from '../../pastate';
+import { makeContainer, Input, RadioGroup, Checkbox, Select } from '../../pastate';
 
 
 const options1 = ["o1", "o2", "o3"]
 const options2 = [
-  { value: "o1", disabled: false },
-  { value: "o2", disabled: true },
-  { value: "o3", disabled: false }
+  { value: "o1", tag: 'o1 tag', disabled: false },
+  { value: "o2", tag: 'o2 tag' },
+  { value: "o3", tag: 'o3 tag' }
 ]
 
 const options3 = [
-  { value: "请选择", disabled: true },
-  { value: "o1", disabled: false },
-  { value: "o2", disabled: false },
-  { value: "o3", disabled: false }
+  { value: "DEFAULT", tag: '请选择', disabled: true },
+  { value: "o1", tag: 'o1 tag'},
+  { value: "o2", tag: 'o2 tag'},
+  { value: "o3", tag: 'o3 tag'}
 ]
 
 class App extends React.Component<{ state: State } & DispatchProp<any>> {
@@ -84,9 +84,10 @@ class App extends React.Component<{ state: State } & DispatchProp<any>> {
           id="id-checked"
         />
 
-        <Radiobox
+        <RadioGroup
           options={options2}
           selected={state.name}
+          disabled={false}
           className="class-radiobox"
           id="id-radiobox"
           radioClassName="my-radio"

@@ -3,7 +3,7 @@ import * as React from 'react';
 /**
  * pastate 双向数据绑定单选框组件
  */
-export default class Select extends React.PureComponent<{
+export default class RadioGroup extends React.PureComponent<{
     /** 选项数组 */
     options: Array<string> | Array<{
         value: string;
@@ -12,10 +12,14 @@ export default class Select extends React.PureComponent<{
     }>;
     /** 被选择的数据 */
     selected: string;
-    id?: string;
-    className?: string;
     disabled?: boolean;
     afterChange?: (value?: string) => void;
+    id?: string;
+    className?: string;
+    radioClassName?: string;
+    tagClassName?: string;
+    disabledTagClassName?: string;
+    vertical?: boolean;
 }, any> {
     onChange: (e: any) => void;
     render(): JSX.Element;

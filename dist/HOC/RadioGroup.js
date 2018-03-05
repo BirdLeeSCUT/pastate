@@ -14,9 +14,9 @@ var React = require("react");
 /**
  * pastate 双向数据绑定单选框组件
  */
-var Select = /** @class */ (function (_super) {
-    __extends(Select, _super);
-    function Select() {
+var RadioGroup = /** @class */ (function (_super) {
+    __extends(RadioGroup, _super);
+    function RadioGroup() {
         var _this = _super !== null && _super.apply(this, arguments) || this;
         _this.onChange = function (e) {
             var store = _this.props.selected.__store__;
@@ -28,8 +28,9 @@ var Select = /** @class */ (function (_super) {
         };
         return _this;
     }
-    Select.prototype.render = function () {
-        return (React.createElement("select", { className: this.props.className, id: this.props.id, value: this.props.selected, disabled: this.props.disabled, onChange: this.onChange }, this.props.options.map(function (rawOption, index) {
+    RadioGroup.prototype.render = function () {
+        var _this = this;
+        return (React.createElement("span", { className: this.props.className, id: this.props.id }, this.props.options.map(function (rawOption, index) {
             var optionsTypeName = Object.prototype.toString.call(rawOption).slice(8, -1);
             var option;
             var tag;
@@ -44,10 +45,16 @@ var Select = /** @class */ (function (_super) {
                 tag = rawOption.tag;
                 disabled = rawOption.disabled == true;
             }
-            return (React.createElement("option", { key: index, value: option, disabled: disabled }, tag));
+            _this.props.disabled && (disabled = true);
+            var spanClassName = '';
+            spanClassName += _this.props.tagClassName || '';
+            spanClassName += (disabled && (_this.props.disabledTagClassName && (' ' + _this.props.disabledTagClassName))) || '';
+            return (React.createElement("span", { key: index, style: { marginRight: 4, display: _this.props.vertical == true ? "block" : "inline-bock" } },
+                React.createElement("input", { type: "radio", checked: _this.props.selected == option, value: option, disabled: disabled, onChange: _this.onChange, className: _this.props.radioClassName }),
+                React.createElement("span", { className: spanClassName }, tag)));
         })));
     };
-    return Select;
+    return RadioGroup;
 }(React.PureComponent));
-exports["default"] = Select;
-//# sourceMappingURL=Select.js.map
+exports["default"] = RadioGroup;
+//# sourceMappingURL=RadioGroup.js.map
