@@ -5,7 +5,7 @@ import * as React from 'react'
  */
 export default class Select extends React.PureComponent<{
     /** 选项数组 */
-    options: Array<string> | Array<{value: string, disabled?: boolean}> 
+    options: Array<string> | Array<{value: string, tag: string, disabled?: boolean}> 
     /** 被选择的数据 */
     selected: string
     id?: string
@@ -38,12 +38,15 @@ export default class Select extends React.PureComponent<{
                         let optionsTypeName: string = (Object.prototype.toString.call(rawOption) as string).slice(8, -1);
                         
                         let option: string;
+                        let tag: string;
                         let disabled: boolean;
                         if(optionsTypeName == "String"){
                             option = rawOption as string;
+                            tag = rawOption as string;
                             disabled = false;
                         }else{
                             option = (rawOption as any).value;
+                            tag = (rawOption as any).tag;
                             disabled = (rawOption as any).disabled == true;
                         }
 
@@ -53,7 +56,7 @@ export default class Select extends React.PureComponent<{
                                 value={option}
                                 disabled={disabled}
                             >
-                                {option}
+                                {tag}
                             </option>
                         )
                     })

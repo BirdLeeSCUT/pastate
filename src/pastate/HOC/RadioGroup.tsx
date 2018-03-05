@@ -3,18 +3,19 @@ import * as React from 'react'
 /** 
  * pastate 双向数据绑定单选框组件
  */
-export default class Radiobox extends React.PureComponent<{
+export default class RadioGroup extends React.PureComponent<{
     /** 选项数组 */
-    options: Array<string> | Array<{value: string, disabled?: boolean}> 
+    options: Array<string> | Array<{value: string, tag: string, disabled?: boolean}> 
     /** 被选择的数据 */
     selected: string
+    disabled?: boolean
+    afterChange?: (value?: string) => void
     id?: string
     className?: string
     radioClassName?: string
     tagClassName?: string
     disabledTagClassName?: string
     vertical?: boolean
-    afterChange?: (value?: string) => void
 }, any> {
 
     onChange = (e) => {
@@ -35,14 +36,20 @@ export default class Radiobox extends React.PureComponent<{
                         let optionsTypeName: string = (Object.prototype.toString.call(rawOption) as string).slice(8, -1);
                         
                         let option: string;
+                        let tag: string;
                         let disabled: boolean;
+
                         if(optionsTypeName == "String"){
                             option = rawOption as string;
+                            tag = rawOption as string;
                             disabled = false;
                         }else{
                             option = (rawOption as any).value;
+                            tag = (rawOption as any).tag;
                             disabled = (rawOption as any).disabled == true;
                         }
+
+                        this.props.disabled && (disabled = true)
 
                         let spanClassName = '';
                         spanClassName += this.props.tagClassName || ''
@@ -58,7 +65,7 @@ export default class Radiobox extends React.PureComponent<{
                                     onChange={this.onChange}
                                     className={this.props.radioClassName}
                                 />
-                                <span className={spanClassName}>{option}</span>
+                                <span className={spanClassName}>{tag}</span>
                             </span>
                         )
                     })
