@@ -19,7 +19,5 @@ export default class Bind extends React.Component<{
 } & Object, any> {
     shouldComponentUpdate(nextProps: any): boolean;
     onChange: (newValue: any) => void;
-    render(): React.ReactElement<{
-        children?: any;
-    }>;
+    render(): React.DetailedReactHTMLElement<React.InputHTMLAttributes<HTMLInputElement>, HTMLInputElement>;
 }

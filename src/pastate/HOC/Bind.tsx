@@ -46,10 +46,12 @@ export default class Bind extends React.Component<{
     }
 
     render() {
-        let element = this.props.children as React.ReactElement<{children?: any}>
-        console.log(element);
+        let element: any = this.props.children;
         
         if(Array.isArray(element)){
+            element = element.filter(function(ele: string){
+                return typeof ele != 'string'
+            }) as any
             if(element.length == 1){
                 element = element[0]
             }else{

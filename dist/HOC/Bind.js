@@ -51,8 +51,10 @@ var Bind = /** @class */ (function (_super) {
     };
     Bind.prototype.render = function () {
         var element = this.props.children;
-        console.log(element);
         if (Array.isArray(element)) {
+            element = element.filter(function (ele) {
+                return typeof ele != 'string';
+            });
             if (element.length == 1) {
                 element = element[0];
             }
