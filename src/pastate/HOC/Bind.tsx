@@ -46,12 +46,17 @@ export default class Bind extends React.Component<{
     }
 
     render() {
-        if(Array.isArray(this.props.children)){
-            throw new Error('[pastate] you can only give only one child to Bind component')
-        }
         let element = this.props.children as React.ReactElement<{children?: any}>
+        console.log(element);
+        
+        if(Array.isArray(element)){
+            if(element.length == 1){
+                element = element[0]
+            }else{
+                throw new Error('[pastate] you can only give only one child to Bind component')
+            }
+        }
         let component = element.type
-
         let props = (Object as any).assign({}, this.props, element.props, {
             [this.props.valueProp || 'value']: unpack(this.props.value), // TODO 解包
             onChange: this.onChange

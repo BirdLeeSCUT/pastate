@@ -50,10 +50,16 @@ var Bind = /** @class */ (function (_super) {
         return nextProps.value != this.props.value;
     };
     Bind.prototype.render = function () {
-        if (Array.isArray(this.props.children)) {
-            throw new Error('[pastate] you can only give only one child to Bind component');
-        }
         var element = this.props.children;
+        console.log(element);
+        if (Array.isArray(element)) {
+            if (element.length == 1) {
+                element = element[0];
+            }
+            else {
+                throw new Error('[pastate] you can only give only one child to Bind component');
+            }
+        }
         var component = element.type;
         var props = Object.assign({}, this.props, element.props, (_a = {},
             _a[this.props.valueProp || 'value'] = tools_1.unpack(this.props.value),
