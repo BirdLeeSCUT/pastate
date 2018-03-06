@@ -48,8 +48,6 @@ export function makeBindable(component: any, valueProp?: string): any{
         }
 
         onChange = (newValue: any) => {
-            
-            console.log(newValue)
 
             let valueToSet;
             if (newValue.target) {

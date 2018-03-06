@@ -55,7 +55,6 @@ function makeBindable(component, valueProp) {
         function Bind() {
             var _this = _super !== null && _super.apply(this, arguments) || this;
             _this.onChange = function (newValue) {
-                console.log(newValue);
                 var valueToSet;
                 if (newValue.target) {
                     valueToSet = newValue.target[valueProp || _this.props.valueProp || 'value'];
