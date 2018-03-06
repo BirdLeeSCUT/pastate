@@ -100,7 +100,7 @@ describe("Add Operation Test Suit", function () {
             })
 
             it('SETNEW operation', async function () {
-                myStore.setNew('.age', 14);
+                myStore.setByPath('.age', 14);
                 expectedOperation = {
                     operation: 'set',
                     path: '.age',

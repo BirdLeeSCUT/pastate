@@ -84,6 +84,10 @@ export declare class XStore<State extends XType> {
     private makeRState(path, newValue?);
     getResponsiveState(imState: XType): any;
     /**
+     * 通过 path 获取 state
+     */
+    getByPath(path: string | Array<string>): any;
+    /**
      * ### 对 state 进行 set 操作
      * @param stateToOperate
      * @param newValue : T | null , FIXME: 引入 Xtype 的 null 对象后， 可把 null 取消掉
@@ -93,11 +97,9 @@ export declare class XStore<State extends XType> {
     set<T>(stateToOperate: T, newValue: T, description?: string): XStore<State>;
     /**
      * set 设置新属性的版本
-     * // TODO 待改为 setByPath
-     * 当现值为 null 或 undefined 时需要用此方法
-     * @argument literalPath 路径，如 ''(root) , '.prop1', '.prop1.prop2'
+     * 当前值为 null 或 undefined 时需要用此方法
      */
-    setNew(literalPath: string, newValue: any, description?: string): XStore<State>;
+    setByPath(path: string | Array<string>, newValue: any, description?: string): XStore<State>;
     /**
      * 同步版本的 set
      * 用户表单输入的更新
@@ -160,7 +162,6 @@ export declare class XStore<State extends XType> {
     private applyOperation(operation);
     /**
      * 通过路径获取 state 中的值
-     * // Basic Tested
      * @param path
      */
     static getValueByPath(rootObj: any, pathArr: Array<string>): any;

@@ -6,24 +6,32 @@ import * as React from 'react'
 export default class RadioGroup extends React.PureComponent<{
     /** 选项数组 */
     options: Array<string> | Array<{value: string, tag: string, disabled?: boolean}> 
-    /** 被选择的数据 */
-    selected: string
+    /** 绑定的选中值 */
+    value: string
+    /** 指定禁止选择状态，默认为 false */
     disabled?: boolean
+    /** 在绑定值更新后会被调用 */
     afterChange?: (value?: string) => void
+    /** 传递给选项组根元素的 id */
     id?: string
+    /** 传递给选项组根元素的 className */
     className?: string
+    /** 传递给圆形按钮的 className */
     radioClassName?: string
+    /** 传递给选项标签的 className */
     tagClassName?: string
+    /** 传递给禁用状态的选项标签的**附加**的 className */
     disabledTagClassName?: string
+    /** 指定为垂直排列状态，默认为 false */
     vertical?: boolean
 }, any> {
 
     onChange = (e) => {
-        let store = (this.props.selected as any).__store__
+        let store = (this.props.value as any).__store__
         if(!store){
             throw new Error('[pastate] You can only give state node from this.props to pastate two-ways binding HOC component')
         }
-        store.setSync(this.props.selected, e.target.value)
+        store.setSync(this.props.value, e.target.value)
         this.props.afterChange && this.props.afterChange(e.target.value)
     }
 
@@ -59,7 +67,7 @@ export default class RadioGroup extends React.PureComponent<{
                             <span key={index} style={{marginRight: 4, display: this.props.vertical == true ? "block" : "inline-bock"}}>
                                 <input 
                                     type="radio"
-                                    checked={this.props.selected == option}
+                                    checked={this.props.value == option}
                                     value={option}
                                     disabled={disabled}
                                     onChange={this.onChange}

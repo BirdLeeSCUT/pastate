@@ -388,6 +388,25 @@ export class XStore<State extends XType> {
         return XStore.getValueByPath(this.state, pathArr);
     }
 
+    /**
+     * 通过 path 获取 state 
+     */
+    public getByPath(path: string | Array<string>): any{
+        let pathArr: Array<string>;
+
+        if (typeof path == 'string') {
+            pathArr = path.split('.');
+            if (path == '' || path[0] == '.')
+                pathArr.shift()
+        }else if (Array.isArray(path)){
+            pathArr = path;
+        }else{
+            throw new Error('[store.setByPath] literalPath can only be string or Array<string>')
+        }
+        
+        return XStore.getValueByPath(this.imState, pathArr)
+    }
+
     // MARK: operation 输入相关方法 -----------------------------------------------------------
 
     /**
@@ -408,14 +427,23 @@ export class XStore<State extends XType> {
     }
     /**
      * set 设置新属性的版本
-     * // TODO 待改为 setByPath
-     * 当现值为 null 或 undefined 时需要用此方法
-     * @argument literalPath 路径，如 ''(root) , '.prop1', '.prop1.prop2'
+     * 当前值为 null 或 undefined 时需要用此方法
      */
-    public setNew(literalPath: string, newValue: any, description?: string): XStore<State> {
-        if (typeof literalPath != 'string') {
-            throw new Error('[store.setNew] literalPath can only be string')
+    public setByPath(path: string | Array<string>, newValue: any, description?: string): XStore<State> {
+
+        let literalPath;
+
+        if (typeof path == 'string') {
+            literalPath = path
+        }else if (Array.isArray(path)){
+            literalPath = path.join('.');
+        }else{
+            throw new Error('[store.setByPath] literalPath can only be string or Array<string>')
         }
+
+        if(literalPath[0] != '.')
+            literalPath = '.' + literalPath
+
         this.submitOperation({
             operate: 'set',
             stateToOperate: {
@@ -495,7 +523,7 @@ export class XStore<State extends XType> {
             console.warn('Opertion can only perform operation using `path inferrence` when the state is not undefined or null state.')
             console.warn('`stateToOperate` is given ', rawParams.stateToOperate, ', please checkout are there some errors in `stateToOperate`. If not, try below:')
             console.warn('There are some ways to go, choose one as you like:')
-            console.warn('- Use `setNew` instead: for example, this.setNew(\'this.imState.propThatIsNull\', ...)')
+            console.warn('- Use `setByPath` instead: for example, this.setByPath(\'this.imState.propThatIsNull\', ...)')
             console.warn('- If you want to use operation with path inferrence from, you should use {}, \'\', NaN to be the initial value, and do not set any state value to be undefined or null')
 
             if (rawParams.operate == 'set') {
@@ -813,7 +841,6 @@ export class XStore<State extends XType> {
 
     /**
      * 通过路径获取 state 中的值
-     * // Basic Tested
      * @param path 
      */
     public static getValueByPath(rootObj: any, pathArr: Array<string>) {
@@ -879,7 +906,7 @@ export class XStore<State extends XType> {
                     break;
                 case 'Number':
                     xNewData = new Number(rawData) as XNumber;
-                    this.config.useSpanNumber && (Object as any).assign(xNewData, <span>{+rawData}</span>);
+                    this.config.useSpanNumber && (Object as any).assign(xNewData, React.createElement('span', undefined, +rawData));
                     break;
                 case 'String':
                     xNewData = new String(rawData) as XString;

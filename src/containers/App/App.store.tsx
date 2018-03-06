@@ -2,9 +2,11 @@ import { XStore, XType } from '../../pastate/pastore';
 import { ChangeEvent } from 'react';
 
 interface State extends XType {
-    name: string,
-    age: number,
-    isMale: boolean,
+    basicInfo: {
+        name: string,
+        age: number,
+        isMale: boolean
+    },
     pets: Array<{
         name: string,
         age: number,
@@ -22,9 +24,11 @@ interface State extends XType {
 }
 
 let initState = {
-    name: 'Peter',
-    age: 10,
-    isMale: true,
+    basicInfo: {
+        name: 'Peter',
+        age: 10,
+        isMale: true,
+    },
     pets: [
         {
             name: 'Puppy',
@@ -49,12 +53,12 @@ class Store extends XStore<State>{
 
         setup: () => {
             // this.update(this.state.age, a => a + 1)
-            this.state.age += 2;
+            this.state.basicInfo.age += 1;
         },
 
         change: () => {
             // this.update(this.state.isMale, v => v == false)
-            this.state.isMale = !this.state.isMale
+            this.state.basicInfo.isMale = !this.state.basicInfo.isMale
         },
 
         addPet: () => {
@@ -93,7 +97,7 @@ class Store extends XStore<State>{
         },
 
         longName: () => {
-            this.state.name += "!"
+            this.state.basicInfo.name += "!"
         }
     }
 }

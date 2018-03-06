@@ -90,6 +90,11 @@ describe('toXType function test suit', function () {
             expect(myStore.imState.__store__).toBe(myStore);
         })
 
+        it('can be get by path', function(){
+            expect(myStore.getByPath('')).toBe(myStore.imState)
+            expect(myStore.getByPath('name')).toBe(myStore.imState.name)
+        })
+
         describe('can transform boolean correctly', function () {
 
             describe('can transform boolean->true correctly', function () {
@@ -153,6 +158,11 @@ describe('toXType function test suit', function () {
     })
 
     describe('can transform object', function () {
+
+        it('can be get by path', function(){
+            expect(myStore.getByPath('homeInfo')).toBe(myStore.imState.homeInfo)
+            expect(myStore.getByPath('homeInfo.city')).toBe(myStore.imState.homeInfo.city)
+        })
 
         describe('can transform object at root', function () {
 
@@ -254,6 +264,11 @@ describe('toXType function test suit', function () {
     })
 
     describe('can transform root array', function () {
+
+        it('can be get by path', function(){
+            expect(myStore.getByPath('creditCardInfo.name')).toBe(myStore.imState.creditCardInfo.name)
+            expect(myStore.getByPath('creditCardInfo.name.0')).toBe(myStore.imState.creditCardInfo.name[0])
+        })
 
         describe('can transform array with basic type elements', function () {
 

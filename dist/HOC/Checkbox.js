@@ -17,7 +17,7 @@ var __assign = (this && this.__assign) || Object.assign || function(t) {
     }
     return t;
 };
-exports.__esModule = true;
+Object.defineProperty(exports, "__esModule", { value: true });
 var React = require("react");
 /**
  * pastate 双向数据绑定复选框组件
@@ -27,12 +27,12 @@ var Checkbox = /** @class */ (function (_super) {
     function Checkbox() {
         var _this = _super !== null && _super.apply(this, arguments) || this;
         _this.onChange = function (e) {
-            var store = _this.props.checked.__store__;
+            var store = _this.props.value.__store__;
             if (!store) {
                 throw new Error('[pastate] You can only give state node from this.props to pastate two-ways binding HOC component');
             }
             var newValue = e.target.checked;
-            store.setSync(_this.props.checked, newValue);
+            store.setSync(_this.props.value, newValue);
             _this.props.afterChange && _this.props.afterChange(newValue);
         };
         return _this;
@@ -40,7 +40,7 @@ var Checkbox = /** @class */ (function (_super) {
     Checkbox.prototype.render = function () {
         var props = {
             onChange: this.onChange,
-            checked: this.props.checked == true,
+            checked: this.props.value == true,
             disabled: this.props.disabled,
             className: this.props.className,
             id: this.props.id
@@ -49,5 +49,5 @@ var Checkbox = /** @class */ (function (_super) {
     };
     return Checkbox;
 }(React.PureComponent));
-exports["default"] = Checkbox;
+exports.default = Checkbox;
 //# sourceMappingURL=Checkbox.js.map

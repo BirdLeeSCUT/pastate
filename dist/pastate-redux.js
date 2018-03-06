@@ -1,5 +1,5 @@
 "use strict";
-exports.__esModule = true;
+Object.defineProperty(exports, "__esModule", { value: true });
 var React = require("react");
 var redux_1 = require("redux");
 var react_redux_1 = require("react-redux");

@@ -2,8 +2,12 @@ import * as React from 'react';
 import { DispatchProp } from 'react-redux';
 import { store, State } from './App.store';
 import './App.style.css';
-import { makeContainer, Input, RadioGroup, Checkbox, Select } from '../../pastate';
+import { makeContainer, Input, RadioGroup, Checkbox, Select, Bind, makeBindable } from '../../pastate';
+import { Rate, Checkbox as AntdCheckbox } from 'antd';
 
+// 类型传递？
+let MyRate = makeBindable(Rate)
+let MyAntdCheckbox = makeBindable(AntdCheckbox)
 
 const options1 = ["o1", "o2", "o3"]
 const options2 = [
@@ -47,9 +51,9 @@ class App extends React.Component<{ state: State } & DispatchProp<any>> {
 
     return (
       <div className="App">
-        <div>名字：{state.name} </div>
-        <div>年龄：{+state.age} <button onClick={actions.setup} >增加</button> </div>
-        <div>性别：{state.isMale == true ? '男' : '女'} <button onClick={actions.change} >改变</button></div>
+        <div>名字：{state.basicInfo.name} </div>
+        <div>年龄：{state.basicInfo.age} <button onClick={actions.setup} >增加</button> </div>
+        <div>性别：{state.basicInfo.isMale == true ? '男' : '女'} <button onClick={actions.change} >改变</button></div>
 
         <div>
           宠物:
@@ -65,7 +69,7 @@ class App extends React.Component<{ state: State } & DispatchProp<any>> {
         <button onClick={actions.longName}>名字加长</button>
 
         <Input
-          value={state.name}
+          value={state.basicInfo.name}
           type="text"
           beforeChange={this.handleTextBeforeChange}
           afterChange={this.handleTextAfterChange}
@@ -75,9 +79,17 @@ class App extends React.Component<{ state: State } & DispatchProp<any>> {
           id="id-input"
         />
 
+        <Bind value={state.basicInfo.age}>
+          <Rate count={10}/>
+        </Bind>
+
+        <MyRate value={state.basicInfo.age} count={10}/>
+
+        <MyAntdCheckbox value={state.basicInfo.isMale} valueProp='checked'/>
+
         性别男：
         <Checkbox
-          checked={state.isMale}
+          value={state.basicInfo.isMale}
           disabled={false}
           afterChange={this.handleCheckboxAfterChange}
           className="class-checked"
@@ -86,7 +98,7 @@ class App extends React.Component<{ state: State } & DispatchProp<any>> {
 
         <RadioGroup
           options={options2}
-          selected={state.name}
+          value={state.basicInfo.name}
           disabled={false}
           className="class-radiobox"
           id="id-radiobox"
@@ -99,7 +111,7 @@ class App extends React.Component<{ state: State } & DispatchProp<any>> {
 
         <Select
           options={options3}
-          selected={state.name}
+          value={state.basicInfo.name}
           className="class-select"
           id="id-select"
           disabled={false}

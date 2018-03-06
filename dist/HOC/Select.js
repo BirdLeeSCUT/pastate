@@ -9,7 +9,7 @@ var __extends = (this && this.__extends) || (function () {
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
     };
 })();
-exports.__esModule = true;
+Object.defineProperty(exports, "__esModule", { value: true });
 var React = require("react");
 /**
  * pastate 双向数据绑定单选框组件
@@ -19,17 +19,17 @@ var Select = /** @class */ (function (_super) {
     function Select() {
         var _this = _super !== null && _super.apply(this, arguments) || this;
         _this.onChange = function (e) {
-            var store = _this.props.selected.__store__;
+            var store = _this.props.value.__store__;
             if (!store) {
                 throw new Error('[pastate] You can only give state node from this.props to pastate two-ways binding HOC component');
             }
-            store.setSync(_this.props.selected, e.target.value);
+            store.setSync(_this.props.value, e.target.value);
             _this.props.afterChange && _this.props.afterChange(e.target.value);
         };
         return _this;
     }
     Select.prototype.render = function () {
-        return (React.createElement("select", { className: this.props.className, id: this.props.id, value: this.props.selected, disabled: this.props.disabled, onChange: this.onChange }, this.props.options.map(function (rawOption, index) {
+        return (React.createElement("select", { className: this.props.className, id: this.props.id, value: this.props.value, disabled: this.props.disabled, onChange: this.onChange }, this.props.options.map(function (rawOption, index) {
             var optionsTypeName = Object.prototype.toString.call(rawOption).slice(8, -1);
             var option;
             var tag;
@@ -49,5 +49,5 @@ var Select = /** @class */ (function (_super) {
     };
     return Select;
 }(React.PureComponent));
-exports["default"] = Select;
+exports.default = Select;
 //# sourceMappingURL=Select.js.map

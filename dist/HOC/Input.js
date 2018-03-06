@@ -17,7 +17,7 @@ var __assign = (this && this.__assign) || Object.assign || function(t) {
     }
     return t;
 };
-exports.__esModule = true;
+Object.defineProperty(exports, "__esModule", { value: true });
 var React = require("react");
 /**
  * pastate 双向数据绑定输入框组件
@@ -85,5 +85,5 @@ var Input = /** @class */ (function (_super) {
     };
     return Input;
 }(React.PureComponent));
-exports["default"] = Input;
+exports.default = Input;
 //# sourceMappingURL=Input.js.map
