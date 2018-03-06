@@ -44,7 +44,12 @@ function unpack(imValue) {
     return value;
 }
 exports.unpack = unpack;
-function makeBindable(component) {
+/**
+ * 把视图组件转为可绑定 value 的组件
+ * @param component 原始组件
+ * @param valueProp 原组件的值的属性名称，默认(一般)为 value, 可以根据原组件的情况设为 checked 等
+ */
+function makeBindable(component, valueProp) {
     var Bind = /** @class */ (function (_super) {
         __extends(Bind, _super);
         function Bind() {
@@ -53,7 +58,7 @@ function makeBindable(component) {
                 console.log(newValue);
                 var valueToSet;
                 if (newValue.target) {
-                    valueToSet = newValue.target[_this.props.valueProp || 'value'];
+                    valueToSet = newValue.target[valueProp || _this.props.valueProp || 'value'];
                 }
                 else {
                     valueToSet = newValue;
@@ -79,7 +84,7 @@ function makeBindable(component) {
                 throw new Error('[pastate] you can only give only one child to Bind component');
             }
             var props = Object.assign({}, this.props, (_a = {},
-                _a[this.props.valueProp || 'value'] = unpack(this.props.value),
+                _a[valueProp || this.props.valueProp || 'value'] = unpack(this.props.value),
                 _a.onChange = this.onChange,
                 _a));
             return React.createElement(component, props, this.props.children);

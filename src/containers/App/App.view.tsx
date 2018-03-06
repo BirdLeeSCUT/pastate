@@ -7,7 +7,7 @@ import { Rate, Checkbox as AntdCheckbox } from 'antd';
 
 // 类型传递？
 let MyRate = makeBindable(Rate)
-let MyAntdCheckbox = makeBindable(AntdCheckbox)
+let MyAntdCheckbox = makeBindable(AntdCheckbox, 'checked')
 
 const options1 = ["o1", "o2", "o3"]
 const options2 = [
@@ -85,7 +85,7 @@ class App extends React.Component<{ state: State } & DispatchProp<any>> {
 
         <MyRate value={state.basicInfo.age} count={10}/>
 
-        <MyAntdCheckbox value={state.basicInfo.isMale} valueProp='checked'/>
+        <MyAntdCheckbox value={state.basicInfo.isMale} />
 
         性别男：
         <Checkbox
