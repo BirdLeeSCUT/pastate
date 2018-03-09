@@ -35,14 +35,30 @@ export class XObject extends Object implements XType {
     __xpath__: string
     __store__: XStore<any>
 }
-export class XStore<State extends XType> {
+
+export type MiddlewareContext = {
+    name: string,
+    agrs?: IArguments,
+    return: any,
+    store: XStore
+}
+
+export type ActionMiddleware = (context: MiddlewareContext, next: Function) => any
+
+export type Middleware = Array<{
+    type: "action" | "mutation",
+    middleWare: ActionMiddleware // 可拓展 | OptionMiddleware
+}>
+
+
+export class XStore<State extends XType = {}, Actions = {}, Mutations = {}> {
 
     public __PASTATE_STORE__ = true;
 
     /**
      * 制定当前 store 的名称，可选
      */
-    public name: string = 'anonymous component';
+    public name: string = '';
 
     /** 
      * immutable state 对象
@@ -79,13 +95,7 @@ export class XStore<State extends XType> {
     public pendingOperationQueue: Array<XOperation> = []
 
 
-    public actions: {
-        [key: string]: Function
-    }
 
-    public mutations: {
-        [key: string]: Function
-    }
 
     // 配置项和默认值
     // TODO 尝试支持 react 16.2 的 Fragment 包围语法，而不是 span
@@ -389,21 +399,21 @@ export class XStore<State extends XType> {
     }
 
     /**
-     * 通过 path 获取 state 
+     * 通过 path 获取 imState 
      */
-    public getByPath(path: string | Array<string>): any{
+    public getByPath(path: string | Array<string>): any {
         let pathArr: Array<string>;
 
         if (typeof path == 'string') {
             pathArr = path.split('.');
             if (path == '' || path[0] == '.')
                 pathArr.shift()
-        }else if (Array.isArray(path)){
+        } else if (Array.isArray(path)) {
             pathArr = path;
-        }else{
+        } else {
             throw new Error('[store.setByPath] literalPath can only be string or Array<string>')
         }
-        
+
         return XStore.getValueByPath(this.imState, pathArr)
     }
 
@@ -435,13 +445,13 @@ export class XStore<State extends XType> {
 
         if (typeof path == 'string') {
             literalPath = path
-        }else if (Array.isArray(path)){
+        } else if (Array.isArray(path)) {
             literalPath = path.join('.');
-        }else{
+        } else {
             throw new Error('[store.setByPath] literalPath can only be string or Array<string>')
         }
 
-        if(literalPath[0] != '.')
+        if (literalPath[0] != '.')
             literalPath = '.' + literalPath
 
         this.submitOperation({
@@ -1059,5 +1069,99 @@ export class XStore<State extends XType> {
             this.setSync(state, event.target.value)
         }
     }
+
+
+    // ----------------------------- 中间件相关 -----------------------------
+
+
+
+    /**
+     * 改为 seeter, 分出 _actions middlesware 和 mutations middleware 和 生命周期函数 middleware ? 
+     */
+    // private _middleWares: Middleware
+    // public set middleWares(value: Middleware) {
+    //     if (this._middleWares) {
+    //         throw new Error('')
+    //     }
+    //     this._middleWares = value
+    //     this._actionMiddlewares = null
+    //     this.linkActionMiddleWare()
+    // }
+
+    private _actions: {
+        [key in keyof Actions]: any
+    }
+    public get actions(): Actions{
+        return this._actions
+    }
+    public set actions(rawActions: Actions) {
+        this._actions = rawActions
+        this._actionMiddlewares && this.linkActionMiddleWare()
+    }
+
+
+    private _actionMiddlewares: Array<ActionMiddleware>;
+    public get actionMiddlewares(): Array<ActionMiddleware> {
+        return this._actionMiddlewares
+    }
+    public set actionMiddlewares(actionMiddlewares: Array<ActionMiddleware>) {
+        if (this._actionMiddlewares) {
+            console.info('[pastate] You has set actionMiddlewares agian!')
+        }
+        this._actionMiddlewares = actionMiddlewares;
+        this.actions && this.linkActionMiddleWare()
+    }
+
+    private linkActionMiddleWare(actions?: { [x: string]: ActionMiddleware }, path?: string) {
+
+        if(!actions) {
+            actions = this._actions
+        }
+
+        let middlewares = this._actionMiddlewares
+        let thisContext = this
+        for (const key in actions) {
+            if (actions.hasOwnProperty(key)) {
+                const element = actions[key];
+                let elementTypeName: string = (Object.prototype.toString.call(element) as string).slice(8, -1);
+                if (elementTypeName == 'Object') {
+                    // 迭代
+                    this.linkActionMiddleWare(element as any, key) as any
+                } else {
+                    // 连接中间件
+                    let context: MiddlewareContext = {
+                        name: path ? path + '.' + key : key,
+                        agrs: undefined,
+                        return: undefined,
+                        store: thisContext
+                    }
+                    let lastMiddleware = function (_context: MiddlewareContext) {
+                        _context.return = element.apply(null, _context.agrs)
+                    }
+                    let allMiddlewares = [...middlewares!, lastMiddleware]
+                    allMiddlewares.reverse();
+                    let runner = allMiddlewares.reduce(function (preValue: any, middleware: ActionMiddleware) {
+                        return middleware.bind(null, context, preValue)
+                    }, null)
+                    actions[key] = function () {
+                        context.agrs = arguments
+                        context.return = undefined
+                        runner()
+                        return context.return
+                    }
+                }
+            }
+        }
+
+    }
+
+
+    // 考虑用多级 actions 来划分 不同类型的操作
+
+    // 基于 option 生命周期中间件系统， 计划开发中
+
+    // 中间件： 
+    // log 中间件：用于开发调试，或者用户行为跟踪
+    // 调用计数中间件：用于用户行为统计
 
 }

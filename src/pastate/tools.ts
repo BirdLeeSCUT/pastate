@@ -87,3 +87,23 @@ export function makeBindable(component: any, valueProp?: string): any{
 
     return Bind as any
 }
+
+/** 
+ * 把一个依赖 imState 的纯函数转化为一个带有缓存功能的纯函数
+ */
+export function makeCacheable<T extends Function>(rawFunction: T): T {
+    let lastArguments: IArguments;
+    let currentArguments: IArguments;
+    let lastResult: any;
+    let cacheFunction = function(){
+        currentArguments = arguments;
+        if(lastArguments == undefined || Array.prototype.some.call(lastArguments, function(value: any, index: number){
+            return value != currentArguments[index]
+        })){
+            lastResult = rawFunction.apply(null, currentArguments)
+            lastArguments = currentArguments
+        }
+        return lastResult
+    }
+    return cacheFunction as any
+}
