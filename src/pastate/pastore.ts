@@ -610,6 +610,10 @@ export class XStore<State extends XType = {}, Actions = {}, Mutations = {}> {
      */
     public beginReduceOpertions() {
 
+        if(this.pendingOperationQueue.length == 0){
+            return
+        }
+
         // 本函数主要负责流程控制和生命周期函数的调用
         if (!this.stateWillReduceOperations()) {
             console.info('Operations reducing has been canceled at beginning!')
@@ -1106,7 +1110,7 @@ export class XStore<State extends XType = {}, Actions = {}, Mutations = {}> {
     }
     public set actionMiddlewares(actionMiddlewares: Array<ActionMiddleware>) {
         if (this._actionMiddlewares) {
-            console.info('[pastate] You has set actionMiddlewares agian!')
+            console.error('[pastate] You has set actionMiddlewares agian! It is not supported now')
         }
         this._actionMiddlewares = actionMiddlewares;
         this.actions && this.linkActionMiddleWare()
@@ -1114,12 +1118,13 @@ export class XStore<State extends XType = {}, Actions = {}, Mutations = {}> {
 
     private linkActionMiddleWare(actions?: { [x: string]: ActionMiddleware }, path?: string) {
 
-        if(!actions) {
+        if( !actions){
             actions = this._actions
         }
 
         let middlewares = this._actionMiddlewares
         let thisContext = this
+
         for (const key in actions) {
             if (actions.hasOwnProperty(key)) {
                 const element = actions[key];

@@ -9,3 +9,7 @@ export declare function unpack<T>(imValue: T): T;
  * @param valueProp 原组件的值的属性名称，默认(一般)为 value, 可以根据原组件的情况设为 checked 等
  */
 export declare function makeBindable(component: any, valueProp?: string): any;
+/**
+ * 把一个依赖 imState 的纯函数转化为一个带有缓存功能的纯函数
+ */
+export declare function makeCacheable<T extends Function>(rawFunction: T): T;

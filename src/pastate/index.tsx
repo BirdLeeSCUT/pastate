@@ -6,6 +6,8 @@ export { makeContainer, makeOnlyContainer, makeReduxStore, RootContainer } from 
 
 export { unpack, makeBindable } from './tools'
 
+export { logActions, syncActions } from './built-in-middleware'
+
 export { default as Input } from './HOC/Input'
 export { default as Checkbox } from './HOC/Checkbox'
 export { default as RadioGroup } from './HOC/RadioGroup'

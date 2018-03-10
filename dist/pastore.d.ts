@@ -30,7 +30,18 @@ export declare class XObject extends Object implements XType {
     __xpath__: string;
     __store__: XStore<any>;
 }
-export declare class XStore<State extends XType> {
+export declare type MiddlewareContext = {
+    name: string;
+    agrs?: IArguments;
+    return: any;
+    store: XStore;
+};
+export declare type ActionMiddleware = (context: MiddlewareContext, next: Function) => any;
+export declare type Middleware = Array<{
+    type: "action" | "mutation";
+    middleWare: ActionMiddleware;
+}>;
+export declare class XStore<State extends XType = {}, Actions = {}, Mutations = {}> {
     __PASTATE_STORE__: boolean;
     /**
      * 制定当前 store 的名称，可选
@@ -64,12 +75,6 @@ export declare class XStore<State extends XType> {
      * 把 operation 累积起来再一起执行，可以实现一些基于多 operation 的中间件，具有较多的可操作性
      */
     pendingOperationQueue: Array<XOperation>;
-    actions: {
-        [key: string]: Function;
-    };
-    mutations: {
-        [key: string]: Function;
-    };
     config: {
         useSpanNumber: boolean;
     };
@@ -84,7 +89,7 @@ export declare class XStore<State extends XType> {
     private makeRState(path, newValue?);
     getResponsiveState(imState: XType): any;
     /**
-     * 通过 path 获取 state
+     * 通过 path 获取 imState
      */
     getByPath(path: string | Array<string>): any;
     /**
@@ -218,4 +223,12 @@ export declare class XStore<State extends XType> {
     }): boolean;
     getReduxReducer(): () => State;
     syncInput(state: any): (event: React.ChangeEvent<any>) => void;
+    /**
+     * 改为 seeter, 分出 _actions middlesware 和 mutations middleware 和 生命周期函数 middleware ?
+     */
+    private _actions;
+    actions: Actions;
+    private _actionMiddlewares;
+    actionMiddlewares: Array<ActionMiddleware>;
+    private linkActionMiddleWare(actions?, path?);
 }

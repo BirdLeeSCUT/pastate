@@ -73,7 +73,7 @@ var XStore = /** @class */ (function () {
         /**
          * 制定当前 store 的名称，可选
          */
-        this.name = 'anonymous component';
+        this.name = '';
         /**
          * 表示是否正在累积操作
          */
@@ -363,7 +363,7 @@ var XStore = /** @class */ (function () {
         return XStore.getValueByPath(this.state, pathArr);
     };
     /**
-     * 通过 path 获取 state
+     * 通过 path 获取 imState
      */
     XStore.prototype.getByPath = function (path) {
         var pathArr;
@@ -552,6 +552,9 @@ var XStore = /** @class */ (function () {
      */
     XStore.prototype.beginReduceOpertions = function () {
         var _this = this;
+        if (this.pendingOperationQueue.length == 0) {
+            return;
+        }
         // 本函数主要负责流程控制和生命周期函数的调用
         if (!this.stateWillReduceOperations()) {
             console.info('Operations reducing has been canceled at beginning!');
@@ -946,6 +949,75 @@ var XStore = /** @class */ (function () {
         return function (event) {
             _this.setSync(state, event.target.value);
         };
+    };
+    Object.defineProperty(XStore.prototype, "actions", {
+        get: function () {
+            return this._actions;
+        },
+        set: function (rawActions) {
+            this._actions = rawActions;
+            this._actionMiddlewares && this.linkActionMiddleWare();
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(XStore.prototype, "actionMiddlewares", {
+        get: function () {
+            return this._actionMiddlewares;
+        },
+        set: function (actionMiddlewares) {
+            if (this._actionMiddlewares) {
+                console.error('[pastate] You has set actionMiddlewares agian! It is not supported now');
+            }
+            this._actionMiddlewares = actionMiddlewares;
+            this.actions && this.linkActionMiddleWare();
+        },
+        enumerable: true,
+        configurable: true
+    });
+    XStore.prototype.linkActionMiddleWare = function (actions, path) {
+        if (!actions) {
+            actions = this._actions;
+        }
+        var middlewares = this._actionMiddlewares;
+        var thisContext = this;
+        var _loop_2 = function (key) {
+            if (actions.hasOwnProperty(key)) {
+                var element_1 = actions[key];
+                var elementTypeName = Object.prototype.toString.call(element_1).slice(8, -1);
+                if (elementTypeName == 'Object') {
+                    // 迭代
+                    this_2.linkActionMiddleWare(element_1, key);
+                }
+                else {
+                    // 连接中间件
+                    var context_2 = {
+                        name: path ? path + '.' + key : key,
+                        agrs: undefined,
+                        return: undefined,
+                        store: thisContext
+                    };
+                    var lastMiddleware = function (_context) {
+                        _context.return = element_1.apply(null, _context.agrs);
+                    };
+                    var allMiddlewares = middlewares.concat([lastMiddleware]);
+                    allMiddlewares.reverse();
+                    var runner_1 = allMiddlewares.reduce(function (preValue, middleware) {
+                        return middleware.bind(null, context_2, preValue);
+                    }, null);
+                    actions[key] = function () {
+                        context_2.agrs = arguments;
+                        context_2.return = undefined;
+                        runner_1();
+                        return context_2.return;
+                    };
+                }
+            }
+        };
+        var this_2 = this;
+        for (var key in actions) {
+            _loop_2(key);
+        }
     };
     return XStore;
 }());

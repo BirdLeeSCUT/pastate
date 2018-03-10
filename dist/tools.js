@@ -94,4 +94,24 @@ function makeBindable(component, valueProp) {
     return Bind;
 }
 exports.makeBindable = makeBindable;
+/**
+ * 把一个依赖 imState 的纯函数转化为一个带有缓存功能的纯函数
+ */
+function makeCacheable(rawFunction) {
+    var lastArguments;
+    var currentArguments;
+    var lastResult;
+    var cacheFunction = function () {
+        currentArguments = arguments;
+        if (lastArguments == undefined || Array.prototype.some.call(lastArguments, function (value, index) {
+            return value != currentArguments[index];
+        })) {
+            lastResult = rawFunction.apply(null, currentArguments);
+            lastArguments = currentArguments;
+        }
+        return lastResult;
+    };
+    return cacheFunction;
+}
+exports.makeCacheable = makeCacheable;
 //# sourceMappingURL=tools.js.map
