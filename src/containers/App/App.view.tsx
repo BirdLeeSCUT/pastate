@@ -23,6 +23,27 @@ const options3 = [
   { value: "o3", tag: 'o3 tag'}
 ]
 
+const option_number = [2, 4, 6]
+const option_number_object = [{
+  value: 2,
+  tag: '2岁'
+}, {
+  value: 4,
+  tag: '4岁'
+}, {
+  value: 6,
+  tag: '6岁'
+}]
+
+const option_boolean = [true, false]
+const option_boolean_object = [{
+  value: true,
+  tag: '男'
+}, {
+  value: false,
+  tag: '女'
+}]
+
 class App extends React.Component<{ state: State } & DispatchProp<any>> {
 
   handleTextBeforeChange(newValue: string, oldValue: string): string {
@@ -97,8 +118,8 @@ class App extends React.Component<{ state: State } & DispatchProp<any>> {
         />
 
         <RadioGroup
-          options={options2}
-          value={state.basicInfo.name}
+          options={option_boolean_object}
+          value={state.basicInfo.isMale}
           disabled={false}
           className="class-radiobox"
           id="id-radiobox"

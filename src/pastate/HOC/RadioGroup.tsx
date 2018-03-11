@@ -5,13 +5,13 @@ import * as React from 'react'
  */
 export default class RadioGroup extends React.PureComponent<{
     /** 选项数组 */
-    options: Array<string> | Array<{value: string, tag: string, disabled?: boolean}> 
+    options: Array<string | number | boolean> | Array<{value: string | number | boolean, tag: string, disabled?: boolean}> 
     /** 绑定的选中值 */
-    value: string
+    value: string | number | boolean
     /** 指定禁止选择状态，默认为 false */
     disabled?: boolean
     /** 在绑定值更新后会被调用 */
-    afterChange?: (value?: string) => void
+    afterChange?: (value?: string | number | boolean) => void
     /** 传递给选项组根元素的 id */
     id?: string
     /** 传递给选项组根元素的 className */
@@ -26,16 +26,23 @@ export default class RadioGroup extends React.PureComponent<{
     vertical?: boolean
 }, any> {
 
+
     onChange = (e) => {
         let store = (this.props.value as any).__store__
         if(!store){
             throw new Error('[pastate] You can only give state node from this.props to pastate two-ways binding HOC component')
         }
+        let newValue: any;
         let optionsTypeName: string = (Object.prototype.toString.call(this.props.value) as string).slice(8, -1);
-
-        
-        store.setSync(this.props.value, e.target.value)
-        this.props.afterChange && this.props.afterChange(e.target.value)
+        switch(optionsTypeName){
+            case 'String': newValue = e.target.value; break;
+            case 'Number': newValue = + e.target.value; break;
+            case 'Boolean': newValue = e.target.value == 'true'; break;
+            default: 
+                throw new Error('[pastate] RadioGroup is not support object or array value.')
+        }
+        store.setSync(this.props.value, newValue)
+        this.props.afterChange && this.props.afterChange(newValue)
     }
 
     render() {
@@ -45,7 +52,6 @@ export default class RadioGroup extends React.PureComponent<{
                     (this.props.options as Array<any>).map((rawOption, index) => {
 
                         let optionsTypeName: string = (Object.prototype.toString.call(rawOption) as string).slice(8, -1);
-                        
                         let option: string;
                         let tag: string;
                         let disabled: boolean;
@@ -70,7 +76,7 @@ export default class RadioGroup extends React.PureComponent<{
                             <span key={index} style={{marginRight: 4, display: this.props.vertical == true ? "block" : "inline-bock"}}>
                                 <input 
                                     type="radio"
-                                    checked={this.props.value == option}
+                                    checked={this.props.value + '' == option}
                                     value={option}
                                     disabled={disabled}
                                     onChange={this.onChange}
