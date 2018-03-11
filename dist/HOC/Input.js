@@ -58,7 +58,8 @@ var Input = /** @class */ (function (_super) {
                     _this.forceUpdate();
                 }
             }
-            store.setSync(_this.props.value, valueTypeName == 'Number' ? (+_this.innerValue) : (_this.innerValue + ''));
+            store.set(_this.props.value, valueTypeName == 'Number' ? (+_this.innerValue) : (_this.innerValue + ''));
+            store.sync();
             _this.props.afterChange && _this.props.afterChange(_this.innerValue);
         };
         _this.innerValue = _this.props.value + '';

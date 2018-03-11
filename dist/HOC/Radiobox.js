@@ -23,7 +23,7 @@ var Radiobox = /** @class */ (function (_super) {
             if (!store) {
                 throw new Error('[pastate] You can only give state node from this.props to pastate two-ways binding HOC component');
             }
-            store.setSync(_this.props.selected, e.target.value);
+            store.set(_this.props.selected, e.target.value);
             _this.props.afterChange && _this.props.afterChange(e.target.value);
         };
         return _this;

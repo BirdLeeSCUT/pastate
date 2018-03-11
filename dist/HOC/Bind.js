@@ -41,7 +41,8 @@ var Bind = /** @class */ (function (_super) {
             if (!store) {
                 throw new Error('[pastate] You can only give state node from this.props to pastate two-ways binding HOC component');
             }
-            store.setSync(imState, valueToSet);
+            store.set(imState, valueToSet);
+            store.sync();
             _this.props.afterChange && _this.props.afterChange(valueToSet);
         };
         return _this;

@@ -1,5 +1,3 @@
-/// <reference types="react" />
-import * as React from 'react';
 export interface XType {
     __xpath__?: string;
     __store__?: XStore<any>;
@@ -56,7 +54,7 @@ export declare class XStore<State = {}, Actions = {}, Mutations = {}> {
      */
     state: State;
     /**
-     * 执行 operation 操作前暂存的 state 值
+     * 执行 operation 操作前暂存的 imState 值
      */
     preState: State;
     /**
@@ -106,11 +104,6 @@ export declare class XStore<State = {}, Actions = {}, Mutations = {}> {
      */
     setByPath(path: string | Array<string>, newValue: any, description?: string): XStore<State>;
     /**
-     * 同步版本的 set
-     * 用户表单输入的更新
-     */
-    setSync(state: any, newValue: any): XStore<State>;
-    /**
      * ### 对 state 进行 merge 操作
      * 进行的是浅层 merge
      * // TODO: 待研究 deep merge 的必要性
@@ -149,12 +142,6 @@ export declare class XStore<State = {}, Actions = {}, Mutations = {}> {
      */
     beginReduceOpertions(): void;
     forceUpdate(): void;
-    /**
-     * 当更新输入当前计划的输入值
-     * @param state
-     * @param newValue
-     */
-    setTextValue(state: any, newValue: any): void;
     /**
      * 手动地对应用state进行更新
      */
@@ -222,7 +209,6 @@ export declare class XStore<State = {}, Actions = {}, Mutations = {}> {
         tookEffect: number;
     }): boolean;
     getReduxReducer(): () => State;
-    syncInput(state: any): (event: React.ChangeEvent<any>) => void;
     /**
      * 改为 seeter, 分出 _actions middlesware 和 mutations middleware 和 生命周期函数 middleware ?
      */

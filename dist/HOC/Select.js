@@ -36,9 +36,9 @@ var Select = /** @class */ (function (_super) {
                     newValue = e.target.value == 'true';
                     break;
                 default:
-                    throw new Error('[pastate] RadioGroup is not support object or array value.');
+                    throw new Error('[pastate] Select is not support object or array value.');
             }
-            store.setSync(_this.props.value, newValue);
+            store.set(_this.props.value, newValue);
             _this.props.afterChange && _this.props.afterChange(newValue);
         };
         return _this;

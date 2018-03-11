@@ -77,7 +77,8 @@ export default class Input extends React.PureComponent<{
                 this.forceUpdate()
             }
         }
-        store.setSync(this.props.value, valueTypeName == 'Number' ? (+this.innerValue) : (this.innerValue + ''))
+        store.set(this.props.value, valueTypeName == 'Number' ? (+this.innerValue) : (this.innerValue + ''))
+        store.sync()
         this.props.afterChange && this.props.afterChange(this.innerValue)
     }
 

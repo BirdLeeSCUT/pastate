@@ -30,9 +30,9 @@ export default class Select extends React.PureComponent<{
             case 'Number': newValue = + e.target.value; break;
             case 'Boolean': newValue = e.target.value == 'true'; break;
             default: 
-                throw new Error('[pastate] RadioGroup is not support object or array value.')
+                throw new Error('[pastate] Select is not support object or array value.')
         }
-        store.setSync(this.props.value, newValue)
+        store.set(this.props.value, newValue)
         this.props.afterChange && this.props.afterChange(newValue)
     }
 

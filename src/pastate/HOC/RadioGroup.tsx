@@ -41,7 +41,7 @@ export default class RadioGroup extends React.PureComponent<{
             default: 
                 throw new Error('[pastate] RadioGroup is not support object or array value.')
         }
-        store.setSync(this.props.value, newValue)
+        store.set(this.props.value, newValue)
         this.props.afterChange && this.props.afterChange(newValue)
     }
 

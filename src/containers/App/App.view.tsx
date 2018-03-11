@@ -36,6 +36,7 @@ const option_number_object = [{
 }]
 
 const option_boolean = [true, false]
+
 const option_boolean_object = [{
   value: true,
   tag: '男'
@@ -44,7 +45,7 @@ const option_boolean_object = [{
   tag: '女'
 }]
 
-class App extends React.Component<{ state: State } & DispatchProp<any>> {
+class App extends React.PureComponent<{ state: State } & DispatchProp<any>> {
 
   handleTextBeforeChange(newValue: string, oldValue: string): string {
     return newValue;
@@ -132,7 +133,7 @@ class App extends React.Component<{ state: State } & DispatchProp<any>> {
 
         <Select
           options={option_boolean_object}
-          value={state.basicInfo.isMale}
+          value={state.pets[0].isDog}
           className="class-select"
           id="id-select"
           disabled={false}

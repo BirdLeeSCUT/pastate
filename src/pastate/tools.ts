@@ -75,7 +75,8 @@ export function makeBindable(component: any, valueProp?: string): any{
             if (!store) {
                 throw new Error('[pastate] You can only give state node from this.props to pastate two-ways binding HOC component')
             }
-            store.setSync(imState, valueToSet)
+            store.set(imState, valueToSet)
+            store.sync()
             this.props.afterChange && this.props.afterChange(valueToSet)
         }
 

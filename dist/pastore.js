@@ -425,19 +425,6 @@ var XStore = /** @class */ (function () {
         return this;
     };
     /**
-     * 同步版本的 set
-     * 用户表单输入的更新
-     */
-    XStore.prototype.setSync = function (state, newValue) {
-        var pathArr = state.__xpath__.split('.');
-        pathArr.shift();
-        var endPath = pathArr.pop();
-        var fatherValue = this.getNewReference(pathArr);
-        fatherValue[Array.isArray(fatherValue) ? (endPath - 0) : endPath] = this.toXType(newValue, state.__xpath__);
-        this.forceUpdate();
-        return this;
-    };
-    /**
      * ### 对 state 进行 merge 操作
      * 进行的是浅层 merge
      * // TODO: 待研究 deep merge 的必要性
@@ -623,20 +610,6 @@ var XStore = /** @class */ (function () {
         }
     };
     /**
-     * 当更新输入当前计划的输入值
-     * @param state
-     * @param newValue
-     */
-    XStore.prototype.setTextValue = function (state, newValue) {
-        if (state.__xpath__) {
-            this.setSync(state, newValue);
-        }
-        else {
-            state = newValue;
-            this.beginReduceOpertions();
-        }
-    };
-    /**
      * 手动地对应用state进行更新
      */
     XStore.prototype.sync = function () {
@@ -783,6 +756,11 @@ var XStore = /** @class */ (function () {
                 enumerable: false,
                 value: preValue.__xpath__,
                 writable: true
+            });
+            Object.defineProperty(curValue, "__store__", {
+                value: this,
+                enumerable: false,
+                writable: false
             });
             // 溯源更新 后 挂载新值（此处不可逆序，否则会导致 preState 被改动）
             if (pathArr.length == 0) {
@@ -941,14 +919,6 @@ var XStore = /** @class */ (function () {
         var _this = this;
         // 只需传回 state 即可
         return function () { return _this.imState; };
-    };
-    // -------------------------------- form 对接函数 -----------------------------
-    XStore.prototype.syncInput = function (state) {
-        var _this = this;
-        // 请使用对象state, 其他特殊用法未测试
-        return function (event) {
-            _this.setSync(state, event.target.value);
-        };
     };
     Object.defineProperty(XStore.prototype, "actions", {
         get: function () {

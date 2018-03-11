@@ -23,7 +23,7 @@ export default class Checkbox extends React.PureComponent<{
             throw new Error('[pastate] You can only give state node from this.props to pastate two-ways binding HOC component')
         }
         let newValue = e.target.checked;
-        store.setSync(this.props.value, newValue)
+        store.set(this.props.value, newValue)
         this.props.afterChange && this.props.afterChange(newValue)
     }
 
