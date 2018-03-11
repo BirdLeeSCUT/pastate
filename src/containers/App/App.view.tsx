@@ -131,8 +131,8 @@ class App extends React.Component<{ state: State } & DispatchProp<any>> {
         />
 
         <Select
-          options={options3}
-          value={state.basicInfo.name}
+          options={option_boolean_object}
+          value={state.basicInfo.isMale}
           className="class-select"
           id="id-select"
           disabled={false}

@@ -23,8 +23,17 @@ export default class Select extends React.PureComponent<{
         if(!store){
             throw new Error('[pastate] You can only give state node from this.props to pastate two-ways binding HOC component')
         }
-        store.setSync(this.props.value, e.target.value)
-        this.props.afterChange && this.props.afterChange(e.target.value)
+        let newValue: any;
+        let optionsTypeName: string = (Object.prototype.toString.call(this.props.value) as string).slice(8, -1);
+        switch(optionsTypeName){
+            case 'String': newValue = e.target.value; break;
+            case 'Number': newValue = + e.target.value; break;
+            case 'Boolean': newValue = e.target.value == 'true'; break;
+            default: 
+                throw new Error('[pastate] RadioGroup is not support object or array value.')
+        }
+        store.setSync(this.props.value, newValue)
+        this.props.afterChange && this.props.afterChange(newValue)
     }
 
     render() {
@@ -46,12 +55,12 @@ export default class Select extends React.PureComponent<{
                         let tag: string;
                         let disabled: boolean;
                         if(optionsTypeName == "String" || optionsTypeName == "Number" || optionsTypeName == "Boolean"){
-                            option = rawOption as string;
-                            tag = rawOption as string;
+                            option = rawOption as string + '';
+                            tag = rawOption as string + '';
                             disabled = false;
                         }else{
-                            option = (rawOption as any).value;
-                            tag = (rawOption as any).tag;
+                            option = (rawOption as any).value + '';
+                            tag = (rawOption as any).tag + '';
                             disabled = (rawOption as any).disabled == true;
                         }
 
