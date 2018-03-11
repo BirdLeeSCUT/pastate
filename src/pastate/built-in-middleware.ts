@@ -30,19 +30,28 @@ export const syncActions = function(onlyMutations: boolean = false): ActionMiddl
     }
 }
 
+/**
+ * actions 在 redux 浏览器插件中进行显示的中间件
+ */
+export const dispalyActionNamesInReduxTool = function(onlyMutations: boolean = false): ActionMiddleware {
+    return function (ctx: MiddlewareContext, next: Function) {
+        if(!onlyMutations || ctx.name.match(/^mutations./))
+            ctx.store.currentActionName += ((ctx.store.currentActionName ? ' > ' : '') + ctx.name)
+        next()
+    }
+}
+
 /** 
  * actions 调用计数中间件
  */
-export const countActions = function(): ActionMiddleware {
-    return function (ctx: MiddlewareContext, next: Function) {
-        // TODO 
-    }
-}
+// export const countActions = function(): ActionMiddleware {
+//     return function (ctx: MiddlewareContext, next: Function) {
+//         // TODO 
+//     }
+// }
 
 /**
  * actions stub 组件
  */
+// TODO
 
-
-// log operation
-// diff operation

@@ -75,6 +75,12 @@ export class XStore<State = {}, Actions = {}, Mutations = {}> {
      */
     public preState: State;
 
+
+    /**
+     * 当前执行的 actions/ mutations 的名称
+     */
+    public currentActionName: string = '';
+
     /**
      * dispatch 函数，待注入
      * 当 state 发生改变后，会出发这个函数通知视图进行更新
@@ -93,8 +99,6 @@ export class XStore<State = {}, Actions = {}, Mutations = {}> {
      * 把 operation 累积起来再一起执行，可以实现一些基于多 operation 的中间件，具有较多的可操作性 
      */
     public pendingOperationQueue: Array<XOperation> = []
-
-
 
 
     // 配置项和默认值
@@ -647,8 +651,9 @@ export class XStore<State = {}, Actions = {}, Mutations = {}> {
 
         if (this.dispatch) {
             this.dispatch({
-                type: '__PASTORE_UPDATE__: ' + (this.name || '(you can add a name to your pastore via name prop)')
+                type: '@@PASTATE: ' + (this.name || '(anonymous store)') + ' ' + this.currentActionName
             })
+            this.currentActionName && (this.currentActionName = '') // 消费一次后清空
         } else {
             // console.error('[XStore] dispatch method is not injected');
         }
@@ -671,7 +676,7 @@ export class XStore<State = {}, Actions = {}, Mutations = {}> {
         this.preState = this.imState;
         if (this.dispatch) {
             this.dispatch({
-                type: '__XSTORE_FORCE_UPDATE__: ' + (this.name || '(you can add a name to your pastore via name prop)')
+                type: '@@PASTATE: [forceUpdate] ' + (this.name || '(anonymous store)')
             })
         } else {
             // console.error('[XStore] dispatch method is not injected')

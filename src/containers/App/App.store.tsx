@@ -1,5 +1,6 @@
 import { XStore, XType } from '../../pastate/pastore';
 import { ChangeEvent } from 'react';
+import { syncActions, dispalyActionNamesInReduxTool } from '../../pastate'
 
 interface State extends XType {
     basicInfo: {
@@ -49,6 +50,7 @@ let initState = {
 
 class Store extends XStore<State>{
     name = 'App'
+    actionMiddlewares = [dispalyActionNamesInReduxTool(true)]
     actions = {
 
         setup: () => {
@@ -89,15 +91,16 @@ class Store extends XStore<State>{
             this.actions.setup();
             this.actions.change();
             this.actions.addPet();
-            this.actions.addFirstAge();
         },
 
         onTextChange: (v: ChangeEvent<any>) => {
             console.log(v)
         },
 
-        longName: () => {
-            this.state.basicInfo.name += "!"
+        mutations: {
+            longName: () => {
+                this.state.basicInfo.name += "!"
+            }
         }
     }
 }
@@ -106,4 +109,5 @@ class Store extends XStore<State>{
 let store = new Store(initState, {
     useSpanNumber: true
 });
+
 export { State, store }

@@ -87,8 +87,9 @@ class App extends React.PureComponent<{ state: State } & DispatchProp<any>> {
           <button onClick={actions.addPet} >增加宠物</button>
           <button onClick={actions.addPetBefore} >在前增加宠物</button>
           <button onClick={actions.popPet} >减少宠物</button>
+          <button onClick={actions.doFourActions} >批量任务</button>
         </div>
-        <button onClick={actions.longName}>名字加长</button>
+        <button onClick={actions.mutations.longName}>名字加长</button>
 
         <Input
           value={state.basicInfo.name}
@@ -133,7 +134,7 @@ class App extends React.PureComponent<{ state: State } & DispatchProp<any>> {
 
         <Select
           options={option_boolean_object}
-          value={state.pets[0].isDog}
+          value={state.basicInfo.isMale}
           className="class-select"
           id="id-select"
           disabled={false}
