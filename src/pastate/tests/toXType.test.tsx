@@ -6,7 +6,7 @@ import { XStore, XType, XString } from '../pastore';
 
 // 用标准值 number: 1 , 2  ; string: string1, string2
 
-interface SimpleState extends XType {
+interface SimpleState {
     name: string,
     age: number,
     isMale: boolean,
@@ -86,8 +86,8 @@ describe('toXType function test suit', function () {
     describe('can transform basic type at root', function () {
 
         it('can transform initState into state', function () {
-            expect(myStore.imState.__xpath__).toBe('');
-            expect(myStore.imState.__store__).toBe(myStore);
+            expect((myStore.imState as XType).__xpath__).toBe('');
+            expect((myStore.imState as XType).__store__).toBe(myStore);
         })
 
         it('can be get by path', function(){
@@ -549,4 +549,29 @@ describe('toXType function test suit', function () {
 
     })
 
+    describe('make different reference from the same raw type', function(){
+
+        let objectElement = {name: 'name'}
+        let arrayElement = ['name']
+        let initState1 = {
+            objectList: [objectElement, objectElement],
+            arrayList: [arrayElement, arrayElement]   
+        }
+        let store1 = new XStore<typeof initState1>(initState1)
+        
+        it('object', function(){
+            expect((store1.imState.objectList[0] as XType).__xpath__).toBe('.objectList.0')
+            expect((store1.imState.objectList[0].name as XType).__xpath__).toBe('.objectList.0.name')
+            expect((store1.imState.objectList[1] as XType).__xpath__).toBe('.objectList.1')
+            expect((store1.imState.objectList[1].name as XType).__xpath__).toBe('.objectList.1.name')
+        })
+
+        it('array', function(){
+            expect((store1.imState.arrayList[0] as XType).__xpath__).toBe('.arrayList.0')
+            expect((store1.imState.arrayList[0][0] as XType).__xpath__).toBe('.arrayList.0.0')
+            expect((store1.imState.arrayList[1] as XType).__xpath__).toBe('.arrayList.1')
+            expect((store1.imState.arrayList[1][0] as XType).__xpath__).toBe('.arrayList.1.0')
+        })
+
+    })
 })

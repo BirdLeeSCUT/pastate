@@ -51,7 +51,7 @@ export type Middleware = Array<{
 }>
 
 
-export class XStore<State extends XType = {}, Actions = {}, Mutations = {}> {
+export class XStore<State = {}, Actions = {}, Mutations = {}> {
 
     public __PASTATE_STORE__ = true;
 
@@ -680,7 +680,7 @@ export class XStore<State extends XType = {}, Actions = {}, Mutations = {}> {
 
     public forceUpdate() {
         if (this.imState == this.preState) {
-            this.imState = { ...(this.imState as XObject) } as State;
+            this.imState = { ...(this.imState as Object) } as any;
         }
         this.preState = this.imState;
         if (this.dispatch) {
@@ -933,11 +933,11 @@ export class XStore<State extends XType = {}, Actions = {}, Mutations = {}> {
                     }) as XType;
                     break;
                 case 'Object':
-                    xNewData = new XObject(rawData);
+                    xNewData = {...rawData} as XObject;
                     // recursive call toXType(...) to transform the inner data
                     for (let prop in xNewData) {
                         if (xNewData.hasOwnProperty(prop) && prop != '__xpath__') {
-                            rawData[prop] = this.toXType(rawData[prop], path + '.' + prop);
+                            xNewData[prop] = this.toXType(rawData[prop], path + '.' + prop);
                         }
                     }
                     break;

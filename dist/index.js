@@ -1,18 +1,13 @@
 "use strict";
+function __export(m) {
+    for (var p in m) if (!exports.hasOwnProperty(p)) exports[p] = m[p];
+}
 Object.defineProperty(exports, "__esModule", { value: true });
 var pastore_1 = require("./pastore");
 exports.Pastore = pastore_1.XStore;
-var pastate_redux_1 = require("./pastate-redux");
-exports.makeContainer = pastate_redux_1.makeContainer;
-exports.makeOnlyContainer = pastate_redux_1.makeOnlyContainer;
-exports.makeReduxStore = pastate_redux_1.makeReduxStore;
-exports.RootContainer = pastate_redux_1.RootContainer;
-var tools_1 = require("./tools");
-exports.unpack = tools_1.unpack;
-exports.makeBindable = tools_1.makeBindable;
-var built_in_middleware_1 = require("./built-in-middleware");
-exports.logActions = built_in_middleware_1.logActions;
-exports.syncActions = built_in_middleware_1.syncActions;
+__export(require("./pastate-redux"));
+__export(require("./tools"));
+__export(require("./built-in-middleware"));
 var Input_1 = require("./HOC/Input");
 exports.Input = Input_1.default;
 var Checkbox_1 = require("./HOC/Checkbox");

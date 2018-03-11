@@ -11,6 +11,19 @@ var __extends = (this && this.__extends) || (function () {
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
 var React = require("react");
+var pastore_1 = require("./pastore");
+/**
+ * 创建 pastore 的工厂函数
+ */
+function createStore(initState, actions, middlewares) {
+    var store = new pastore_1.XStore(initState);
+    if (actions)
+        store.actions = actions;
+    if (middlewares)
+        store.actionMiddlewares = middlewares;
+    return store;
+}
+exports.createStore = createStore;
 /**
  * pastate imState 对象拆包
  * @param imValue

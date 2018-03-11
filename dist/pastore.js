@@ -831,11 +831,11 @@ var XStore = /** @class */ (function () {
                     });
                     break;
                 case 'Object':
-                    xNewData = new XObject(rawData);
+                    xNewData = __assign({}, rawData);
                     // recursive call toXType(...) to transform the inner data
                     for (var prop in xNewData) {
                         if (xNewData.hasOwnProperty(prop) && prop != '__xpath__') {
-                            rawData[prop] = this.toXType(rawData[prop], path + '.' + prop);
+                            xNewData[prop] = this.toXType(rawData[prop], path + '.' + prop);
                         }
                     }
                     break;

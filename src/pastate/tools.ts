@@ -1,4 +1,15 @@
 import * as React from 'react';
+import { XStore } from './pastore';
+
+/**
+ * 创建 pastore 的工厂函数
+ */
+export function createStore<State, Actions>(initState: State, actions?: Actions, middlewares?: any): XStore<State, Actions>{
+    let store = new XStore<State, Actions>(initState);
+    if(actions) store.actions = actions;
+    if(middlewares) store.actionMiddlewares = middlewares
+    return store
+}
 
 /**
  * pastate imState 对象拆包

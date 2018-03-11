@@ -41,7 +41,7 @@ export declare type Middleware = Array<{
     type: "action" | "mutation";
     middleWare: ActionMiddleware;
 }>;
-export declare class XStore<State extends XType = {}, Actions = {}, Mutations = {}> {
+export declare class XStore<State = {}, Actions = {}, Mutations = {}> {
     __PASTATE_STORE__: boolean;
     /**
      * 制定当前 store 的名称，可选
