@@ -23,8 +23,23 @@ var RadioGroup = /** @class */ (function (_super) {
             if (!store) {
                 throw new Error('[pastate] You can only give state node from this.props to pastate two-ways binding HOC component');
             }
-            store.setSync(_this.props.value, e.target.value);
-            _this.props.afterChange && _this.props.afterChange(e.target.value);
+            var newValue;
+            var optionsTypeName = Object.prototype.toString.call(_this.props.value).slice(8, -1);
+            switch (optionsTypeName) {
+                case 'String':
+                    newValue = e.target.value;
+                    break;
+                case 'Number':
+                    newValue = +e.target.value;
+                    break;
+                case 'Boolean':
+                    newValue = e.target.value == 'true';
+                    break;
+                default:
+                    throw new Error('[pastate] RadioGroup is not support object or array value.');
+            }
+            store.setSync(_this.props.value, newValue);
+            _this.props.afterChange && _this.props.afterChange(newValue);
         };
         return _this;
     }
@@ -35,14 +50,14 @@ var RadioGroup = /** @class */ (function (_super) {
             var option;
             var tag;
             var disabled;
-            if (optionsTypeName == "String") {
-                option = rawOption;
-                tag = rawOption;
+            if (optionsTypeName == "String" || optionsTypeName == "Number" || optionsTypeName == "Boolean") {
+                option = rawOption + '';
+                tag = rawOption + '';
                 disabled = false;
             }
             else {
-                option = rawOption.value;
-                tag = rawOption.tag;
+                option = rawOption.value + '';
+                tag = rawOption.tag + '';
                 disabled = rawOption.disabled == true;
             }
             _this.props.disabled && (disabled = true);
@@ -50,7 +65,7 @@ var RadioGroup = /** @class */ (function (_super) {
             spanClassName += _this.props.tagClassName || '';
             spanClassName += (disabled && (_this.props.disabledTagClassName && (' ' + _this.props.disabledTagClassName))) || '';
             return (React.createElement("span", { key: index, style: { marginRight: 4, display: _this.props.vertical == true ? "block" : "inline-bock" } },
-                React.createElement("input", { type: "radio", checked: _this.props.value == option, value: option, disabled: disabled, onChange: _this.onChange, className: _this.props.radioClassName }),
+                React.createElement("input", { type: "radio", checked: _this.props.value + '' == option, value: option, disabled: disabled, onChange: _this.onChange, className: _this.props.radioClassName }),
                 React.createElement("span", { className: spanClassName }, tag)));
         })));
     };

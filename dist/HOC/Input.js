@@ -49,23 +49,24 @@ var Input = /** @class */ (function (_super) {
             if (!store) {
                 throw new Error('[pastate] You can only give state node from this.props to pastate two-ways binding HOC component');
             }
+            var valueTypeName = Object.prototype.toString.call(_this.props.value).slice(8, -1);
             if (_this.props.beforeChange) {
-                var oldValue = _this.props.value + '';
+                var oldValue = valueTypeName == 'Number' ? (+_this.props.value) : (_this.props.value + '');
                 var result = _this.props.beforeChange(_this.innerValue, oldValue);
                 if (result != _this.innerValue) {
                     _this.innerValue = result;
                     _this.forceUpdate();
                 }
             }
-            store.setSync(_this.props.value, _this.innerValue);
+            store.setSync(_this.props.value, valueTypeName == 'Number' ? (+_this.innerValue) : (_this.innerValue + ''));
             _this.props.afterChange && _this.props.afterChange(_this.innerValue);
         };
-        _this.innerValue = _this.props.value;
+        _this.innerValue = _this.props.value + '';
         _this.isComposing = false;
         return _this;
     }
     Input.prototype.componentWillReceiveProps = function (nextProps) {
-        this.innerValue = nextProps.value;
+        this.innerValue = nextProps.value + '';
     };
     Input.prototype.render = function () {
         var props = {
