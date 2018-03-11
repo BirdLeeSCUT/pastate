@@ -31,6 +31,9 @@ export default class RadioGroup extends React.PureComponent<{
         if(!store){
             throw new Error('[pastate] You can only give state node from this.props to pastate two-ways binding HOC component')
         }
+        let optionsTypeName: string = (Object.prototype.toString.call(this.props.value) as string).slice(8, -1);
+
+        
         store.setSync(this.props.value, e.target.value)
         this.props.afterChange && this.props.afterChange(e.target.value)
     }
@@ -47,13 +50,13 @@ export default class RadioGroup extends React.PureComponent<{
                         let tag: string;
                         let disabled: boolean;
 
-                        if(optionsTypeName == "String"){
-                            option = rawOption as string;
-                            tag = rawOption as string;
+                        if(optionsTypeName == "String" || optionsTypeName == "Number" || optionsTypeName == "Boolean"){
+                            option = rawOption as string + '';
+                            tag = rawOption as string + '';
                             disabled = false;
                         }else{
-                            option = (rawOption as any).value;
-                            tag = (rawOption as any).tag;
+                            option = (rawOption as any).value + '';
+                            tag = (rawOption as any).tag + '';
                             disabled = (rawOption as any).disabled == true;
                         }
 

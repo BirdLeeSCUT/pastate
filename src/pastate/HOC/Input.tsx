@@ -5,7 +5,7 @@ import * as React from 'react';
  */
 export default class Input extends React.PureComponent<{
     /** 文本值 */
-    value: string
+    value: string | number
     /** 输入框类型, 默认为 text */
     type?: 
         "text" // 单行文本
@@ -18,9 +18,9 @@ export default class Input extends React.PureComponent<{
      * @param oldValue 原始值
      * @returns {string} 返回实际要更新的值
      */
-    beforeChange?: (newValue?: string, oldValue?: string) => string
+    beforeChange?: (newValue?: string | number, oldValue?: string | number) => string
     /** 在绑定值更新后会被调用 */
-    afterChange?: (newValue?: string) => void
+    afterChange?: (newValue?: string | number) => void
     disabled?: boolean
     /** [实验特性] 指定是否开启输入法输入完成才更新 state 的模式，默认为关闭 */
     useComposedValue?: boolean
@@ -32,7 +32,7 @@ export default class Input extends React.PureComponent<{
 
     constructor(props: any){
         super(props);
-        this.innerValue = this.props.value;
+        this.innerValue = this.props.value + '';
         this.isComposing = false
     }
 
@@ -67,20 +67,22 @@ export default class Input extends React.PureComponent<{
             throw new Error('[pastate] You can only give state node from this.props to pastate two-ways binding HOC component')
         }
 
+        let valueTypeName: string = (Object.prototype.toString.call(this.props.value) as string).slice(8, -1);
+
         if(this.props.beforeChange){
-            let oldValue = this.props.value + '';
+            let oldValue = valueTypeName == 'Number' ? (+ this.props.value) : (this.props.value + '');
             let result = this.props.beforeChange(this.innerValue, oldValue)
             if(result != this.innerValue){
                 this.innerValue = result;
                 this.forceUpdate()
             }
         }
-        store.setSync(this.props.value, this.innerValue)
+        store.setSync(this.props.value, valueTypeName == 'Number' ? (+this.innerValue) : (this.innerValue + ''))
         this.props.afterChange && this.props.afterChange(this.innerValue)
     }
 
     componentWillReceiveProps(nextProps: any){
-        this.innerValue = nextProps.value
+        this.innerValue = nextProps.value + ''
     }
 
     render() {

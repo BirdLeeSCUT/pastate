@@ -5,9 +5,9 @@ import * as React from 'react'
  */
 export default class Select extends React.PureComponent<{
     /** 选项数据数组 */
-    options: Array<string> | Array<{value: string, tag: string, disabled?: boolean}> 
+    options: Array<string | number | boolean> | Array<{value: string | number | boolean, tag: string, disabled?: boolean}> 
     /** 绑定的选中值 */
-    value: string
+    value: string | number | boolean
     /** 传递的 id */
     id?: string
     /** 传递的 className */
@@ -15,7 +15,7 @@ export default class Select extends React.PureComponent<{
     /** 指定禁止点击状态，默认为 false */
     disabled?: boolean
     /** 在绑定值更新后会被调用 */
-    afterChange?: (value?: string) => void
+    afterChange?: (value?: string | number | boolean) => void
 }, any> {
 
     onChange = (e) => {
@@ -33,7 +33,7 @@ export default class Select extends React.PureComponent<{
             <select 
                 className={this.props.className} 
                 id={this.props.id} 
-                value={this.props.value} 
+                value={this.props.value as any} 
                 disabled={this.props.disabled}
                 onChange={this.onChange}
             >
@@ -45,7 +45,7 @@ export default class Select extends React.PureComponent<{
                         let option: string;
                         let tag: string;
                         let disabled: boolean;
-                        if(optionsTypeName == "String"){
+                        if(optionsTypeName == "String" || optionsTypeName == "Number" || optionsTypeName == "Boolean"){
                             option = rawOption as string;
                             tag = rawOption as string;
                             disabled = false;
