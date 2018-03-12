@@ -75,6 +75,10 @@ var XStore = /** @class */ (function () {
          */
         this.name = '';
         /**
+         * 当前执行的 actions/ mutations 的名称
+         */
+        this.currentActionName = '';
+        /**
          * 表示是否正在累积操作
          */
         this.isQueuingOperations = false;
@@ -581,8 +585,9 @@ var XStore = /** @class */ (function () {
         }
         if (this.dispatch) {
             this.dispatch({
-                type: '__PASTORE_UPDATE__: ' + (this.name || '(you can add a name to your pastore via name prop)')
+                type: '@@PASTATE: ' + (this.name || '(anonymous store)') + ' ' + this.currentActionName
             });
+            this.currentActionName && (this.currentActionName = ''); // 消费一次后清空
         }
         else {
             // console.error('[XStore] dispatch method is not injected');
@@ -602,7 +607,7 @@ var XStore = /** @class */ (function () {
         this.preState = this.imState;
         if (this.dispatch) {
             this.dispatch({
-                type: '__XSTORE_FORCE_UPDATE__: ' + (this.name || '(you can add a name to your pastore via name prop)')
+                type: '@@PASTATE: [forceUpdate] ' + (this.name || '(anonymous store)')
             });
         }
         else {

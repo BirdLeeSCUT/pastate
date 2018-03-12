@@ -8,6 +8,6 @@ export declare const logActions: (time?: boolean, spend?: boolean, args?: boolea
  */
 export declare const syncActions: (onlyMutations?: boolean) => ActionMiddleware;
 /**
- * actions 调用计数中间件
+ * actions 在 redux 浏览器插件中进行显示的中间件
  */
-export declare const countActions: () => ActionMiddleware;
+export declare const dispalyActionNamesInReduxTool: (onlyMutations?: boolean) => ActionMiddleware;

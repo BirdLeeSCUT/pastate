@@ -58,6 +58,10 @@ export declare class XStore<State = {}, Actions = {}, Mutations = {}> {
      */
     preState: State;
     /**
+     * 当前执行的 actions/ mutations 的名称
+     */
+    currentActionName: string;
+    /**
      * dispatch 函数，待注入
      * 当 state 发生改变后，会出发这个函数通知视图进行更新
      * 目前该函数用于与 redux 配合使用: pastate-redux-react

@@ -14,7 +14,7 @@ export default class Input extends React.PureComponent<{
      * @param oldValue 原始值
      * @returns {string} 返回实际要更新的值
      */
-    beforeChange?: (newValue?: string | number, oldValue?: string | number) => string;
+    beforeChange?: (newValue?: string | number, oldValue?: string | number) => string | number;
     /** 在绑定值更新后会被调用 */
     afterChange?: (newValue?: string | number) => void;
     disabled?: boolean;

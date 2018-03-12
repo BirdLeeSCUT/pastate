@@ -54,7 +54,7 @@ var Input = /** @class */ (function (_super) {
                 var oldValue = valueTypeName == 'Number' ? (+_this.props.value) : (_this.props.value + '');
                 var result = _this.props.beforeChange(_this.innerValue, oldValue);
                 if (result != _this.innerValue) {
-                    _this.innerValue = result;
+                    _this.innerValue = result + '';
                     _this.forceUpdate();
                 }
             }

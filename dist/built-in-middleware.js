@@ -36,16 +36,26 @@ exports.syncActions = function (onlyMutations) {
     };
 };
 /**
- * actions 调用计数中间件
+ * actions 在 redux 浏览器插件中进行显示的中间件
  */
-exports.countActions = function () {
+exports.dispalyActionNamesInReduxTool = function (onlyMutations) {
+    if (onlyMutations === void 0) { onlyMutations = false; }
     return function (ctx, next) {
-        // TODO 
+        if (!onlyMutations || ctx.name.match(/^mutations./))
+            ctx.store.currentActionName += ((ctx.store.currentActionName ? ' > ' : '') + ctx.name);
+        next();
     };
 };
 /**
+ * actions 调用计数中间件
+ */
+// export const countActions = function(): ActionMiddleware {
+//     return function (ctx: MiddlewareContext, next: Function) {
+//         // TODO 
+//     }
+// }
+/**
  * actions stub 组件
  */
-// log operation
-// diff operation 
+// TODO
 //# sourceMappingURL=built-in-middleware.js.map
