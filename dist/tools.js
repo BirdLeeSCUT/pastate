@@ -15,12 +15,13 @@ var pastore_1 = require("./pastore");
 /**
  * 创建 pastore 的工厂函数
  */
-function createStore(initState, actions, middlewares) {
-    var store = new pastore_1.XStore(initState);
-    if (actions)
-        store.actions = actions;
-    if (middlewares)
-        store.actionMiddlewares = middlewares;
+function createStore(descriptor) {
+    var store = new pastore_1.XStore(descriptor.initState);
+    store.name = descriptor.name;
+    if (descriptor.actions)
+        store.actions = descriptor.actions;
+    if (descriptor.middlewares)
+        store.actionMiddlewares = descriptor.middlewares;
     return store;
 }
 exports.createStore = createStore;

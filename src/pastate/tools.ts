@@ -4,10 +4,16 @@ import { XStore } from './pastore';
 /**
  * 创建 pastore 的工厂函数
  */
-export function createStore<State, Actions>(initState: State, actions?: Actions, middlewares?: any): XStore<State, Actions>{
-    let store = new XStore<State, Actions>(initState);
-    if(actions) store.actions = actions;
-    if(middlewares) store.actionMiddlewares = middlewares
+export function createStore<State, Actions>(descriptor: {
+    name: string, 
+    initState: State,
+    actions?: Actions, 
+    middlewares?: Array<any>
+}): XStore<State, Actions>{
+    let store = new XStore<State, Actions>(descriptor.initState);
+    store.name = descriptor.name
+    if(descriptor.actions) store.actions = descriptor.actions;
+    if(descriptor.middlewares) store.actionMiddlewares = descriptor.middlewares
     return store
 }
 

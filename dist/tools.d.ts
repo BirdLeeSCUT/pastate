@@ -2,7 +2,12 @@ import { XStore } from './pastore';
 /**
  * 创建 pastore 的工厂函数
  */
-export declare function createStore<State, Actions>(initState: State, actions?: Actions, middlewares?: any): XStore<State, Actions>;
+export declare function createStore<State, Actions>(descriptor: {
+    name: string;
+    initState: State;
+    actions?: Actions;
+    middlewares?: Array<any>;
+}): XStore<State, Actions>;
 /**
  * pastate imState 对象拆包
  * @param imValue
