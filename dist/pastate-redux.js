@@ -3,8 +3,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 var React = require("react");
 var redux_1 = require("redux");
 var react_redux_1 = require("react-redux");
-exports.RootContainer = react_redux_1.Provider;
-function makeReduxStore(storeTree) {
+function combineStores(storeTree) {
     var partXStoreArr = [];
     var makePastateStoreToBeReducer = function (_storeTree) {
         if (_storeTree.__PASTATE_STORE__) {
@@ -36,7 +35,7 @@ function makeReduxStore(storeTree) {
     }
     return rootStore;
 }
-exports.makeReduxStore = makeReduxStore;
+exports.combineStores = combineStores;
 function makeContainer(component, selector) {
     var selectorType = typeof selector;
     var selectFunction;
@@ -71,10 +70,24 @@ function makeContainer(component, selector) {
     return react_redux_1.connect(selectFunction)(component);
 }
 exports.makeContainer = makeContainer;
+/**
+ * 生成唯一容器
+ * @param component 视图组件
+ * @param store 数据 store
+ */
 function makeOnlyContainer(component, store) {
     var RootContainer = makeContainer(component);
-    return React.createElement(react_redux_1.Provider, { store: makeReduxStore(store) },
+    return React.createElement(react_redux_1.Provider, { store: combineStores(store) },
         React.createElement(RootContainer, null));
 }
 exports.makeOnlyContainer = makeOnlyContainer;
+/**
+ * 生成 pastate 根应用
+ * @param RootContainer 模块的 container 对象
+ * @param combinedStore 合成的 store
+ */
+function makeApp(rootContainer, combinedStore) {
+    return React.createElement(react_redux_1.Provider, { store: combineStores(combinedStore) }, rootContainer);
+}
+exports.makeApp = makeApp;
 //# sourceMappingURL=pastate-redux.js.map

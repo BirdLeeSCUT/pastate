@@ -1,5 +1,5 @@
 export { XStore as Pastore } from './pastore';
-export { makeContainer, makeOnlyContainer, makeReduxStore, RootContainer } from './pastate-redux';
+export { makeContainer, makeOnlyContainer, combineStores, makeApp } from './pastate-redux';
 export { createStore, makeBindable, makeCacheable, unpack } from './tools';
 export { dispalyActionNamesInReduxTool, logActions, syncActions } from './built-in-middleware';
 export { default as Input } from './HOC/Input';

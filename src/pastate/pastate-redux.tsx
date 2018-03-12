@@ -3,7 +3,7 @@ import { Reducer, createStore, combineReducers, Store } from 'redux';
 import { connect, Provider } from 'react-redux';
 import { XStore } from './pastore';
 
-export function makeReduxStore(storeTree: any): Store<any> {
+export function combineStores(storeTree: any): Store<any> {
     let partXStoreArr: Array<XStore<any>> = [];
     let makePastateStoreToBeReducer = function (_storeTree: any): Reducer<any> {
         if (_storeTree.__PASTATE_STORE__) {
@@ -66,9 +66,21 @@ export function makeContainer(component: any, selector?: string | object | Funct
     return connect(selectFunction)(component)
 }
 
+/**
+ * 生成唯一容器
+ * @param component 视图组件
+ * @param store 数据 store
+ */
 export function makeOnlyContainer(component: any, store: any) {
     let RootContainer = makeContainer(component)
-    return <Provider store={makeReduxStore(store)}><RootContainer /></Provider>
+    return <Provider store={combineStores(store)}><RootContainer /></Provider>
 }
 
-export { Provider as RootContainer }
+/**
+ * 生成 pastate 根应用
+ * @param RootContainer 模块的 container 对象
+ * @param combinedStore 合成的 store 
+ */
+export function makeApp(rootContainer: any , combinedStore: any){
+    return <Provider store={combineStores(combinedStore)}>{rootContainer}</Provider>
+}

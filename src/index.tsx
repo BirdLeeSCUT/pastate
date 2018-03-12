@@ -3,26 +3,22 @@ import * as ReactDOM from 'react-dom';
 import { Provider } from 'react-redux';
 import registerServiceWorker from './registerServiceWorker';
 import { BrowserRouter as Router, Route } from 'react-router-dom';
-import { makeReduxStore } from './pastate';
+import { combineStores, makeApp } from './pastate';
 import './index.css';
 
 // 引入组件
 import App, { store as appStore } from './containers/App';
 
-let store = makeReduxStore({
-    app: appStore
-})
 
-ReactDOM.render(
-    <Provider store={store}>
-        <Router>
-            <div>
-                <Route exact={true} path="/" component={App} />
-            </div>
-        </Router>
-    </Provider>
-    ,
-    document.getElementById('root') as HTMLElement
-);
+let root = makeApp(
+    <Router>
+        <Route exact={true} path="/" component={App} />
+    </Router>,
+    {
+        app: appStore
+    }
+)
+
+ReactDOM.render(root, document.getElementById('root') as HTMLElement);
 
 registerServiceWorker();
