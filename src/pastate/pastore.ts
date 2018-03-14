@@ -1,4 +1,5 @@
 import * as React from 'react'
+import { unpack } from './tools'
 
 export interface XType {
     __xpath__?: string,
@@ -107,6 +108,9 @@ export class XStore<State = {}, Actions = {}, Mutations = {}> {
         useSpanNumber: true
     }
 
+    // dispatch 把持器，如果下一次 disaptch 后还有 operation, 则不 dispatch
+    public holdDispatching: boolean = false
+
     // 兼容原始 reducer 的功能暂不实现
     // private reducer: Function
     // setRawReducer(reducer: (state: State, action: Object) => State): void
@@ -149,6 +153,8 @@ export class XStore<State = {}, Actions = {}, Mutations = {}> {
             rnode = [];
             let context = this;
 
+            // NOTICE： 数组操作都是同步进行的函数
+
             // 这种实现模式看起来比较耗资源， 考虑使用对象原因的模式  
             // 目前只支持 push 单一元素          
             Object.defineProperty(rnode, 'push', {
@@ -168,6 +174,8 @@ export class XStore<State = {}, Actions = {}, Mutations = {}> {
                                 context.set(XStore.getValueByPath(context.imState, path)[rnode.length], _newValue)
                             }
                         })
+                        
+                        context.sync_array_method()
                     }
                 }
             })
@@ -180,16 +188,18 @@ export class XStore<State = {}, Actions = {}, Mutations = {}> {
                             return null
                         }
                         let lastOneIndex = rnode.length - 1;
-                        // FIXME: 把 arr.slice(0, lastOneIndex) 改为 arr.slice(0, -1) 会发生无法多次pop的问题 ？
-                        context.update(XStore.getValueByPath(context.imState, path), arr => arr.slice(0, lastOneIndex));
+                        context.update(XStore.getValueByPath(context.imState, path), arr => arr.slice(0, -1));
+                        let lastOne = XStore.getValueByPath(context.imState, path)[lastOneIndex]
                         delete rnode[lastOneIndex]
                         rnode.length -= 1
-                        return XStore.getValueByPath(context.imState, path)[lastOneIndex]
+                        context.sync_array_method()
+                        return unpack(lastOne);
                     }
                 }
             })
 
             // 目前只支持 unshift 单一元素 
+            
             Object.defineProperty(rnode, 'unshift', {
                 enumerable: false,
                 get: function () {
@@ -207,9 +217,16 @@ export class XStore<State = {}, Actions = {}, Mutations = {}> {
                                 context.set(XStore.getValueByPath(context.imState, path)[rnode.length], _newValue)
                             }
                         })
+                        context.sync_array_method()
                     }
                 }
             })
+
+            // TODO: 面对数组结构，元素不一样的情况（ 元素里面有数组结构 ）
+            // 性能与通用性问题
+
+            // 方案一：计划推出一个 store.refreshState(state.xxx.xxx) 来实现手动更新响应式节点
+            // 方案二： 这种模式不要用响应式模式，而是直接用 imState 方法
 
             // DELAY: 这个方法兼容push的新值结构不一致的情况
             // 基于 pathstate 的模式在数组对象的需要变化时，会导致所有需要重新遍历所有子树的 pathstate 值, 此处有优化空间
@@ -222,7 +239,7 @@ export class XStore<State = {}, Actions = {}, Mutations = {}> {
             //             element = {...element}
             //             context.update(XStore.getValueByPath(context.imState, path), arr => [element, ...arr]);
             //             let newRNode = context.makeRState(path, [element, ...XStore.getValueByPath(context.imState, path)]);
-            //             // TODO: 更新挂载点
+            //             // TODO: 更新挂载点, 获取数组节点的父级，重新 define 
             //         }
             //     }
             // })
@@ -239,7 +256,9 @@ export class XStore<State = {}, Actions = {}, Mutations = {}> {
                         delete rnode[lastOneIndex]
                         rnode.length -= 1
                         let targetArray = XStore.getValueByPath(context.imState, path);
-                        return targetArray[targetArray.length - rnode.length - 1]
+                        let returnValue = targetArray[targetArray.length - rnode.length - 1];
+                        context.sync_array_method();
+                        return unpack(returnValue);
                     }
                 }
             })
@@ -250,16 +269,43 @@ export class XStore<State = {}, Actions = {}, Mutations = {}> {
                     // 目前只支持插入一个元素，新版本将支持插入多个元素
                     return function (start: number, deleteCount: number, newElement: any) {
                         context.update(XStore.getValueByPath(context.imState, path), arr => {
-                            arr.splice(start, deleteCount, newElement)
+                            if(newElement){
+                                arr.splice(start, deleteCount, newElement)
+                            }else{
+                                arr.splice(start, deleteCount)
+                            }
                             return arr
                         });
                         let lastOneIndex = rnode.length - 1;
-                        for (let i = 0; i < deleteCount - (newElement !== undefined ? 1 : 0); i++) {
-                            delete rnode[lastOneIndex - i]
+
+                        if ( deleteCount == 0 && newElement !== undefined){
+                            // 加元素
+                            let rValue = context.makeRState([...path, rnode.length], newElement)
+                            Object.defineProperty(rnode, rnode.length, {
+                                enumerable: true,
+                                configurable: true,
+                                get: () => {
+                                    return rValue;
+                                },
+                                set: (_newValue: any) => {
+                                    context.set(XStore.getValueByPath(context.imState, path)[rnode.length], _newValue)
+                                }
+                            })
+                            // 已经自动加长度了
+                        }else{
+                             // 减元素
+                            for (let i = 0; i < deleteCount - (newElement !== undefined ? 1 : 0); i++) {
+                                delete rnode[lastOneIndex - i]
+                            }
+                            // 修改响应式长度
+                            rnode.length -= (deleteCount - (newElement !== undefined ? 1 : 0))
                         }
-                        rnode.length -= (deleteCount - (newElement !== undefined ? 1 : 0))
+
                         let targetArray = XStore.getValueByPath(context.imState, path);
-                        return targetArray.slice(start, start + deleteCount)
+                        // let rValue = context.makeRState([...path], XStore.getValueByPath(context.imState, path))
+                        let popValues = targetArray.slice(start, start + deleteCount)
+                        context.sync_array_method();
+                        return unpack(popValues)
                     }
                 }
             })
@@ -269,6 +315,8 @@ export class XStore<State = {}, Actions = {}, Mutations = {}> {
                 get: function () {
                     return function (compareFunction: any) {
                         context.update(XStore.getValueByPath(context.imState, path), arr => arr.sort(compareFunction));
+                        context.sync_array_method();
+                        // 没有 unpack
                         return XStore.getValueByPath(context.imState, path)
                     }
                 }
@@ -279,6 +327,8 @@ export class XStore<State = {}, Actions = {}, Mutations = {}> {
                 get: function () {
                     return function () {
                         context.update(XStore.getValueByPath(context.imState, path), arr => arr.reverse());
+                        context.sync_array_method();
+                        // 没有 unpack
                         return XStore.getValueByPath(context.imState, path)
                     }
                 }
@@ -650,10 +700,18 @@ export class XStore<State = {}, Actions = {}, Mutations = {}> {
         }
 
         if (this.dispatch) {
+
+            if(this.holdDispatching){
+                this.holdDispatching = false
+                this.isQueuingOperations = true
+                return
+            }
+
             this.dispatch({
                 type: '@@PASTATE: ' + (this.name || '(anonymous store)') + ' ' + this.currentActionName
             })
             this.currentActionName && (this.currentActionName = '') // 消费一次后清空
+
         } else {
             // console.error('[XStore] dispatch method is not injected');
         }
@@ -671,13 +729,17 @@ export class XStore<State = {}, Actions = {}, Mutations = {}> {
 
     public forceUpdate() {
         if (this.imState == this.preState) {
-            this.imState = { ...(this.imState as Object) } as any;
+            console.info('[Pastate] The imState is no changed, skip force update')
+            return
         }
         this.preState = this.imState;
-        if (this.dispatch) {
+        if (this.dispatch ) {
+
             this.dispatch({
-                type: '@@PASTATE: [forceUpdate] ' + (this.name || '(anonymous store)')
+                type: '@@PASTATE: [forceUpdate] ' + (this.name || '(anonymous store)') + ' ' + this.currentActionName
             })
+            this.currentActionName && (this.currentActionName = '') // 消费一次后清空
+
         } else {
             // console.error('[XStore] dispatch method is not injected')
         }
@@ -687,6 +749,14 @@ export class XStore<State = {}, Actions = {}, Mutations = {}> {
      * 手动地对应用state进行更新
      */
     public sync() {
+        this.beginReduceOpertions();
+    }
+
+    /** 
+     * 手动地对应用state进行更新(sync_array_method 专用)
+     */
+    public sync_array_method() {
+        this.holdDispatching = true
         this.beginReduceOpertions();
     }
 

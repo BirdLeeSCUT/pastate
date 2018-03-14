@@ -19,6 +19,7 @@ var __assign = (this && this.__assign) || Object.assign || function(t) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 var React = require("react");
+var tools_1 = require("./tools");
 var XBoolean = /** @class */ (function (_super) {
     __extends(XBoolean, _super);
     function XBoolean() {
@@ -92,6 +93,8 @@ var XStore = /** @class */ (function () {
         this.config = {
             useSpanNumber: true
         };
+        // dispatch 把持器，如果下一次 disaptch 后还有 operation, 则不 dispatch
+        this.holdDispatching = false;
         config && (Object.assign(this.config, config));
         this.imState = this.toXType(initState, '');
         // TODO: 处理新建对象的情况（数组函数, 把null设为对象值）
@@ -126,6 +129,7 @@ var XStore = /** @class */ (function () {
             // 待往外封装（需要把 set 操作改为非 this.xx 模式才可以封装）
             rnode = [];
             var context_1 = this;
+            // NOTICE： 数组操作都是同步进行的函数
             // 这种实现模式看起来比较耗资源， 考虑使用对象原因的模式  
             // 目前只支持 push 单一元素          
             Object.defineProperty(rnode, 'push', {
@@ -145,6 +149,7 @@ var XStore = /** @class */ (function () {
                                 context_1.set(XStore.getValueByPath(context_1.imState, path)[rnode.length], _newValue);
                             }
                         });
+                        context_1.sync_array_method();
                     };
                 }
             });
@@ -156,11 +161,12 @@ var XStore = /** @class */ (function () {
                             return null;
                         }
                         var lastOneIndex = rnode.length - 1;
-                        // FIXME: 把 arr.slice(0, lastOneIndex) 改为 arr.slice(0, -1) 会发生无法多次pop的问题 ？
-                        context_1.update(XStore.getValueByPath(context_1.imState, path), function (arr) { return arr.slice(0, lastOneIndex); });
+                        context_1.update(XStore.getValueByPath(context_1.imState, path), function (arr) { return arr.slice(0, -1); });
+                        var lastOne = XStore.getValueByPath(context_1.imState, path)[lastOneIndex];
                         delete rnode[lastOneIndex];
                         rnode.length -= 1;
-                        return XStore.getValueByPath(context_1.imState, path)[lastOneIndex];
+                        context_1.sync_array_method();
+                        return tools_1.unpack(lastOne);
                     };
                 }
             });
@@ -182,9 +188,14 @@ var XStore = /** @class */ (function () {
                                 context_1.set(XStore.getValueByPath(context_1.imState, path)[rnode.length], _newValue);
                             }
                         });
+                        context_1.sync_array_method();
                     };
                 }
             });
+            // TODO: 面对数组结构，元素不一样的情况（ 元素里面有数组结构 ）
+            // 性能与通用性问题
+            // 方案一：计划推出一个 store.refreshState(state.xxx.xxx) 来实现手动更新响应式节点
+            // 方案二： 这种模式不要用响应式模式，而是直接用 imState 方法
             // DELAY: 这个方法兼容push的新值结构不一致的情况
             // 基于 pathstate 的模式在数组对象的需要变化时，会导致所有需要重新遍历所有子树的 pathstate 值, 此处有优化空间
             // Object.defineProperty(rnode, '_unshift', {
@@ -195,7 +206,7 @@ var XStore = /** @class */ (function () {
             //             element = {...element}
             //             context.update(XStore.getValueByPath(context.imState, path), arr => [element, ...arr]);
             //             let newRNode = context.makeRState(path, [element, ...XStore.getValueByPath(context.imState, path)]);
-            //             // TODO: 更新挂载点
+            //             // TODO: 更新挂载点, 获取数组节点的父级，重新 define 
             //         }
             //     }
             // })
@@ -211,7 +222,9 @@ var XStore = /** @class */ (function () {
                         delete rnode[lastOneIndex];
                         rnode.length -= 1;
                         var targetArray = XStore.getValueByPath(context_1.imState, path);
-                        return targetArray[targetArray.length - rnode.length - 1];
+                        var returnValue = targetArray[targetArray.length - rnode.length - 1];
+                        context_1.sync_array_method();
+                        return tools_1.unpack(returnValue);
                     };
                 }
             });
@@ -221,16 +234,43 @@ var XStore = /** @class */ (function () {
                     // 目前只支持插入一个元素，新版本将支持插入多个元素
                     return function (start, deleteCount, newElement) {
                         context_1.update(XStore.getValueByPath(context_1.imState, path), function (arr) {
-                            arr.splice(start, deleteCount, newElement);
+                            if (newElement) {
+                                arr.splice(start, deleteCount, newElement);
+                            }
+                            else {
+                                arr.splice(start, deleteCount);
+                            }
                             return arr;
                         });
                         var lastOneIndex = rnode.length - 1;
-                        for (var i = 0; i < deleteCount - (newElement !== undefined ? 1 : 0); i++) {
-                            delete rnode[lastOneIndex - i];
+                        if (deleteCount == 0 && newElement !== undefined) {
+                            // 加元素
+                            var rValue_1 = context_1.makeRState(path.concat([rnode.length]), newElement);
+                            Object.defineProperty(rnode, rnode.length, {
+                                enumerable: true,
+                                configurable: true,
+                                get: function () {
+                                    return rValue_1;
+                                },
+                                set: function (_newValue) {
+                                    context_1.set(XStore.getValueByPath(context_1.imState, path)[rnode.length], _newValue);
+                                }
+                            });
+                            // 已经自动加长度了
                         }
-                        rnode.length -= (deleteCount - (newElement !== undefined ? 1 : 0));
+                        else {
+                            // 减元素
+                            for (var i = 0; i < deleteCount - (newElement !== undefined ? 1 : 0); i++) {
+                                delete rnode[lastOneIndex - i];
+                            }
+                            // 修改响应式长度
+                            rnode.length -= (deleteCount - (newElement !== undefined ? 1 : 0));
+                        }
                         var targetArray = XStore.getValueByPath(context_1.imState, path);
-                        return targetArray.slice(start, start + deleteCount);
+                        // let rValue = context.makeRState([...path], XStore.getValueByPath(context.imState, path))
+                        var popValues = targetArray.slice(start, start + deleteCount);
+                        context_1.sync_array_method();
+                        return tools_1.unpack(popValues);
                     };
                 }
             });
@@ -239,6 +279,8 @@ var XStore = /** @class */ (function () {
                 get: function () {
                     return function (compareFunction) {
                         context_1.update(XStore.getValueByPath(context_1.imState, path), function (arr) { return arr.sort(compareFunction); });
+                        context_1.sync_array_method();
+                        // 没有 unpack
                         return XStore.getValueByPath(context_1.imState, path);
                     };
                 }
@@ -248,6 +290,8 @@ var XStore = /** @class */ (function () {
                 get: function () {
                     return function () {
                         context_1.update(XStore.getValueByPath(context_1.imState, path), function (arr) { return arr.reverse(); });
+                        context_1.sync_array_method();
+                        // 没有 unpack
                         return XStore.getValueByPath(context_1.imState, path);
                     };
                 }
@@ -262,7 +306,7 @@ var XStore = /** @class */ (function () {
                 // 对象嵌套响应式建立
                 if (valueTypeName_1 == 'Object' || valueTypeName_1 == 'Array') {
                     // 对象或数组，建立新的响应式节点
-                    var rValue_1 = this_1.makeRState(path.concat([prop]), node[prop]);
+                    var rValue_2 = this_1.makeRState(path.concat([prop]), node[prop]);
                     Object.defineProperty(rnode, prop, {
                         enumerable: true,
                         configurable: true,
@@ -272,7 +316,7 @@ var XStore = /** @class */ (function () {
                                 return valueToGet;
                             }
                             else {
-                                return rValue_1;
+                                return rValue_2;
                             }
                         },
                         set: function (_newValue) {
@@ -297,7 +341,7 @@ var XStore = /** @class */ (function () {
                                 // }else if(adjustCount < 0){
                                 // }
                                 // 方法二：重新建立响应式节点
-                                rValue_1 = _this.makeRState(path.concat([prop]), _newValue);
+                                rValue_2 = _this.makeRState(path.concat([prop]), _newValue);
                             }
                             var _a;
                         }
@@ -584,6 +628,11 @@ var XStore = /** @class */ (function () {
             console.error('[XStore] Operation reduction is terminated: ' + e.message);
         }
         if (this.dispatch) {
+            if (this.holdDispatching) {
+                this.holdDispatching = false;
+                this.isQueuingOperations = true;
+                return;
+            }
             this.dispatch({
                 type: '@@PASTATE: ' + (this.name || '(anonymous store)') + ' ' + this.currentActionName
             });
@@ -602,13 +651,15 @@ var XStore = /** @class */ (function () {
     };
     XStore.prototype.forceUpdate = function () {
         if (this.imState == this.preState) {
-            this.imState = __assign({}, this.imState);
+            console.info('[Pastate] The imState is no changed, skip force update');
+            return;
         }
         this.preState = this.imState;
         if (this.dispatch) {
             this.dispatch({
-                type: '@@PASTATE: [forceUpdate] ' + (this.name || '(anonymous store)')
+                type: '@@PASTATE: [forceUpdate] ' + (this.name || '(anonymous store)') + ' ' + this.currentActionName
             });
+            this.currentActionName && (this.currentActionName = ''); // 消费一次后清空
         }
         else {
             // console.error('[XStore] dispatch method is not injected')
@@ -618,6 +669,13 @@ var XStore = /** @class */ (function () {
      * 手动地对应用state进行更新
      */
     XStore.prototype.sync = function () {
+        this.beginReduceOpertions();
+    };
+    /**
+     * 手动地对应用state进行更新(sync_array_method 专用)
+     */
+    XStore.prototype.sync_array_method = function () {
+        this.holdDispatching = true;
         this.beginReduceOpertions();
     };
     /**

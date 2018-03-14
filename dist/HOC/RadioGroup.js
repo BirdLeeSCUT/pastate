@@ -38,6 +38,7 @@ var RadioGroup = /** @class */ (function (_super) {
                 default:
                     throw new Error('[pastate] RadioGroup is not support object or array value.');
             }
+            store.currentActionName = '[binding]';
             store.set(_this.props.value, newValue);
             _this.props.afterChange && _this.props.afterChange(newValue);
         };

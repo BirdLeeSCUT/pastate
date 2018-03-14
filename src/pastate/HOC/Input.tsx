@@ -78,6 +78,7 @@ export default class Input extends React.PureComponent<{
             }
         }
         store.set(this.props.value, valueTypeName == 'Number' ? (+this.innerValue) : (this.innerValue + ''))
+        store.currentActionName = '[binding]'
         store.sync()
         this.props.afterChange && this.props.afterChange(this.innerValue)
     }

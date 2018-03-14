@@ -374,11 +374,11 @@ describe('responsive state test suit', function () {
                     let value_2 = store.imState.array_object[2]
                     let lastValue_pop0 = store.state.array_object.pop()
                     let lastValue_pop1 = store.state.array_object.pop()
-                    expect(store.imState.array_object.length).toBe(4)
+
                     await delay(0)
                     expect(store.imState.array_object.length).toBe(2)
-                    expect(lastValue_pop0).toBe(value_3)
-                    expect(lastValue_pop1).toBe(value_2)
+                    expect(lastValue_pop0).toEqual(value_3)
+                    expect(lastValue_pop1).toEqual(value_2)
                 })
             })
 
@@ -393,9 +393,8 @@ describe('responsive state test suit', function () {
                     let oldValue_0 = store.imState.array_object[0]
                     let oldValue_1 = store.imState.array_object[1]
                     store.state.array_object.unshift(newValue)
-                    expect(store.imState.array_object.length).toBe(2)
+
                     expect(store.state.array_object.length).toBe(3)
-                    await delay(0)
                     expect(store.imState.array_object.length).toBe(3)
                     expect(store.state.array_object[0]).toEqual(newValue)
                     expect(store.state.array_object[1]).toEqual(oldValue_0)
@@ -463,9 +462,8 @@ describe('responsive state test suit', function () {
                 it('first shift', async function () {
                     let oldArray = store.imState.array_object
                     let shiftedObject = store.state.array_object.shift()
-                    expect(store.imState.array_object.length).toBe(7)
+                    expect(store.imState.array_object.length).toBe(6)
                     expect(store.state.array_object.length).toBe(6)
-                    await delay(0)
                     expect(store.state.array_object).toEqual(oldArray.slice(1))
                     expect(shiftedObject).toEqual(oldArray[0])
                 })
@@ -498,6 +496,9 @@ describe('responsive state test suit', function () {
             describe('splice', function () {
 
                 it('can splice', async function () {
+
+                    // delete and add 
+
                     let newValue_0 = {
                         name: 'splice-0',
                         age: 50,
@@ -514,7 +515,7 @@ describe('responsive state test suit', function () {
                         isMale: true
                     }
                     let newValue_3 = {
-                        name: 'splice-2',
+                        name: 'splice-3',
                         age: 50,
                         isMale: true
                     }
@@ -526,12 +527,35 @@ describe('responsive state test suit', function () {
                     let poppedElements = store.state.array_object.splice(2, 2, newValue_3)
                     await delay(0)
                     expect(store.state.array_object.length).toEqual(4)
+                    expect(store.imState.array_object.length).toEqual(4)
                     expect(poppedElements).toEqual([newValue_0, newValue_1])
                     expect(store.state.array_object[2]).toEqual(newValue_3)
                     expect(store.state.array_object[3]).toEqual(newValue_2)
                     expect(store.imState.array_object[2]).toEqual(newValue_3)
                     expect(store.imState.array_object[3]).toEqual(newValue_2)
                     expect((store.imState.array_object[3].age as XType).__xpath__).toEqual('.array_object.3.age')
+
+
+                    // delete one
+                    poppedElements = store.state.array_object.splice(2, 1)
+                    await delay(0)
+                    expect(store.state.array_object.length).toEqual(3)
+                    expect(store.imState.array_object.length).toEqual(3)
+                    expect(poppedElements).toEqual([newValue_3])
+                    expect(store.state.array_object[2]).toEqual(newValue_2)
+                    expect(store.imState.array_object[2]).toEqual(newValue_2)
+                    expect((store.imState.array_object[2].age as XType).__xpath__).toEqual('.array_object.2.age')
+
+                    // add one
+                    store.state.array_object.splice(2, 0, newValue_3)
+                    await delay(0)
+                    expect(store.state.array_object.length).toEqual(4)
+                    // expect(store.imState.array_object.length).toEqual(4)
+                    // expect(store.state.array_object[2]).toEqual(newValue_3)
+                    // expect(store.state.array_object[3]).toEqual(newValue_2)
+                    // expect(store.imState.array_object[2]).toEqual(newValue_3)
+                    // expect(store.imState.array_object[3]).toEqual(newValue_2)
+                    // expect((store.imState.array_object[3].age as XType).__xpath__).toEqual('.array_object.3.age')
                 })
 
             })

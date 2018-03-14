@@ -32,6 +32,7 @@ var Checkbox = /** @class */ (function (_super) {
                 throw new Error('[pastate] You can only give state node from this.props to pastate two-ways binding HOC component');
             }
             var newValue = e.target.checked;
+            store.currentActionName = '[binding]';
             store.set(_this.props.value, newValue);
             _this.props.afterChange && _this.props.afterChange(newValue);
         };

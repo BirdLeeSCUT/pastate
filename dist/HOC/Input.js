@@ -59,6 +59,7 @@ var Input = /** @class */ (function (_super) {
                 }
             }
             store.set(_this.props.value, valueTypeName == 'Number' ? (+_this.innerValue) : (_this.innerValue + ''));
+            store.currentActionName = '[binding]';
             store.sync();
             _this.props.afterChange && _this.props.afterChange(_this.innerValue);
         };

@@ -50,7 +50,7 @@ let initState = {
 
 class Store extends XStore<State>{
     name = 'App'
-    actionMiddlewares = [dispalyActionNamesInReduxTool(true)]
+    actionMiddlewares = [dispalyActionNamesInReduxTool(false)]
     actions = {
 
         setup: () => {
@@ -88,9 +88,13 @@ class Store extends XStore<State>{
         },
 
         doFourActions: () => {
-            this.actions.setup();
-            this.actions.change();
-            this.actions.addPet();
+            this.state.pets.push({
+                name: 'Kitty',
+                age: 2,
+                isDog: false
+            })
+            this.state.basicInfo.age += 1;
+            this.state.basicInfo.isMale = !this.state.basicInfo.isMale
         },
 
         onTextChange: (v: ChangeEvent<any>) => {

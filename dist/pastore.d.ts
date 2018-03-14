@@ -80,6 +80,7 @@ export declare class XStore<State = {}, Actions = {}, Mutations = {}> {
     config: {
         useSpanNumber: boolean;
     };
+    holdDispatching: boolean;
     /**
      * 构造state
      * @param initState
@@ -150,6 +151,10 @@ export declare class XStore<State = {}, Actions = {}, Mutations = {}> {
      * 手动地对应用state进行更新
      */
     sync(): void;
+    /**
+     * 手动地对应用state进行更新(sync_array_method 专用)
+     */
+    sync_array_method(): void;
     /**
      * operation 项处理器，负责 imState = imState + operation 的逻辑
      * @throws 但执行失败时直接抛出异常

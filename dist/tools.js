@@ -85,6 +85,7 @@ function makeBindable(component, valueProp) {
                     throw new Error('[pastate] You can only give state node from this.props to pastate two-ways binding HOC component');
                 }
                 store.set(imState, valueToSet);
+                store.currentActionName = '[binding]';
                 store.sync();
                 _this.props.afterChange && _this.props.afterChange(valueToSet);
             };

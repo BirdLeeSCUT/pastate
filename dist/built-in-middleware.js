@@ -26,13 +26,17 @@ exports.logActions = function (time, spend, args) {
 };
 /**
  * actions 同步处理中间件
+ * 可是 每个 actions 都同步
+ * （1）常用，便于调试时看 redux tool 的情况
+ * （2）备用，如果发现异步系统有问题，可以用它来全局抑制异步问题
  */
 exports.syncActions = function (onlyMutations) {
     if (onlyMutations === void 0) { onlyMutations = false; }
     return function (ctx, next) {
         next();
-        if (!onlyMutations || ctx.name.match(/^mutations./))
+        if (!onlyMutations || ctx.name.match(/^mutations./)) {
             ctx.store.sync();
+        }
     };
 };
 /**

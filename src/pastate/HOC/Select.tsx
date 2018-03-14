@@ -32,6 +32,7 @@ export default class Select extends React.PureComponent<{
             default: 
                 throw new Error('[pastate] Select is not support object or array value.')
         }
+        store.currentActionName = '[binding]'
         store.set(this.props.value, newValue)
         this.props.afterChange && this.props.afterChange(newValue)
     }
