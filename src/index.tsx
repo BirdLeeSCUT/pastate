@@ -14,9 +14,7 @@ let root = makeApp(
     <Router>
         <Route exact={true} path="/" component={App} />
     </Router>,
-    {
-        app: appStore
-    }
+    appStore
 )
 
 ReactDOM.render(root, document.getElementById('root') as HTMLElement);

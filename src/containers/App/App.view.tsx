@@ -160,4 +160,4 @@ class Pet extends React.PureComponent<{ pet: State['pets'][0] }>{
   }
 }
 
-export default makeContainer(App, 'app')
+export default makeContainer(App)
