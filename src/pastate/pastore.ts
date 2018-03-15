@@ -109,7 +109,7 @@ export class XStore<State = {}, Actions = {}, Mutations = {}> {
     }
 
     // dispatch 把持器，如果下一次 disaptch 后还有 operation, 则不 dispatch
-    public holdDispatching: boolean = false
+    // public holdDispatching: boolean = false
 
     // 兼容原始 reducer 的功能暂不实现
     // private reducer: Function
@@ -175,7 +175,7 @@ export class XStore<State = {}, Actions = {}, Mutations = {}> {
                             }
                         })
                         
-                        context.sync_array_method()
+                        context.sync()
                     }
                 }
             })
@@ -192,7 +192,7 @@ export class XStore<State = {}, Actions = {}, Mutations = {}> {
                         let lastOne = XStore.getValueByPath(context.imState, path)[lastOneIndex]
                         delete rnode[lastOneIndex]
                         rnode.length -= 1
-                        context.sync_array_method()
+                        context.sync()
                         return unpack(lastOne);
                     }
                 }
@@ -217,7 +217,7 @@ export class XStore<State = {}, Actions = {}, Mutations = {}> {
                                 context.set(XStore.getValueByPath(context.imState, path)[rnode.length], _newValue)
                             }
                         })
-                        context.sync_array_method()
+                        context.sync()
                     }
                 }
             })
@@ -257,7 +257,7 @@ export class XStore<State = {}, Actions = {}, Mutations = {}> {
                         rnode.length -= 1
                         let targetArray = XStore.getValueByPath(context.imState, path);
                         let returnValue = targetArray[targetArray.length - rnode.length - 1];
-                        context.sync_array_method();
+                        context.sync();
                         return unpack(returnValue);
                     }
                 }
@@ -304,7 +304,7 @@ export class XStore<State = {}, Actions = {}, Mutations = {}> {
                         let targetArray = XStore.getValueByPath(context.imState, path);
                         // let rValue = context.makeRState([...path], XStore.getValueByPath(context.imState, path))
                         let popValues = targetArray.slice(start, start + deleteCount)
-                        context.sync_array_method();
+                        context.sync();
                         return unpack(popValues)
                     }
                 }
@@ -315,7 +315,7 @@ export class XStore<State = {}, Actions = {}, Mutations = {}> {
                 get: function () {
                     return function (compareFunction: any) {
                         context.update(XStore.getValueByPath(context.imState, path), arr => arr.sort(compareFunction));
-                        context.sync_array_method();
+                        context.sync();
                         // 没有 unpack
                         return XStore.getValueByPath(context.imState, path)
                     }
@@ -327,7 +327,7 @@ export class XStore<State = {}, Actions = {}, Mutations = {}> {
                 get: function () {
                     return function () {
                         context.update(XStore.getValueByPath(context.imState, path), arr => arr.reverse());
-                        context.sync_array_method();
+                        context.sync();
                         // 没有 unpack
                         return XStore.getValueByPath(context.imState, path)
                     }
@@ -701,12 +701,6 @@ export class XStore<State = {}, Actions = {}, Mutations = {}> {
 
         if (this.dispatch) {
 
-            if(this.holdDispatching){
-                this.holdDispatching = false
-                this.isQueuingOperations = true
-                return
-            }
-
             this.dispatch({
                 type: '@@PASTATE: ' + (this.name || '(anonymous store)') + ' ' + this.currentActionName
             })
@@ -755,10 +749,10 @@ export class XStore<State = {}, Actions = {}, Mutations = {}> {
     /** 
      * 手动地对应用state进行更新(sync_array_method 专用)
      */
-    public sync_array_method() {
-        this.holdDispatching = true
-        this.beginReduceOpertions();
-    }
+    // public sync_array_method() {
+    //     this.holdDispatching = true
+    //     this.beginReduceOpertions();
+    // }
 
     /** 
      * operation 项处理器，负责 imState = imState + operation 的逻辑
