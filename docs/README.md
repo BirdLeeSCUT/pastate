@@ -49,7 +49,7 @@ Pastate 内部基于 react + redux 实现，受启发于 Immutable.js 的 immuta
 
 ## Pastate 文档
 
-1. [快速上手](./1. 快速上手.md)
+1. [快速上手](xxx.md)
     - [test](./1. 快速上手.md#get-started)
     - xxxx
 2. xxx
