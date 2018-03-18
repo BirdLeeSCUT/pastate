@@ -50,13 +50,11 @@ Pastate 内部基于 react + redux 实现，受启发于 Immutable.js 的 immuta
 ## Pastate 文档
 
 1. [快速上手](1. 快速上手.md)
-    - test
+    - [test](1. 快速上手.md#get-started)
     - xxxx
 2. xxx
     - ppp
     - ppp
-
-
 
 ## 贡献
 非常欢迎大家加入 pastate 的开发，pastate 具体的开发说明请看文档的“相关资源”章节。
