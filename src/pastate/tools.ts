@@ -126,3 +126,48 @@ export function makeCacheable<T extends Function>(rawFunction: T): T {
     }
     return cacheFunction as any
 }
+
+/* --- store 内部函数调用门面 --- */
+
+/**
+ * 把 imState 转化为响应式 state
+ */
+export function getResponsiveState(state: any){
+    if(state === null || state == undefined){
+        throw new Error('[Pastate] Can not get responsive state from null or undefined')
+    }
+    if(!state.__store__){
+        throw new Error('[Pastate] You can only get responsive state from pastate immutable state')
+    }
+    return state.__store__.getResponsiveState(state)
+}
+
+/**
+ * imState 的 set 操作方法
+ */
+export function set(state: any, newValue: any, description?: string){
+    if(!state.__store__){
+        throw new Error('[Pastate] You can only operate pastate immutable state')
+    }
+    return state.__store__.set(state, newValue, description)
+}
+
+/**
+ * imState 的 merge 操作方法
+ */
+export function merge(state: any, newValue: any, description?: string){
+    if(!state.__store__){
+        throw new Error('[Pastate] You can only operate pastate immutable state')
+    }
+    return state.__store__.merge(state, newValue, description)
+}
+
+/**
+ * imState 的 update 操作方法
+ */
+export function update(state: any, updater: any, description?: string){
+    if(!state.__store__){
+        throw new Error('[Pastate] You can only operate pastate immutable state')
+    }
+    return state.__store__.update(state, updater, description)
+}

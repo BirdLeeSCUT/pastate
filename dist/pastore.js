@@ -130,6 +130,8 @@ var XStore = /** @class */ (function () {
             rnode = [];
             var context_1 = this;
             // NOTICE： 数组操作都是同步进行的函数
+            // TODO: 实现数组函数的半同步功能（数据同步更改，但是在下一个 tick 再 dispatch ）
+            // 做一个 toDispatch 识别器，需要时 toDispatch = true， dispatch 后 false, 防止异步 dispatch 进行无畏的dispatch
             // 这种实现模式看起来比较耗资源， 考虑使用对象原因的模式  
             // 目前只支持 push 单一元素          
             Object.defineProperty(rnode, 'push', {
