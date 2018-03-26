@@ -4,7 +4,7 @@
 ## 简介
 Pastate 是一个响应式 react state 管理框架，实现了对 state 的异步响应式管理。Pastate 是一个精益框架，它对很多高级概念进行了友好封装，这意味着你**不必学习**一些难以理解的概念，就可以在一个简单的应用中便捷地使用 pastate。在应用变得逐渐复杂的过程中，你只要逐渐学习并使用 pastate 中更多的功能，以满日益复杂的系统开发需求。同时，pastate 也是一个向后兼容的渐进式框架，你可以在现有的 react 或 redux 项目中，把一部分组件改用 pastate 来实现，再逐渐拓展到整个项目。 
 
-Pastate GitHub: [https://github.com/BirdLeeSCUT/pastate](https://github.com/BirdLeeSCUT/pastate)  (欢迎 star)
+Pastate 主页: [https://pastate.js.org](https://pastate.js.org) 
 
 简单例子：
 ```javascript
