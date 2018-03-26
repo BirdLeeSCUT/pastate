@@ -21,7 +21,8 @@
     "build-css": "node-sass-chokidar src/ -o src/",
     "watch-css": "npm run build-css && node-sass-chokidar src/ -o src/ --watch --recursive",
     "test": "node scripts/test.js --env=jsdom",
-    "dist": "tsc src/pastate/index.tsx --jsx react --outDir ./dist --declaration --sourceMap --target ES5"
+    "dist": "tsc src/pastate/index.tsx --jsx react --outDir ./dist --declaration --sourceMap --target ES5",
+    "doc-toc": "./gh-md-toc docs/1.快速上手.md docs/2.多组件应用.md  docs/3.数组渲染与操作.md docs/4.表单渲染与操作.md docs/5.模块化.md docs/6.多模块应用.md docs/7.规模化.md docs/8.原理与API文档.md docs/9.其他资源.md"
   },
   "keywords": [
     "react",
