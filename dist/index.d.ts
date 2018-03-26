@@ -1,6 +1,6 @@
 export { XStore as Pastore } from './pastore';
 export { makeContainer, makeOnlyContainer, combineStores, makeApp } from './pastate-redux';
-export { createStore, makeBindable, makeCacheable, unpack } from './tools';
+export { createStore, makeBindable, makeCacheable, unpack, getResponsiveState, set, merge, update } from './tools';
 export { dispalyActionNamesInReduxTool, logActions, syncActions } from './built-in-middleware';
 export { default as Input } from './HOC/Input';
 export { default as Checkbox } from './HOC/Checkbox';

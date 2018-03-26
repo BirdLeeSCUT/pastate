@@ -130,4 +130,48 @@ function makeCacheable(rawFunction) {
     return cacheFunction;
 }
 exports.makeCacheable = makeCacheable;
+/* --- store 内部函数调用门面 --- */
+/**
+ * 把 imState 转化为响应式 state
+ */
+function getResponsiveState(state) {
+    if (state === null || state == undefined) {
+        throw new Error('[Pastate] Can not get responsive state from null or undefined');
+    }
+    if (!state.__store__) {
+        throw new Error('[Pastate] You can only get responsive state from pastate immutable state');
+    }
+    return state.__store__.getResponsiveState(state);
+}
+exports.getResponsiveState = getResponsiveState;
+/**
+ * imState 的 set 操作方法
+ */
+function set(state, newValue, description) {
+    if (!state.__store__) {
+        throw new Error('[Pastate] You can only operate pastate immutable state');
+    }
+    return state.__store__.set(state, newValue, description);
+}
+exports.set = set;
+/**
+ * imState 的 merge 操作方法
+ */
+function merge(state, newValue, description) {
+    if (!state.__store__) {
+        throw new Error('[Pastate] You can only operate pastate immutable state');
+    }
+    return state.__store__.merge(state, newValue, description);
+}
+exports.merge = merge;
+/**
+ * imState 的 update 操作方法
+ */
+function update(state, updater, description) {
+    if (!state.__store__) {
+        throw new Error('[Pastate] You can only operate pastate immutable state');
+    }
+    return state.__store__.update(state, updater, description);
+}
+exports.update = update;
 //# sourceMappingURL=tools.js.map
