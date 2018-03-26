@@ -53,13 +53,13 @@ Pastate 已经通过 160+ 个测试用例的全面测试，稳定可靠。测试
 
 ## Pastate 文档
 
-   * [1.快速上手](docs/1.快速上手.md#1快速上手)
+   * [1.快速上手](docs/1.快速上手.md)
       * [安装](docs/1.快速上手.md#安装)
       * [开始使用](docs/1.快速上手.md#开始使用)
       * [更新 state 值](docs/1.快速上手.md#更新-state-值)
       * [编辑器智能提示(intelliSense)](docs/1.快速上手.md#编辑器智能提示intellisense)
 
-   * [2.多组件应用](docs/2.多组件应用.md#2多组件应用)
+   * [2.多组件应用](docs/2.多组件应用.md)
       * [更新 state 结构](docs/2.多组件应用.md#更新-state-结构)
       * [分别开发 basicInfo 和 address 的视图组件](docs/2.多组件应用.md#分别开发-basicinfo-和-address-的视图组件)
       * [store.imState 与 store.state](docs/2.多组件应用.md#storeimstate-与-storestate)
@@ -69,7 +69,7 @@ Pastate 已经通过 160+ 个测试用例的全面测试，稳定可靠。测试
       * [子组件 state 的 intelliSense](docs/2.多组件应用.md#子组件-state-的-intellisense)
       * [单实例子组件](docs/2.多组件应用.md#单实例子组件)
 
-   * [3.数组渲染与操作](docs/3.数组渲染与操作.md#3数组渲染与操作)
+   * [3.数组渲染与操作](docs/3.数组渲染与操作.md)
       * [渲染数组](docs/3.数组渲染与操作.md#渲染数组)
       * [修改数组](docs/3.数组渲染与操作.md#修改数组)
       * [空初始数组与编辑器 intelliSence](docs/3.数组渲染与操作.md#空初始数组与编辑器-intellisence)
@@ -81,7 +81,7 @@ Pastate 已经通过 160+ 个测试用例的全面测试，稳定可靠。测试
             * [pastate 方案1:获取对于的响应式节点](docs/3.数组渲染与操作.md#pastate-方案1获取对于的响应式节点)
             * [pastate 方案2:使用 imState 操作函数](docs/3.数组渲染与操作.md#pastate-方案2使用-imstate-操作函数)
 
-   * [4.表单渲染与操作](docs/4.表单渲染与操作.md#4表单渲染与操作)
+   * [4.表单渲染与操作](docs/4.表单渲染与操作.md)
       * [使用原生表单元素](docs/4.表单渲染与操作.md#使用原生表单元素)
       * [使用 pastate 双向绑定输入组件](docs/4.表单渲染与操作.md#使用-pastate-双向绑定输入组件)
          * [Input 文本框](docs/4.表单渲染与操作.md#input-文本框)
@@ -94,7 +94,7 @@ Pastate 已经通过 160+ 个测试用例的全面测试，稳定可靠。测试
          * [使用 makeBindable 函数](docs/4.表单渲染与操作.md#使用-makebindable-函数)
       * [对于绑定的值为空的情况](docs/4.表单渲染与操作.md#对于绑定的值为空的情况)
 
-   * [5.模块化](docs/5.模块化.md#5模块化)
+   * [5.模块化](docs/5.模块化.md)
       * [模块化实战任务](docs/5.模块化.md#模块化实战任务)
       * [模块划分](docs/5.模块化.md#模块划分)
       * [pastate 模块构成](docs/5.模块化.md#pastate-模块构成)
@@ -107,7 +107,7 @@ Pastate 已经通过 160+ 个测试用例的全面测试，稳定可靠。测试
       * [导出模块](docs/5.模块化.md#导出模块)
       * [模块的模板文件](docs/5.模块化.md#模块的模板文件)
 
-   * [6.多模块应用](docs/6.多模块应用.md#6多模块应用)
+   * [6.多模块应用](docs/6.多模块应用.md)
       * [store 被多模块消费](docs/6.多模块应用.md#store-被多模块消费)
       * [构建 storeTree 并引用其节点](docs/6.多模块应用.md#构建-storetree-并引用其节点)
       * [多模块组合](docs/6.多模块应用.md#多模块组合)
@@ -115,7 +115,7 @@ Pastate 已经通过 160+ 个测试用例的全面测试，稳定可靠。测试
       * [缓存 storeTree 的衍生数据](docs/6.多模块应用.md#缓存-storetree-的衍生数据)
       * [调用其他模块的 actions](docs/6.多模块应用.md#调用其他模块的-actions)
 
-   * [7.规模化](docs/7.规模化.md#7规模化)
+   * [7.规模化](docs/7.规模化.md)
       * [路由](docs/7.规模化.md#路由)
          * [无参数路由](docs/7.规模化.md#无参数路由)
             * [使用 Router 作为根容器](docs/7.规模化.md#使用-router-作为根容器)
@@ -129,7 +129,7 @@ Pastate 已经通过 160+ 个测试用例的全面测试，稳定可靠。测试
          * [自定义中间件](docs/7.规模化.md#自定义中间件)
       * [编译与部署](docs/7.规模化.md#编译与部署)
 
-   * [8.原理与API文档](docs/8.原理与API文档.md#8原理与api文档)
+   * [8.原理与API文档](docs/8.原理与API文档.md)
       * [原理剖析](docs/8.原理与API文档.md#原理剖析)
          * [带路径信息的 immutable state](docs/8.原理与API文档.md#带路径信息的-immutable-state)
             * [为什么要使用 immutable 数据？](docs/8.原理与API文档.md#为什么要使用-immutable-数据)
@@ -139,7 +139,7 @@ Pastate 已经通过 160+ 个测试用例的全面测试，稳定可靠。测试
          * [视图响应引擎](docs/8.原理与API文档.md#视图响应引擎)
       * [API 文档](docs/8.原理与API文档.md#api-文档)
 
-   * [9.其他资源](docs/9.其他资源.md#9其他资源)
+   * [9.其他资源](docs/9.其他资源.md)
       * [在 typescript 中使用](docs/9.其他资源.md#在-typescript-中使用)
       * [在 react-native 中使用](docs/9.其他资源.md#在-react-native-中使用)
       * [在 preact 或 nerv 中使用](docs/9.其他资源.md#在-preact-或-nerv-中使用)
@@ -148,4 +148,4 @@ Pastate 已经通过 160+ 个测试用例的全面测试，稳定可靠。测试
       * [英文翻译](docs/9.其他资源.md#英文翻译)
 
 ## 贡献
-非常欢迎大家加入 pastate 的开发，pastate 具体的开发说明请看文档的“相关资源”章节。
+非常欢迎大家加入 pastate 的开发小组，pastate 具体的开发说明请看文档的“相关资源”章节。
