@@ -62,7 +62,7 @@ var Bind = /** @class */ (function (_super) {
             }
         }
         var component = element.type;
-        var props = Object.assign({}, this.props, element.props, (_a = {},
+        var props = Object.assign({}, element.props, this.props, (_a = {},
             _a[this.props.valueProp || 'value'] = tools_1.unpack(this.props.value),
             _a.onChange = this.onChange,
             _a));

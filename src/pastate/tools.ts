@@ -51,7 +51,7 @@ export function unpack<T>(imValue: T): T {
  */
 export function makeBindable(component: any, valueProp?: string): any{
 
-    class Bind extends React.Component<{
+    class Bind extends React.PureComponent<{
         /** 绑定的值 */
         value: any
         /** 组件内部使用的指定显示值的属性名 */
@@ -59,10 +59,6 @@ export function makeBindable(component: any, valueProp?: string): any{
         /** 绑定值改变后进行回调 */
         afterChange?: (newValue: any) => void
     } & Object, undefined > {
-
-        shouldComponentUpdate(nextProps: any) {
-            return nextProps.value != this.props.value
-        }
 
         onChange = (newValue: any) => {
 

@@ -91,9 +91,6 @@ function makeBindable(component, valueProp) {
             };
             return _this;
         }
-        Bind.prototype.shouldComponentUpdate = function (nextProps) {
-            return nextProps.value != this.props.value;
-        };
         Bind.prototype.render = function () {
             if (Array.isArray(this.props.children)) {
                 throw new Error('[pastate] you can only give only one child to Bind component');
@@ -106,7 +103,7 @@ function makeBindable(component, valueProp) {
             var _a;
         };
         return Bind;
-    }(React.Component));
+    }(React.PureComponent));
     return Bind;
 }
 exports.makeBindable = makeBindable;
