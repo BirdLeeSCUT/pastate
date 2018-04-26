@@ -9,7 +9,7 @@ import * as React from 'react';
  * 1. 不便于复用
  * 2. 不是最优运行效率模式
  */
-export default class Bind extends React.Component<{
+export default class Bind extends React.PureComponent<{
     /** 绑定的值 */
     value: any;
     /** 组件内部使用的指定显示值的属性名 */
@@ -17,7 +17,6 @@ export default class Bind extends React.Component<{
     /** 绑定值改变后进行回调 */
     afterChange?: (newValue: any) => void;
 } & Object, any> {
-    shouldComponentUpdate(nextProps: any): boolean;
     onChange: (newValue: any) => void;
     render(): React.DetailedReactHTMLElement<React.InputHTMLAttributes<HTMLInputElement>, HTMLInputElement>;
 }

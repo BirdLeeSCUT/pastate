@@ -48,9 +48,6 @@ var Bind = /** @class */ (function (_super) {
         };
         return _this;
     }
-    Bind.prototype.shouldComponentUpdate = function (nextProps) {
-        return nextProps.value != this.props.value;
-    };
     Bind.prototype.render = function () {
         var element = this.props.children;
         if (Array.isArray(element)) {
@@ -73,6 +70,6 @@ var Bind = /** @class */ (function (_super) {
         var _a;
     };
     return Bind;
-}(React.Component));
+}(React.PureComponent));
 exports.default = Bind;
 //# sourceMappingURL=Bind.js.map
