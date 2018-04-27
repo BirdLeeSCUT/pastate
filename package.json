@@ -1,6 +1,6 @@
 {
   "name": "pastate",
-  "version": "0.6.28",
+  "version": "0.6.29",
   "description": "响应式 react state 管理框架",
   "main": "./dist/",
   "repository": {
