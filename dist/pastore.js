@@ -335,15 +335,11 @@ var XStore = /** @class */ (function () {
                             else {
                                 _this.set(valueToSet, _newValue);
                             }
-                            // 响应式数组长度变化处理
-                            if (valueTypeName_1 == 'Array') {
-                                // DALAY: 方法一：为了提高效率，只做长度调整，重复利用现有元素
-                                // let adjustCount = _newValue.length - valueToSet.length;
-                                // if(adjustCount > 0){
-                                // }else if(adjustCount < 0){
-                                // }
-                                // 方法二：重新建立响应式节点
+                            // 设置新对象类节点的问题
+                            if (valueTypeName_1 == 'Array' || valueTypeName_1 == 'Object') {
+                                // 重新建立响应式节点
                                 rValue_2 = _this.makeRState(path.concat([prop]), _newValue);
+                                // TODO 待测试嵌套对象
                             }
                             var _a;
                         }
@@ -351,30 +347,27 @@ var XStore = /** @class */ (function () {
                 }
                 else {
                     // 基本类型
+                    var getValue_1;
                     Object.defineProperty(rnode, prop, {
                         enumerable: true,
                         configurable: true,
                         get: function () {
-                            var getValue = XStore.getValueByPath(_this.imState, path)[prop];
-                            if (getValue === null || getValue === undefined) {
-                                return getValue;
+                            getValue_1 = XStore.getValueByPath(_this.imState, path)[prop];
+                            if (getValue_1 === null || getValue_1 === undefined) {
+                                return getValue_1;
                             }
                             switch (valueTypeName_1) {
                                 // 返回非对象类型的 plain 数据
-                                case 'Number': return +getValue;
-                                case 'Boolean': return getValue == true;
+                                case 'Number': return +getValue_1;
+                                case 'Boolean': return getValue_1 == true;
                                 // 文字保留对象类型也可以，此处不一定要转化
-                                case 'String': return getValue + '';
-                                default: return getValue;
+                                case 'String': return getValue_1 + '';
+                                default: return getValue_1;
                             }
                         },
                         set: function (_newValue) {
                             // DALAY: 下版本考虑支持把叶子转化为节点 (开发者水平容错性)
                             var newValueTypeName = Object.prototype.toString.call(_newValue).slice(8, -1);
-                            if (newValueTypeName == 'Array' || newValueTypeName == 'Object') {
-                                console.error('[pastate] At present, you cannot set an node with the string | number | boolean | null | undefined value to be Array or Object. We will consider support it in the future.');
-                                return;
-                            }
                             var valueToSet = XStore.getValueByPath(_this.imState, path)[prop];
                             if (valueToSet === null || valueToSet === undefined) {
                                 _this.merge({ __xpath__: path.map(function (p) { return '.' + p; }).join('') }, (_a = {},
@@ -384,6 +377,12 @@ var XStore = /** @class */ (function () {
                             else {
                                 // TODO:看看原始值是否为null, 如果是，则需要建立响应式
                                 _this.set(valueToSet, _newValue);
+                            }
+                            if (newValueTypeName == 'Array' || newValueTypeName == 'Object') {
+                                console.info('[pastate] You are setting a node with the string | number | boolean | null | undefined value to be Array or Object.');
+                                console.error('[pastate]This is a test feature! Not done yet!');
+                                getValue_1 = _this.makeRState(path.concat([prop]), node[prop]);
+                                // TODO TEST
                             }
                             var _a;
                         }

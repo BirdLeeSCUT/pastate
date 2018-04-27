@@ -380,28 +380,23 @@ export class XStore<State = {}, Actions = {}, Mutations = {}> {
                                 this.set(valueToSet, _newValue)
                             }
 
-                            // 响应式数组长度变化处理
-                            if (valueTypeName == 'Array') {
-
-                                // DALAY: 方法一：为了提高效率，只做长度调整，重复利用现有元素
-                                // let adjustCount = _newValue.length - valueToSet.length;
-                                // if(adjustCount > 0){
-                                // }else if(adjustCount < 0){
-                                // }
-
-                                // 方法二：重新建立响应式节点
+                            // 设置新对象类节点的问题
+                            if (valueTypeName == 'Array' || valueTypeName == 'Object') {
+                                // 重新建立响应式节点
                                 rValue = this.makeRState([...path, prop], _newValue)
+                                // TODO 待测试嵌套对象
                             }
 
                         }
                     })
                 } else {
                     // 基本类型
+                    let getValue;
                     Object.defineProperty(rnode, prop, {
                         enumerable: true,
                         configurable: true,
                         get: () => {
-                            let getValue = XStore.getValueByPath(this.imState, path)[prop];
+                            getValue = XStore.getValueByPath(this.imState, path)[prop];
                             if (getValue === null || getValue === undefined) {
                                 return getValue
                             }
@@ -418,11 +413,7 @@ export class XStore<State = {}, Actions = {}, Mutations = {}> {
 
                             // DALAY: 下版本考虑支持把叶子转化为节点 (开发者水平容错性)
                             let newValueTypeName: string = (Object.prototype.toString.call(_newValue) as string).slice(8, -1);
-                            if (newValueTypeName == 'Array' || newValueTypeName == 'Object') {
-                                console.error('[pastate] At present, you cannot set an node with the string | number | boolean | null | undefined value to be Array or Object. We will consider support it in the future.')
-                                return;
-                            }
-
+                            
                             let valueToSet = XStore.getValueByPath(this.imState, path)[prop];
                             if (valueToSet === null || valueToSet === undefined) {
                                 this.merge({ __xpath__: path.map(p => '.' + p).join('') }, {
@@ -431,6 +422,13 @@ export class XStore<State = {}, Actions = {}, Mutations = {}> {
                             } else {
                                 // TODO:看看原始值是否为null, 如果是，则需要建立响应式
                                 this.set(valueToSet, _newValue)
+                            }
+
+                            if (newValueTypeName == 'Array' || newValueTypeName == 'Object') {
+                                console.info('[pastate] You are setting a node with the string | number | boolean | null | undefined value to be Array or Object.')
+                                console.error('[pastate]This is a test feature! Not done yet!')
+                                getValue = this.makeRState([...path, prop], node[prop])
+                                // TODO TEST
                             }
                         }
                     })
