@@ -65,6 +65,7 @@ var Bind = /** @class */ (function (_super) {
         var props = Object.assign({}, element.props, this.props, (_a = {},
             _a[this.props.valueProp || 'value'] = tools_1.unpack(this.props.value),
             _a.onChange = this.onChange,
+            _a.valueProp = false,
             _a));
         return React.createElement(component, props, element.props.children);
         var _a;
