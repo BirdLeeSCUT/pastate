@@ -57,10 +57,10 @@ export default class Bind extends React.PureComponent<{
             }
         }
         let component = element.type
-        let props = (Object as any).assign({}, element.props, this.props, {
-            [this.props.valueProp || 'value']: unpack(this.props.value), // TODO 解包
+        const { valueProp, afterChange, ...parentProps } = this.props;
+        let props = (Object as any).assign({}, element.props, parentProps, {
+            [this.props.valueProp || 'value']: unpack(this.props.value),
             onChange: this.onChange,
-            valueProp: false, // 禁止向下传递
         })
         return React.createElement(
             component,

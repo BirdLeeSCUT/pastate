@@ -47,9 +47,9 @@ export function unpack<T>(imValue: T): T {
 /**
  * 把视图组件转为可绑定 value 的组件 
  * @param component 原始组件
- * @param valueProp 原组件的值的属性名称，默认(一般)为 value, 可以根据原组件的情况设为 checked 等
+ * @param _valueProp 原组件的值的属性名称，默认(一般)为 value, 可以根据原组件的情况设为 checked 等
  */
-export function makeBindable(component: any, valueProp?: string): any{
+export function makeBindable(component: any, _valueProp?: string): any{
 
     class Bind extends React.PureComponent<{
         /** 绑定的值 */
@@ -64,7 +64,7 @@ export function makeBindable(component: any, valueProp?: string): any{
 
             let valueToSet;
             if (newValue.target) {
-                valueToSet = newValue.target[ valueProp || this.props.valueProp || 'value']
+                valueToSet = newValue.target[ _valueProp || this.props.valueProp || 'value']
             } else {
                 valueToSet = newValue
             }
@@ -87,9 +87,9 @@ export function makeBindable(component: any, valueProp?: string): any{
             if (Array.isArray(this.props.children)) {
                 throw new Error('[pastate] you can only give only one child to Bind component')
             }
-
-            let props = (Object as any).assign({}, this.props, {
-                [valueProp || this.props.valueProp || 'value']: unpack(this.props.value), // TODO 解包
+            const { valueProp, afterChange, ...parentProps } = this.props;
+            let props = (Object as any).assign({}, parentProps, {
+                [_valueProp || valueProp || 'value']: unpack(this.props.value), 
                 onChange: this.onChange
             })
             return React.createElement(

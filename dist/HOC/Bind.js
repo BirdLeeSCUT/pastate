@@ -9,6 +9,15 @@ var __extends = (this && this.__extends) || (function () {
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
     };
 })();
+var __rest = (this && this.__rest) || function (s, e) {
+    var t = {};
+    for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p) && e.indexOf(p) < 0)
+        t[p] = s[p];
+    if (s != null && typeof Object.getOwnPropertySymbols === "function")
+        for (var i = 0, p = Object.getOwnPropertySymbols(s); i < p.length; i++) if (e.indexOf(p[i]) < 0)
+            t[p[i]] = s[p[i]];
+    return t;
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 var React = require("react");
 var tools_1 = require("../tools");
@@ -62,13 +71,13 @@ var Bind = /** @class */ (function (_super) {
             }
         }
         var component = element.type;
-        var props = Object.assign({}, element.props, this.props, (_a = {},
-            _a[this.props.valueProp || 'value'] = tools_1.unpack(this.props.value),
-            _a.onChange = this.onChange,
-            _a.valueProp = false,
-            _a));
+        var _a = this.props, valueProp = _a.valueProp, afterChange = _a.afterChange, parentProps = __rest(_a, ["valueProp", "afterChange"]);
+        var props = Object.assign({}, element.props, parentProps, (_b = {},
+            _b[this.props.valueProp || 'value'] = tools_1.unpack(this.props.value),
+            _b.onChange = this.onChange,
+            _b));
         return React.createElement(component, props, element.props.children);
-        var _a;
+        var _b;
     };
     return Bind;
 }(React.PureComponent));

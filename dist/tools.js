@@ -9,6 +9,15 @@ var __extends = (this && this.__extends) || (function () {
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
     };
 })();
+var __rest = (this && this.__rest) || function (s, e) {
+    var t = {};
+    for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p) && e.indexOf(p) < 0)
+        t[p] = s[p];
+    if (s != null && typeof Object.getOwnPropertySymbols === "function")
+        for (var i = 0, p = Object.getOwnPropertySymbols(s); i < p.length; i++) if (e.indexOf(p[i]) < 0)
+            t[p[i]] = s[p[i]];
+    return t;
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 var React = require("react");
 var pastore_1 = require("./pastore");
@@ -61,9 +70,9 @@ exports.unpack = unpack;
 /**
  * 把视图组件转为可绑定 value 的组件
  * @param component 原始组件
- * @param valueProp 原组件的值的属性名称，默认(一般)为 value, 可以根据原组件的情况设为 checked 等
+ * @param _valueProp 原组件的值的属性名称，默认(一般)为 value, 可以根据原组件的情况设为 checked 等
  */
-function makeBindable(component, valueProp) {
+function makeBindable(component, _valueProp) {
     var Bind = /** @class */ (function (_super) {
         __extends(Bind, _super);
         function Bind() {
@@ -71,7 +80,7 @@ function makeBindable(component, valueProp) {
             _this.onChange = function (newValue) {
                 var valueToSet;
                 if (newValue.target) {
-                    valueToSet = newValue.target[valueProp || _this.props.valueProp || 'value'];
+                    valueToSet = newValue.target[_valueProp || _this.props.valueProp || 'value'];
                 }
                 else {
                     valueToSet = newValue;
@@ -95,12 +104,13 @@ function makeBindable(component, valueProp) {
             if (Array.isArray(this.props.children)) {
                 throw new Error('[pastate] you can only give only one child to Bind component');
             }
-            var props = Object.assign({}, this.props, (_a = {},
-                _a[valueProp || this.props.valueProp || 'value'] = unpack(this.props.value),
-                _a.onChange = this.onChange,
-                _a));
+            var _a = this.props, valueProp = _a.valueProp, afterChange = _a.afterChange, parentProps = __rest(_a, ["valueProp", "afterChange"]);
+            var props = Object.assign({}, parentProps, (_b = {},
+                _b[_valueProp || valueProp || 'value'] = unpack(this.props.value),
+                _b.onChange = this.onChange,
+                _b));
             return React.createElement(component, props, this.props.children);
-            var _a;
+            var _b;
         };
         return Bind;
     }(React.PureComponent));
